@@ -1,6 +1,8 @@
 #ifndef _HASHDB_HASHDB_H_
 #define _HASHDB_HASHDB_H_
 
+#include "segment.h"
+
 // Represents the database
 struct hashDB {
 	// start of the linked list of active segment files
