@@ -3,7 +3,7 @@ CC = gcc
 CFLAGS = -Wall
 
 # List of dependencies for compiling programs that 
-# used check testing framewor
+# use the check testing framework
 CHECKDEPENS = -lcheck -lm -lpthread
 
 SRCDIR = ../src
