@@ -64,6 +64,49 @@ START_TEST(test_memte_remove_mid)
 	ck_assert_ptr_null(three.next);
 } END_TEST
 
+START_TEST(test_memte_remove_front)
+{
+	extern void memte_remove(struct memtable_entry*, struct memtable_entry*);
+
+	// make a list
+	struct memtable_entry one, two, three;
+	three.offset = 3;
+	three.next = NULL;
+
+	two.offset = 2;
+	two.next = &three;
+
+	one.offset = 1;
+	one.next = &two;
+
+	// remove one from the list
+	memte_remove(&one, &one);
+	ck_assert_ptr_null(one.next);
+	ck_assert_ptr_eq(two.next, &three);
+	ck_assert_ptr_null(three.next);
+} END_TEST
+
+START_TEST(test_memte_remove_last)
+{
+	extern void memte_remove(struct memtable_entry*, struct memtable_entry*);
+
+	// make a list
+	struct memtable_entry one, two, three;
+	three.offset = 3;
+	three.next = NULL;
+
+	two.offset = 2;
+	two.next = &three;
+
+	one.offset = 1;
+	one.next = &two;
+
+	// remove three from the list
+	memte_remove(&one, &three);
+	ck_assert_ptr_null(two.next);
+	ck_assert_ptr_null(three.next);
+} END_TEST
+
 /*
  * Creates and returns a test suite for memtable entry functions
  */
@@ -78,6 +121,8 @@ Suite *memtable_entry_suite(void)
 	tcase_add_test(tc, test_memte_init);
 	tcase_add_test(tc, test_memte_place_before);
 	tcase_add_test(tc, test_memte_remove_mid);
+	tcase_add_test(tc, test_memte_remove_front);
+	tcase_add_test(tc, test_memte_remove_last);
 	/* Future memtable_entry test cases */
 
 	suite_add_tcase(s, tc);

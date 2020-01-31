@@ -72,6 +72,11 @@ void memte_remove(struct memtable_entry *head, struct memtable_entry *e)
 {
 	struct memtable_entry *prev;
 
+	if (head == e) {
+		e->next = NULL;
+		return;
+	}
+
 	prev = head;
 	while (prev && prev->next != e)
 		prev = head->next;
