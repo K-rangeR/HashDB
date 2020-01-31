@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include "memtable.h"
 
@@ -36,4 +37,23 @@ struct memtable_entry *memte_init(unsigned int offset)
 void memte_free(struct memtable_entry *entry)
 {
 	free(entry);
+}
+
+/*
+ * Places e1 before e2 in the list. e1 must not be null.
+ *
+ * Params:
+ *	e1 => pointer to a memtable_entry to put before e2
+ *	e2 => pointer to a memtable_entry that is not changed
+ *
+ * Returns:
+ *	void
+ */
+void memte_place_before(struct memtable_entry *e1, struct memtable_entry *e2)
+{
+	if (e1 == NULL) { // do something better later
+		fprintf(stderr, "memte_place_before: e1 was NULL\n");
+		exit(1);
+	}
+	e1->next = e2;
 }

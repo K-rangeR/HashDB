@@ -21,6 +21,26 @@ START_TEST(test_memte_init)
 	memte_free(e);
 } END_TEST
 
+START_TEST(test_memte_place_before)
+{
+	extern void memte_place_before(struct memtable_entry*, 
+	                               struct memtable_entry*);
+
+	struct memtable_entry e1;
+	e1.offset = 100;
+	e1.next = NULL;
+
+	struct memtable_entry e2;
+	e2.offset = 200;
+	e2.next = NULL;
+
+	memte_place_before(&e1, &e2);
+	ck_assert_ptr_eq(e1.next, &e2);
+
+	memte_place_before(&e1, NULL);
+	ck_assert_ptr_null(e1.next);
+} END_TEST
+
 /*
  * Creates and returns a test suite for memtable entry functions
  */
@@ -33,6 +53,7 @@ Suite *memtable_entry_suite(void)
 	tc = tcase_create("Core");
 
 	tcase_add_test(tc, test_memte_init);
+	tcase_add_test(tc, test_memte_place_before);
 	/* Future memtable_entry test cases */
 
 	suite_add_tcase(s, tc);
