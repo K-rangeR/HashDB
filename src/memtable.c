@@ -58,6 +58,16 @@ void memte_place_before(struct memtable_entry *e1, struct memtable_entry *e2)
 	e1->next = e2;
 }
 
+/*
+ * Removes e from the linked list. Sets its next ptr to NULL.
+ *
+ * Params:
+ *	head => start of the linked list
+ *	e => entry to remove
+ *
+ * Returns:
+ *	void
+ */
 void memte_remove(struct memtable_entry *head, struct memtable_entry *e)
 {
 	struct memtable_entry *prev;
