@@ -10,7 +10,7 @@ struct memtable_entry {
 struct memtable_entry *memte_init(unsigned int offset);
 void memte_free(struct memtable_entry *entry);
 void memte_place_before(struct memtable_entry *e1, struct memtable_entry *e2);
-void memte_remove(struct memtable_entry *entry);
+void memte_remove(struct memtable_entry *head, struct memtable_entry *entry);
 
 // Represents a memtable (hash table) that maps a key to a values offset
 // in a segment file

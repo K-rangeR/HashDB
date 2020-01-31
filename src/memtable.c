@@ -57,3 +57,15 @@ void memte_place_before(struct memtable_entry *e1, struct memtable_entry *e2)
 	}
 	e1->next = e2;
 }
+
+void memte_remove(struct memtable_entry *head, struct memtable_entry *e)
+{
+	struct memtable_entry *prev;
+
+	prev = head;
+	while (prev && prev->next != e)
+		prev = head->next;
+	
+	prev->next = e->next;
+	e->next = NULL;
+}
