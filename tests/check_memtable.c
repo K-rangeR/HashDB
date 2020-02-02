@@ -151,7 +151,6 @@ START_TEST(test_memtable_read_write)
 	extern struct memtable *memtable_init();
 	extern void memtable_free(struct memtable*);
 	extern int memtable_write(struct memtable*, int, int);
-	extern int default_hash(int);
 
 	struct memtable *tbl;
 	tbl = memtable_init();
