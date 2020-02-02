@@ -7,19 +7,21 @@
  * by calling the memte_free function.
  * 
  * Params:
+ *	key => identifies the this entry in case of hash collisions
  *	offset => offset in the segment file where a value is stored
  * 
  * Returns:
  *	Pointer to a struct memtable_entry on the heap if allocation was
  *	successful, NULL otherwise
  */
-struct memtable_entry *memte_init(unsigned int offset)
+struct memtable_entry *memte_init(int key, int offset)
 {
 	struct memtable_entry *e;
 
 	if ((e = malloc(sizeof(struct memtable_entry))) == NULL)
 		return NULL;
 
+	e->key = key;
 	e->offset = offset;
 	e->next = NULL;
 	return e;
@@ -143,4 +145,102 @@ void memtable_free(struct memtable *tbl)
 
 	free(tbl->table);
 	free(tbl);
+}
+
+/*
+ * Prints the entire memtable to stdout
+ *
+ * Params:
+ *	tbl => pointer to the memtable to print
+ *
+ * Returns:
+ *	void
+ */
+void memtable_dump(struct memtable *tbl)
+{
+	struct memtable_entry *e;
+
+	for (int i = 0; i < MAX_TBL_SZ; ++i) {
+		printf("Bucket: %d\n\t", i);
+		e = tbl->table[i];
+		while (e) {
+			printf("%d %d -> ", e->key, e->offset);
+			e = e->next;
+		}
+		printf("NULL\n");
+	}
+}
+
+/*
+ * Adds the offset to the memtable
+ *
+ * Params:
+ *	tbl => pointer to the memtable to add to
+ *	key => integer representing the key
+ *	offset => offset in the segment file
+ *
+ * Returns:
+ *	-1 if there is an error allocating memte_entry struct, 0 otherwise
+ */
+int memtable_write(struct memtable *tbl, int key, int offset)
+{
+	int hash = default_hash(key);
+	hash = hash % MAX_TBL_SZ;
+
+	struct memtable_entry *entry;
+	if ((entry = memte_init(key, offset)) == NULL)
+		return -1;
+	
+	// place new entry at the front of the bucket chain
+	memte_place_before(entry, tbl->table[hash]);
+	tbl->table[hash] = entry;
+	tbl->entries += 1;
+	return 0;
+}
+
+/*
+ * Returns the offset of at the given key in the memtable
+ *
+ * Params:
+ *	tbl => pointer to the memtable to read from
+ *	key => key of the target offset
+ *
+ * Returns:
+ *	the offset if found, -1 if otherwise
+ */
+int memtable_read(struct memtable *tbl, int key)
+{
+	int hash = default_hash(key);
+	hash = hash % MAX_TBL_SZ;
+
+	struct memtable_entry *curr;
+	curr = tbl->table[hash];
+	while (curr) {
+		if (curr->key == key)
+			return curr->offset;
+		curr = curr->next;
+	}
+
+	return -1;
+}
+
+/*
+ * Default hash function for 32 bit integer keys
+ * Taken from: https://gist.github.com/badboy/6267743
+ *
+ * Params:
+ *	key => key to hash
+ *
+ * Returns:
+ *	the hash valud for the given key
+ */
+int default_hash(int key)
+{
+	uint32_t c2 = 0x27d4eb2d; // a prime or an odd constant
+	key = (key ^ 61) ^ (key >> 16);
+	key = key + (key << 3);
+	key = key ^ (key >> 4);
+	key = key * c2;
+	key = key ^ (key >> 15);
+	return key;
 }
