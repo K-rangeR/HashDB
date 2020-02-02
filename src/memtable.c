@@ -7,7 +7,7 @@
  * by calling the memte_free function.
  * 
  * Params:
- *	key => identifies the this entry in case of hash collisions
+ *	key => identifies this entry in case of hash collisions
  *	offset => offset in the segment file where a value is stored
  * 
  * Returns:
