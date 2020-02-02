@@ -12,11 +12,14 @@ void memte_free(struct memtable_entry *entry);
 void memte_place_before(struct memtable_entry *e1, struct memtable_entry *e2);
 void memte_remove(struct memtable_entry *head, struct memtable_entry *entry);
 
+// Max number of entries in a memtable
+#define MAX_TBL_SZ 50
+
 // Represents a memtable (hash table) that maps a key to a values offset
 // in a segment file
 struct memtable {
 	unsigned int entries;
-	struct memtable_entry *table[];
+	struct memtable_entry **table;
 };
 
 struct memtable *memtable_init();

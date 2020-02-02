@@ -84,3 +84,63 @@ void memte_remove(struct memtable_entry *head, struct memtable_entry *e)
 	prev->next = e->next;
 	e->next = NULL;
 }
+
+/*
+ * Allocates an empty memtable of MAX_TBL_SZ
+ *
+ * Params:
+ *	None
+ *
+ * Returns:
+ *	Pointer to a memtable structure, caller must free struct
+ *	memory used by calling memtable_free
+ */
+struct memtable *memtable_init()
+{
+	struct memtable *tbl;
+
+	if ((tbl = malloc(sizeof(struct memtable))) == NULL)
+		return NULL;
+
+	tbl->entries = 0;
+
+	// allocate empty table
+	tbl->table = calloc(sizeof(struct memtable_entry*), MAX_TBL_SZ);
+	if (tbl->table == NULL) {
+		free(tbl);
+		return NULL;
+	}
+
+	return tbl;
+}
+
+/*
+ * Deallocates all memory used by the memtable, this includes the table and
+ * bucket chains (memtable_entry linked list)
+ *
+ * Params:
+ *	tbl => pointer the memtable to free
+ * 
+ * Returns:
+ *	void
+ */
+void memtable_free(struct memtable *tbl)
+{
+	struct memtable_entry *curr, *prev;
+
+	for (int i = 0; i < MAX_TBL_SZ; ++i) {
+		if (tbl->table[i] == NULL) // empty bucket
+			continue;
+
+		// free the bucket chain
+		curr = prev = tbl->table[i];
+		while (curr) {
+			curr = curr->next;
+			memte_free(prev);
+			prev = curr;
+		}
+	}
+
+	free(tbl->table);
+	free(tbl);
+}

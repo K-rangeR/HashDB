@@ -129,15 +129,50 @@ Suite *memtable_entry_suite(void)
 	return s;
 }
 
+START_TEST(test_memtable_init)
+{
+	extern struct memtable *memtable_init();
+	extern void memtable_free(struct memtable *tbl);
+
+	struct memtable *tbl;
+	tbl = memtable_init();
+	if (tbl == NULL)
+		ck_abort_msg("Could not create memtable\n");
+	
+	ck_assert_uint_eq(tbl->entries, 0);
+	ck_assert_ptr_nonnull(tbl->table);
+	memtable_free(tbl);
+} END_TEST
+
+/*
+ * Creates and returns a test suite for memtable functions
+ */
+Suite *memtable_suite(void)
+{
+	Suite *s;
+	TCase *tc;
+
+	s = suite_create("Memtable");
+	tc = tcase_create("Core");
+
+	tcase_add_test(tc, test_memtable_init);
+	/* Future memtable test cases */
+
+	suite_add_tcase(s, tc);
+	return s;
+}
+
 int main(void)
 {
 	int fail = 0;
-	Suite *s;
+	Suite *s, *s2;
 
 	SRunner *runner;
 
 	s = memtable_entry_suite();
+	s2 = memtable_suite();
 	runner = srunner_create(s);
+	srunner_add_suite(runner, s2);
 
 	srunner_run_all(runner, CK_NORMAL);
 	fail = srunner_ntests_failed(runner);
