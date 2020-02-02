@@ -199,7 +199,7 @@ int memtable_write(struct memtable *tbl, int key, int offset)
 }
 
 /*
- * Returns the offset of at the given key in the memtable
+ * Returns the offset of the given key in the memtable
  *
  * Params:
  *	tbl => pointer to the memtable to read from
@@ -213,8 +213,7 @@ int memtable_read(struct memtable *tbl, int key)
 	int hash = default_hash(key);
 	hash = hash % MAX_TBL_SZ;
 
-	struct memtable_entry *curr;
-	curr = tbl->table[hash];
+	struct memtable_entry *curr = tbl->table[hash];
 	while (curr) {
 		if (curr->key == key)
 			return curr->offset;
@@ -232,7 +231,7 @@ int memtable_read(struct memtable *tbl, int key)
  *	key => key to hash
  *
  * Returns:
- *	the hash valud for the given key
+ *	the hash value for the given key
  */
 int default_hash(int key)
 {
