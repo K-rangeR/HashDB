@@ -7,12 +7,12 @@
 struct segment_file {
 	unsigned int size;
 	char *name;
-	int seg_fg;
+	int seg_fd;
 	struct memtable *table;
 	struct segment_file *next;
 };
 
-struct segment_file *segf_init(const char *name);
+struct segment_file *segf_init(char *name);
 void segf_free(struct segment_file *seg);
 int segf_create_file(struct segment_file *seg);
 int segf_delete_file(struct segment_file *seg);

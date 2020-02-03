@@ -16,8 +16,8 @@ check_memtable.o: check_memtable.c
 	$(CC) -c check_memtable.c -o check_memtable.o
 
 # Build the unit tests for segment.c
-check_segment: check_segment.o segment.o
-	$(CC) check_segment.o segment.o $(CHECKDEPENS) -o check_segment
+check_segment: check_segment.o segment.o memtable.o
+	$(CC) check_segment.o segment.o  memtable.o $(CHECKDEPENS) -o check_segment
 
 check_segment.o: check_segment.c
 	$(CC) -c check_segment.c -o check_segment.o
