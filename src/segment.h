@@ -22,6 +22,6 @@ int segf_remove_key(struct segment_file *seg, int key);
 void segf_update_memtable(struct segment_file *seg, int key, unsigned int offset);
 int segf_read_memtable(struct segment_file *seg, int key);
 void segf_link_before(struct segment_file *s1, struct segment_file *s2);
-void segf_unlink(struct segment_file *seg);
+void segf_unlink(struct segment_file *head, struct segment_file *seg);
 
 #endif
