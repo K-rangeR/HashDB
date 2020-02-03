@@ -14,7 +14,7 @@
  *	Pointer to a struct memtable_entry on the heap if allocation was
  *	successful, NULL otherwise
  */
-struct memtable_entry *memte_init(int key, int offset)
+struct memtable_entry *memte_init(int key, unsigned int offset)
 {
 	struct memtable_entry *e;
 
@@ -182,7 +182,7 @@ void memtable_dump(struct memtable *tbl)
  * Returns:
  *	-1 if there is an error allocating memte_entry struct, 0 otherwise
  */
-int memtable_write(struct memtable *tbl, int key, int offset)
+int memtable_write(struct memtable *tbl, int key, unsigned int offset)
 {
 	int hash = default_hash(key);
 	hash = hash % MAX_TBL_SZ;
@@ -204,19 +204,22 @@ int memtable_write(struct memtable *tbl, int key, int offset)
  * Params:
  *	tbl => pointer to the memtable to read from
  *	key => key of the target offset
+ *	offset => address of where to store the offset it found
  *
  * Returns:
- *	the offset if found, -1 if otherwise
+ *	0 of offset was found, -1 otherwise (does not change offset)
  */
-int memtable_read(struct memtable *tbl, int key)
+int memtable_read(struct memtable *tbl, int key, unsigned int *offset)
 {
 	int hash = default_hash(key);
 	hash = hash % MAX_TBL_SZ;
 
 	struct memtable_entry *curr = tbl->table[hash];
 	while (curr) {
-		if (curr->key == key)
-			return curr->offset;
+		if (curr->key == key) {
+			*offset = curr->offset;
+			return 0;
+		}
 		curr = curr->next;
 	}
 

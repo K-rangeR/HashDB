@@ -4,11 +4,11 @@
 // Represents an entry in the memtables bucket chain
 struct memtable_entry {
 	int key;
-	int offset;
+	unsigned int offset;
 	struct memtable_entry *next;
 };
 
-struct memtable_entry *memte_init(int key, int offset);
+struct memtable_entry *memte_init(int key, unsigned int offset);
 void memte_free(struct memtable_entry *entry);
 void memte_place_before(struct memtable_entry *e1, struct memtable_entry *e2);
 void memte_remove(struct memtable_entry *head, struct memtable_entry *entry);
@@ -26,8 +26,8 @@ struct memtable {
 struct memtable *memtable_init();
 void memtable_free(struct memtable *tbl);
 void memtable_dump(struct memtable *tbl);
-int memtable_read(struct memtable *tbl, int key);
-int memtable_write(struct memtable *tbl, int key, int offset);
+int memtable_read(struct memtable *tbl, int key, unsigned int *offset);
+int memtable_write(struct memtable *tbl, int key, unsigned int offset);
 int default_hash(int key);
 
 #endif

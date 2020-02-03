@@ -8,16 +8,16 @@
 
 START_TEST(test_memte_init)
 {
-	extern struct memtable_entry *memte_init(int, int);
+	extern struct memtable_entry *memte_init(int, unsigned int);
 	extern void memte_free(struct memtable_entry*);
 	
 	struct memtable_entry *e;
 	int tkey = 1;
-	int toffset = 10;
+	unsigned int toffset = 10;
 	e = memte_init(tkey, toffset);
 	if (e == NULL)
 		ck_abort_msg("Could not create memtable_entry\n");
-	ck_assert_uint_eq(e->key, tkey);
+	ck_assert_int_eq(e->key, tkey);
 	ck_assert_uint_eq(e->offset, toffset);
 	ck_assert_ptr_null(e->next);
 	memte_free(e);
@@ -150,7 +150,8 @@ START_TEST(test_memtable_read_write)
 {
 	extern struct memtable *memtable_init();
 	extern void memtable_free(struct memtable*);
-	extern int memtable_write(struct memtable*, int, int);
+	extern int memtable_write(struct memtable*, int, unsigned int);
+	extern int memtable_read(struct memtable*, int, unsigned int*);
 
 	struct memtable *tbl;
 	tbl = memtable_init();
@@ -158,17 +159,19 @@ START_TEST(test_memtable_read_write)
 		ck_abort_msg("Could not create memtable\n");
 	
 	int key;
+	unsigned int offset;
 	// add to the db
 	for (key = 1; key < 50; key++) {
-		if (memtable_write(tbl, key, key+1) < 0)
+		offset = key + 1;
+		if (memtable_write(tbl, key, offset) < 0)
 			ck_abort_msg("Could not insert into tbl\n");
 		ck_assert_int_eq(key, tbl->entries);
 	}
 
 	// check the read
 	for (key = 1; key < 50; key++) {
-		int offset = memtable_read(tbl, key);
-		ck_assert_int_eq(offset, key+1);
+		memtable_read(tbl, key, &offset);
+		ck_assert_uint_eq(offset, key+1);
 	}
 
 	memtable_free(tbl);
