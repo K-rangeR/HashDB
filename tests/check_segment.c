@@ -24,6 +24,23 @@ START_TEST(test_segf_init)
 	segf_free(seg);
 } END_TEST
 
+START_TEST(test_segf_link_before)
+{
+	extern void segf_link_before(struct segment_file*, struct segment_file*);
+
+	struct segment_file s1, s2;
+
+	s1.name = "s1.dat";
+	s1.next = NULL;
+
+	s2.name = "s2.dat";
+	s2.next = NULL;
+
+	segf_link_before(&s1, &s2);
+	ck_assert_ptr_eq(s1.next, &s2);
+	ck_assert_ptr_null(s2.next);
+} END_TEST
+
 /*
  * Creates and returns a test suite for segmet_file functions
  */
@@ -36,6 +53,7 @@ Suite *segment_file_suite(void)
 	tc = tcase_create("Core");
 
 	tcase_add_test(tc, test_segf_init);
+	tcase_add_test(tc, test_segf_link_before);
 	/* Add future segment_file struct test cases */
 	
 	suite_add_tcase(s, tc);

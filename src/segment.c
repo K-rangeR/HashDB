@@ -51,3 +51,22 @@ void segf_free(struct segment_file *seg)
 	memtable_free(seg->table);
 	free(seg);
 }
+
+/*
+ * Puts s1 before s2 in the linked list
+ *
+ * Params:
+ *	s1 => new predecessor of s2
+ *	s2 => new successor of s1
+ *
+ * Returns:
+ *	void
+ */
+void segf_link_before(struct segment_file *s1, struct segment_file *s2)
+{
+	if (s1 == NULL) {
+		fprintf(stderr, "segf_link_before: s1 was NULL\n");
+		exit(1);
+	}
+	s1->next = s2;
+}
