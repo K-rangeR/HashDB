@@ -207,7 +207,7 @@ int memtable_write(struct memtable *tbl, int key, unsigned int offset)
  *	offset => address of where to store the offset it found
  *
  * Returns:
- *	0 of offset was found, -1 otherwise (does not change offset)
+ *	1 if offset was found, 0 otherwise (does not change offset)
  */
 int memtable_read(struct memtable *tbl, int key, unsigned int *offset)
 {
@@ -218,12 +218,12 @@ int memtable_read(struct memtable *tbl, int key, unsigned int *offset)
 	while (curr) {
 		if (curr->key == key) {
 			*offset = curr->offset;
-			return 0;
+			return 1;
 		}
 		curr = curr->next;
 	}
 
-	return -1;
+	return 0;
 }
 
 /*
