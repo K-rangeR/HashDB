@@ -70,3 +70,30 @@ void segf_link_before(struct segment_file *s1, struct segment_file *s2)
 	}
 	s1->next = s2;
 }
+
+/*
+ * Removes seg from the given list. Does not free seg.
+ *
+ * Params:
+ *	head => start of the linked list
+ *	seg => segment_file to remove from the linked list
+ *
+ * Returns:
+ *	void
+ */
+void segf_unlink(struct segment_file *head, struct segment_file *seg)
+{
+	struct segment_file *prev;
+
+	if (head == seg) {
+		seg->next = NULL;
+		return;
+	}
+
+	prev = head;
+	while (prev && prev->next != seg)
+		prev = prev->next;
+	
+	prev->next = seg->next;
+	seg->next = NULL;
+}

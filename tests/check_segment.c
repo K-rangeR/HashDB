@@ -41,6 +41,68 @@ START_TEST(test_segf_link_before)
 	ck_assert_ptr_null(s2.next);
 } END_TEST
 
+START_TEST(test_segf_unlink_front)
+{
+	extern void segf_unlink(struct segment_file*, struct segment_file*);
+
+	// make a list of segment_files
+	struct segment_file s1, s2, s3;
+	s3.name = "s2.dat";
+	s3.next = NULL;
+
+	s2.name = "s2.dat";
+	s2.next = &s3;
+
+	s1.name = "s1.dat";
+	s1.next = &s2;
+
+	segf_unlink(&s1, &s1);
+	ck_assert_ptr_null(s1.next);
+	ck_assert_ptr_eq(s2.next, &s3);
+	ck_assert_ptr_null(s3.next);
+} END_TEST
+
+START_TEST(test_segf_unlink_mid)
+{
+	extern void segf_unlink(struct segment_file*, struct segment_file*);
+
+	// make a list of segment_files
+	struct segment_file s1, s2, s3;
+	s3.name = "s2.dat";
+	s3.next = NULL;
+
+	s2.name = "s2.dat";
+	s2.next = &s3;
+
+	s1.name = "s1.dat";
+	s1.next = &s2;
+	
+	segf_unlink(&s1, &s2);
+	ck_assert_ptr_null(s2.next);
+	ck_assert_ptr_eq(s1.next, &s3);
+} END_TEST
+
+START_TEST(test_segf_unlink_last)
+{
+	extern void segf_unlink(struct segment_file*, struct segment_file*);
+
+	// make a list of segment_files
+	struct segment_file s1, s2, s3;
+	s3.name = "s2.dat";
+	s3.next = NULL;
+
+	s2.name = "s2.dat";
+	s2.next = &s3;
+
+	s1.name = "s1.dat";
+	s1.next = &s2;
+	
+	segf_unlink(&s1, &s3);
+	ck_assert_ptr_null(s3.next);
+	ck_assert_ptr_null(s2.next);
+	ck_assert_ptr_eq(s1.next, &s2);
+} END_TEST
+
 /*
  * Creates and returns a test suite for segmet_file functions
  */
@@ -54,6 +116,9 @@ Suite *segment_file_suite(void)
 
 	tcase_add_test(tc, test_segf_init);
 	tcase_add_test(tc, test_segf_link_before);
+	tcase_add_test(tc, test_segf_unlink_front);
+	tcase_add_test(tc, test_segf_unlink_mid);
+	tcase_add_test(tc, test_segf_unlink_last);
 	/* Add future segment_file struct test cases */
 	
 	suite_add_tcase(s, tc);
