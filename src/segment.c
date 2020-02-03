@@ -53,7 +53,41 @@ void segf_free(struct segment_file *seg)
 }
 
 /*
- * Puts s1 before s2 in the linked list
+ * Adds the key offset pair to the given segment files memtable.
+ *
+ * Params:
+ *	seg => segment file to update
+ *	key => data's key in the segment file
+ *	offset => data's offset in the segment file
+ *
+ * Returns:
+ *	-1 if there is an error adding the pair, 0 otherwise
+ */
+int segf_update_memtable(struct segment_file *seg, int key, unsigned int offset)
+{
+	if (memtable_write(seg->table, key, offset) < 0)
+		return -1;
+	return 0;
+}
+
+/*
+ * Reads the offset from the segment file memtable at the given key.
+ *
+ * Params:
+ *	seg => container for the segment files memtable
+ *	key => key for the data of interest
+ *	offset => address of where to store the data's offset if found
+ *
+ * Returns:
+ *	1 if the key and offset were found, 0 otherwise (offset not changed)
+ */
+int segf_read_memtable(struct segment_file *seg, int key, unsigned int *offset)
+{
+	return memtable_read(seg->table, key, offset);
+}
+
+/*
+ * Puts s1 before s2 in the linked list.
  *
  * Params:
  *	s1 => new predecessor of s2
