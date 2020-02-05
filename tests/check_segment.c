@@ -125,6 +125,14 @@ Suite *segment_file_suite(void)
 	return s;
 }
 
+/*
+ * Creates and returns a test suite for segment_file IO functions
+ */
+Suite *segment_file_io_suite(void)
+{
+	
+}
+
 int main(void)
 {
 	int fail = 0;
