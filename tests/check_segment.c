@@ -3,6 +3,8 @@
  */
 #include <check.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
 #include "../src/segment.h"
 
 START_TEST(test_segf_init)
@@ -125,22 +127,64 @@ Suite *segment_file_suite(void)
 	return s;
 }
 
+START_TEST(test_segf_create_file)
+{
+	extern int segf_create_file(struct segment_file*);	
+
+	struct segment_file seg;
+	seg.size = 0;
+	seg.seg_fd = -1;
+	seg.name = "test.dat";
+	seg.table = NULL;
+	
+	if (segf_create_file(&seg) < 0)
+		ck_abort_msg("ERROR: Could not create segment file\n");
+
+	int err;
+	err = access(seg.name, F_OK);
+	if (err == -1 && errno == ENOENT) {
+		ck_abort_msg("ERROR: segf_create_file did not create '%s'\n",
+				seg.name);
+	} else if (err == -1 && errno != 0) {
+		ck_abort_msg("ERROR: test_segf_create_file: %s", 
+				strerror(errno));	
+	}
+
+	ck_assert_int_ne(seg.seg_fd, -1);
+} END_TEST
+
+START_TEST(test_segf_delete_file)
+{
+	extern int segf_delete_file(struct segment_file*);	
+} END_TEST
+
 /*
  * Creates and returns a test suite for segment_file IO functions
  */
 Suite *segment_file_io_suite(void)
 {
+	Suite *s;
+	TCase *tc;
+
+	s = suite_create("Segment File IO");
+	tc = tcase_create("Core");
 	
+	tcase_add_test(tc, test_segf_create_file);
+
+	suite_add_tcase(s, tc);
+	return s;
 }
 
 int main(void)
 {
 	int fail = 0;
-	Suite *s;
+	Suite *s, *s2;
 	SRunner *runner;
 	
 	s = segment_file_suite();
+	s2 = segment_file_io_suite();
 	runner = srunner_create(s);
+	srunner_add_suite(runner, s2);
 
 	srunner_run_all(runner, CK_NORMAL);
 	fail = srunner_ntests_failed(runner);

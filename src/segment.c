@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <fcntl.h>
 #include "segment.h"
 
 /*
@@ -50,6 +51,17 @@ void segf_free(struct segment_file *seg)
 {
 	memtable_free(seg->table);
 	free(seg);
+}
+
+int segf_create_file(struct segment_file *seg)
+{
+	int fd;
+
+	if ((fd = open(seg->name, O_CREAT|O_TRUNC|O_RDWR, 0664)) < 0)
+		return -1;
+
+	seg->seg_fd = fd;
+	return 0;	
 }
 
 /*
