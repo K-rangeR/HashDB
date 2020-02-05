@@ -156,6 +156,22 @@ START_TEST(test_segf_create_file)
 START_TEST(test_segf_delete_file)
 {
 	extern int segf_delete_file(struct segment_file*);	
+	
+	struct segment_file seg;
+	seg.seg_fd = -1;
+	seg.name = "test.dat";
+	seg.table = NULL;
+
+	if (segf_delete_file(&seg) < 0)
+		ck_abort_msg("ERROR: Could not delete segment file\n");
+	
+	ck_assert_int_eq(seg.seg_fd, -1);
+	ck_assert_int_eq(seg.size, 0);
+
+	// try and access the file
+	int err = access(seg.name, F_OK);
+	if (err == 0)
+		ck_abort_msg("ERROR: '%s' was not deleted\n", seg.name);
 } END_TEST
 
 /*
@@ -170,6 +186,7 @@ Suite *segment_file_io_suite(void)
 	tc = tcase_create("Core");
 	
 	tcase_add_test(tc, test_segf_create_file);
+	tcase_add_test(tc, test_segf_delete_file);
 
 	suite_add_tcase(s, tc);
 	return s;
