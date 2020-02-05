@@ -3,4 +3,5 @@ tests/*.o
 tests/check_memtable
 tests/check_segment
 tests/check_hashDB
+tests/test.dat
 src/*.o

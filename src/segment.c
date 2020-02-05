@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include "segment.h"
 
 /*
@@ -87,7 +89,52 @@ int segf_read_memtable(struct segment_file *seg, int key, unsigned int *offset)
 }
 
 /*
- * Puts s1 before s2 in the linked list.
+ * Creates a new segment file with the name seg->name. The file is opened
+ * for read and write operations. The file descriptor is set in seg->seg_fd.
+ *
+ * Params:
+ *	seg => pointer to a segment_file struct that contains the name of the
+ *	       segment file to create
+ *
+ * Returns:
+ *	0 if successful, -1 if there was an error (check errno)
+ */
+int segf_create_file(struct segment_file *seg)
+{
+	int fd;
+
+	if ((fd = open(seg->name, O_CREAT|O_TRUNC|O_RDWR, 0664)) < 0)
+		return -1;
+
+	seg->seg_fd = fd;
+	return 0;	
+}
+
+/*
+ * Closes and deletes the segment file backing the given segment_file struct. 
+ * Also sets the size field in the struct to 0 and seg_fd back to -1.
+ *
+ * Params:
+ *	seg => pointer to a segment_file struct that contains the name of the
+ *	       file to delete and the file descriptor to close
+ *
+ * Returns:
+ *	0 if successful, -1 if there was an error (check errno)
+ */
+int segf_delete_file(struct segment_file *seg)
+{
+	close(seg->seg_fd);
+
+	if (remove(seg->name) < 0)
+		return -1;
+	
+	seg->seg_fd = -1;
+	seg->size = 0;
+	return 0;
+}
+
+/*
+ * Puts s1 before s2 in the linked list
  *
  * Params:
  *	s1 => new predecessor of s2
