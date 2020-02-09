@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <string.h>
 #include "segment.h"
 
 /*
@@ -96,6 +97,98 @@ int segf_delete_file(struct segment_file *seg)
 	
 	seg->seg_fd = -1;
 	seg->size = 0;
+	return 0;
+}
+
+/*
+ * Appends the given key value pair to the segment file. This will also
+ * add the key and the values offset in the file to the memtable.
+ *
+ * Params:
+ *	seg => pointer to a segment_file that contains the name of the
+ *             segment file and the memtable to add to
+ *	key => key to add to the file and memtable
+ *	val => value to add to the file and memtable
+ *
+ * Returns:
+ *	-1 if there is an error (check errno), 0 otherwise
+ */
+int segf_append(struct segment_file *seg, int key, char *val)
+{
+	unsigned int offset;
+	unsigned int kv_pair_sz = 0;
+	int n;
+
+	// seek to the end of the file
+	if ((offset = lseek(seg->seg_fd, 0, SEEK_END)) < 0)
+		return -1;
+
+	// append the val len (remember offset)
+	int val_len = strlen(val) + 1; // include null char
+	if ((n = write(seg->seg_fd, &val_len, sizeof(val_len))) < 0)
+		return -1;
+	kv_pair_sz += n;
+
+	// append the val
+	if ((n = write(seg->seg_fd, val, val_len)) < 0)
+		return -1;
+
+	// append the key len
+	int key_len = sizeof(key);
+	if ((n = write(seg->seg_fd, &key_len, sizeof(size_t))) < 0)
+		return -1;
+	kv_pair_sz += n;
+
+	// append the key
+	if ((n = write(seg->seg_fd, &key, sizeof(key))) < 0)
+		return -1;
+	kv_pair_sz += n;
+
+	// add key and offset to the memtable
+	if (memtable_write(seg->table, key, offset) < 0)
+		return -1;
+
+	// update the size field
+	seg->size += kv_pair_sz;
+	return 0;
+}
+
+/*
+ * Reads the value using the key from the segment file
+ *
+ * Params:
+ *	seg => pointer a segment_file struct that contains the name of
+ *             segment file to read
+ *	key => used to look up the value in segment files memtable
+ *	val => stores the value read from the segment file
+ *
+ * Returns:
+ *	-1 if there is an error (check errno), 0 otherwise	
+ */
+int segf_read_file(struct segment_file *seg, int key, char **val)
+{
+	unsigned int offset;	
+
+	if (memtable_read(seg->table, key, &offset) == 0)
+		return -1;
+	
+	if (lseek(seg->seg_fd, offset, SEEK_SET) < 0)
+		return -1;
+
+	int val_len;	
+	if (read(seg->seg_fd, &val_len, sizeof(val_len)) < 0)
+		return -1;
+
+	char *v;
+	if ((v = calloc(val_len, sizeof(char))) == NULL)
+		return -1;
+
+	if (read(seg->seg_fd, v, val_len) < 0) {
+		free(v);
+		return -1;
+	}
+	
+	*val = v;
 	return 0;
 }
 
