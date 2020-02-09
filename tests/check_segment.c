@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
+#include <stdio.h>
 #include "../src/segment.h"
 
 START_TEST(test_segf_init)
@@ -174,6 +175,63 @@ START_TEST(test_segf_delete_file)
 		ck_abort_msg("ERROR: '%s' was not deleted\n", seg.name);
 } END_TEST
 
+START_TEST(test_segf_read_append)
+{
+	extern struct segment_file *segf_init(char*);
+	extern void segf_free(struct segment_file*);
+	extern int segf_read_file(struct segment_file*, int, char**);	
+	extern int segf_append(struct segment_file*, int, char*);
+	extern int segf_delete_file(struct segment_file*);	
+	extern int segf_create_file(struct segment_file*);	
+
+	struct segment_file *seg;	
+	if ((seg = segf_init("test.dat")) < 0)
+		ck_abort_msg("ERROR: could not create segment struct\n");
+	
+	if (segf_create_file(seg) < 0)
+		ck_abort_msg("ERROR: could not create file\n");
+	
+	// pointers used during the read part of the tests
+	// will point to the values read from the file
+	char *t = "xyz";
+	char *test_ptrs[5] = {t, t, t, t, t};
+
+	typedef struct test_kv {
+		int key;
+		char *val;
+	} test_kv;
+
+	test_kv td[] = {
+		{1, "one"},
+		{2, "two"},
+		{3, "three"},
+		{4, "four"},
+		{5, "five"}
+	};
+
+	// test append
+	for (int i = 0; i < 5; ++i) {
+		if (segf_append(seg, td[i].key, td[i].val) < 0)
+			ck_abort_msg("ERROR: could not append to file\n");
+	}
+
+	// test read
+	for (int i = 0; i < 5; ++i) {
+		if (segf_read_file(seg, i+1, &test_ptrs[i]) < 0)
+			ck_abort_msg("ERROR: could not read from file\n");
+		ck_assert_str_eq(test_ptrs[i], td[i].val);
+	}
+
+	// free the values read from the file
+	for (int i = 0; i < 5; ++i)
+		free(test_ptrs[i]);
+
+	if (segf_delete_file(seg) < 0)
+		ck_abort_msg("ERROR: could not delete file\n");	
+	
+	segf_free(seg);
+} END_TEST
+
 /*
  * Creates and returns a test suite for segment_file IO functions
  */
@@ -187,6 +245,7 @@ Suite *segment_file_io_suite(void)
 	
 	tcase_add_test(tc, test_segf_create_file);
 	tcase_add_test(tc, test_segf_delete_file);
+	tcase_add_test(tc, test_segf_read_append);
 
 	suite_add_tcase(s, tc);
 	return s;
