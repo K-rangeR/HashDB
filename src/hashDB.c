@@ -1,3 +1,5 @@
+#include <dirent.h>
+#include <errno.h>
 #include "hashDB.h"
 
 /*
@@ -17,5 +19,12 @@
  */
 struct hashDB *hashDB_init(const char *data_dir)
 {
-	return 0;	
+	struct hashDB *db;
+
+	// check if the dir exists
+	// if it does call the repopulate funtion
+	// if it does call the create empty dir function
+	// return 
+
+	return db;
 }

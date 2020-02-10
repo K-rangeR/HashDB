@@ -11,6 +11,8 @@ struct hashDB {
 };
 
 struct hashDB *hashDB_init(const char *data_dir);
+struct hashDB *hashDB_repopulate(DIR *dir);
+struct hashDB *hashDB_mkempty(const char *data_dir);
 void hashDB_free(struct hashDB *db);
 int hashDB_put(struct hashDB *db, int key, int val_len, char *val);
 int hashDB_get(struct hashDB *db, int key, char **val);
