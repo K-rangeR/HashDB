@@ -7,6 +7,7 @@
 struct hashDB {
 	// start of the linked list of active segment files
 	struct segment_file *head;
+	int next_id;
 };
 
 struct hashDB *hashDB_init(const char *data_dir);

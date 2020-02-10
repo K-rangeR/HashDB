@@ -12,7 +12,7 @@
  *
  * Returns:
  *	Dynamically allocated hashDB struct that is ready to handle read and
- *	write requests. This struct must deallocated using hashDB_free. If
+ *	write requests. This struct must be deallocated using hashDB_free. If
  *	there is an error NULL is returned.
  */
 struct hashDB *hashDB_init(const char *data_dir)
