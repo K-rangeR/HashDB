@@ -19,12 +19,48 @@
  */
 struct hashDB *hashDB_init(const char *data_dir)
 {
+	struct hashDB *db = NULL;
+	DIR *dir = opendir(data_dir);
+	if (dir) {
+		db = hashDB_repopulate(dir);	
+	} else if (errno == ENOENT) { // does not exist
+		dir = NULL;
+		db = hashDB_mkempty(data_dir);	
+	} 
+
+	if (dir)
+		closedir(dir);
+
+	return db;
+}
+
+struct hashDB *hashDB_repopulate(DIR *dir)
+{
+	return NULL;
+}
+
+struct hashDB *hashDB_mkempty(const char *data_dir)
+{
+	if (mkdir(data_dir, 0755) < 0)
+		return NULL;
+
+	struct segment_file *first;
+	if ((first = segf_init("1.dat")) == NULL)
+		return NULL;
+
+	if (segf_create_file(first) < 0) {
+		segf_free(first);
+		return NULL;
+	}
+
 	struct hashDB *db;
-
-	// check if the dir exists
-	// if it does call the repopulate funtion
-	// if it does call the create empty dir function
-	// return 
-
+	if ((db = malloc(sizeof(struct hashDB))) == NULL) {
+		segf_delete_file(first);
+		segf_free(first);
+		return NULL;
+	}
+	
+	db->next_id = 2;
+	db->head = first;
 	return db;
 }
