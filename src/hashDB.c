@@ -22,19 +22,17 @@ struct hashDB *hashDB_init(const char *data_dir)
 	struct hashDB *db = NULL;
 	DIR *dir = opendir(data_dir);
 	if (dir) {
-		db = hashDB_repopulate(dir);	
+		closedir(dir);
+		db = hashDB_repopulate();	
 	} else if (errno == ENOENT) { // does not exist
 		dir = NULL;
 		db = hashDB_mkempty(data_dir);	
 	} 
 
-	if (dir)
-		closedir(dir);
-
 	return db;
 }
 
-struct hashDB *hashDB_repopulate(DIR *dir)
+struct hashDB *hashDB_repopulate()
 {
 	return NULL;
 }
