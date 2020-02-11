@@ -1,6 +1,12 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/stat.h>
 #include <dirent.h>
 #include <errno.h>
+#include <string.h>
 #include "hashDB.h"
+
+int keep_entry(const struct dirent *);
 
 /*
  * Creates a hashDB struct that represents an active database. If data_dir
@@ -23,7 +29,7 @@ struct hashDB *hashDB_init(const char *data_dir)
 	DIR *dir = opendir(data_dir);
 	if (dir) {
 		closedir(dir);
-		db = hashDB_repopulate();	
+		db = hashDB_repopulate(data_dir);	
 	} else if (errno == ENOENT) { // does not exist
 		dir = NULL;
 		db = hashDB_mkempty(data_dir);	
@@ -32,9 +38,37 @@ struct hashDB *hashDB_init(const char *data_dir)
 	return db;
 }
 
-struct hashDB *hashDB_repopulate()
+struct hashDB *hashDB_repopulate(const char *data_dir)
 {
-	return NULL;
+	struct hashDB *db;
+	struct dirent **entries; // array of struct dirent pointers
+	int n;
+
+	if ((db = malloc(sizeof(struct hashDB))) == NULL)
+		return NULL;
+
+	if ((n = scandir(data_dir, &entries, keep_entry, alphasort)) < 0)
+		return NULL;
+	
+	while (n--) { // iterate in descending order
+		printf("%s\n", entries[n]->d_name);
+		free(entries[n]);
+		// create segment_file struct
+		// read the segment file and repopulate the memtable
+		// free the dirent struct
+	}
+
+	free(entries);
+	return db;
+}
+
+int keep_entry(const struct dirent *entry)
+{
+	if ((strcmp(entry->d_name, ".") == 0) ||
+	    (strcmp(entry->d_name, "..") == 0)) {
+		return 0;
+	}
+	return 1;
 }
 
 struct hashDB *hashDB_mkempty(const char *data_dir)

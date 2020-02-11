@@ -23,8 +23,8 @@ check_segment.o: check_segment.c
 	$(CC) -c check_segment.c -o check_segment.o
 
 # Build the unit tests for hashDB.c
-check_hashDB: check_hashDB.o hashDB.o
-	$(CC) check_hashDB.o hashDB.o $(CHECKDEPENS) -o check_hashDB
+check_hashDB: check_hashDB.o hashDB.o segment.o memtable.o
+	$(CC) check_hashDB.o hashDB.o segment.o memtable.o $(CHECKDEPENS) -o check_hashDB
 
 check_hashDB.o: check_hashDB.c
 	$(CC) -c check_hashDB.c -o check_hashDB.o
