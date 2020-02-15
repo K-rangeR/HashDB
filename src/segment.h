@@ -15,6 +15,7 @@ struct segment_file {
 struct segment_file *segf_init(char *name);
 void segf_free(struct segment_file *seg);
 int segf_create_file(struct segment_file *seg);
+int segf_open_file(struct segment_file *seg);
 int segf_delete_file(struct segment_file *seg);
 int segf_read_file(struct segment_file *seg, int key, char **val);
 int segf_append(struct segment_file *seg, int key, char *val);

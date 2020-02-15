@@ -3,7 +3,88 @@
  */
 #include <check.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+#include <errno.h>
 #include "../src/hashDB.h"
+
+/*
+ * Names of all segment files used to test hashDB functions on
+ */
+char *test_file_names[] = {
+	"tdata/4.dat",
+	"tdata/3.dat",
+	"tdata/2.dat",
+	"tdata/1.dat"
+};
+
+typedef struct test_kv {
+	int key;	
+	char *val;
+} test_kv;
+
+/*
+ * Testing data, this is added to the segment files in the data directory
+ * each time the test suite runs, and is removed from the segment files
+ * when the suite is done.
+ */
+test_kv td[] = {
+	{1, "one"},
+	{2, "two"},
+	{3, "three"},
+	{4, "four"}
+};
+
+/*
+ * Adds the testing data to the testing segment files. This happens each
+ * time the test suite is run. The testing segment files are assumed to be
+ * created.
+ */
+void add_testing_data()
+{
+	struct segment_file *seg;
+
+	for (int i = 0; i < 4; ++i) { // test files
+		if ((seg = segf_init(test_file_names[i])) == NULL) {
+			printf("ERROR: could not create segment struct: ");
+			printf("%s\n", strerror(errno));
+			exit(1);
+		}
+
+		if (segf_open_file(seg) < 0) {
+			printf("ERROR: could not create segment struct: ");
+			printf("%s\n", strerror(errno));
+			exit(1);
+		}
+
+		for (int j = 0; j < 4; ++j) {
+			if (segf_append(seg, td[j].key, td[j].val) < 0) {
+				printf("ERROR: append failed: ");
+				printf("%s\n", strerror(errno));
+				exit(1);
+			}
+		}
+
+		memtable_free(seg->table);
+		free(seg);
+		seg = NULL;
+	}
+}
+
+/*
+ * Deletes all the testing data from the testing segment files. This does
+ * not delete the testing files.
+ */
+void delete_testing_data()
+{
+	for (int i = 0; i < 4; ++i) {
+		if (truncate(test_file_names[i], 0) < 0) {
+			printf("ERROR: could not truncate file: ");
+			printf("%s\n", strerror(errno));
+		}
+	}
+}
 
 /*
  * Note if any of the tests in check_memtable and check_segment fail
@@ -12,10 +93,23 @@
 START_TEST(test_hashDB_repopulate)
 {
 	extern struct hashDB * hashDB_repopulate(const char *data_dir);
+	extern void hashDB_free(struct hashDB*);
 
 	const char *test_dir = "tdata";
 
-	hashDB_repopulate(test_dir);
+	struct hashDB *db;
+	if ((db = hashDB_repopulate(test_dir)) == NULL)
+		ck_abort_msg("ERROR: Could not repopulate DB\n");
+	
+	int i = 0;
+	struct segment_file *seg = db->head;
+	while (seg) {
+		ck_assert_str_eq(test_file_names[i], seg->name);
+		seg = seg->next;
+		++i;
+	}
+
+	hashDB_free(db);
 } END_TEST
 
 Suite *hashDB_suite(void)
@@ -38,12 +132,16 @@ int main(void)
 	Suite *s;
 	SRunner *runner;
 
+	add_testing_data();
+
 	s = hashDB_suite();
 	runner = srunner_create(s);
 
 	srunner_run_all(runner, CK_NORMAL);
 	fail = srunner_ntests_failed(runner);
 	srunner_free(runner);
+
+	delete_testing_data();	
 
 	return (fail == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

@@ -14,7 +14,10 @@ START_TEST(test_segf_init)
 	extern void segf_free(struct segment_file*);
 
 	struct segment_file *seg;
-	char *tname = "test.dat";
+	char *tname = malloc(sizeof(char) * 9);
+	if (tname == NULL)
+		ck_abort_msg("Could not malloc space for file name\n");
+	strcpy(tname, "test.dat");
 
 	if ((seg = segf_init(tname)) == NULL)
 		ck_abort_msg("Could not create segment file struct\n");
@@ -184,8 +187,13 @@ START_TEST(test_segf_read_append)
 	extern int segf_delete_file(struct segment_file*);	
 	extern int segf_create_file(struct segment_file*);	
 
+	char *tname = malloc(sizeof(char) * 9);
+	if (tname == NULL)
+		ck_abort_msg("Could not malloc space for file name\n");
+	strcpy(tname, "test.dat");
+
 	struct segment_file *seg;	
-	if ((seg = segf_init("test.dat")) < 0)
+	if ((seg = segf_init(tname)) < 0)
 		ck_abort_msg("ERROR: could not create segment struct\n");
 	
 	if (segf_create_file(seg) < 0)

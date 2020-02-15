@@ -14,7 +14,9 @@
  *	- next to null
  *
  * Params:
- *	name => name of the segment file to use when its created
+ *	name => name of the segment file to use when its created, this is
+ *      must be allocated on the heap because segf_free will call free(..)
+ *      to deallocate the name
  *
  * Returns:
  *	pointer to a segment_file struct if successful, NULL otherwise
@@ -52,6 +54,7 @@ struct segment_file *segf_init(char *name)
 void segf_free(struct segment_file *seg)
 {
 	memtable_free(seg->table);
+	free(seg->name);
 	free(seg);
 }
 
@@ -87,6 +90,27 @@ int segf_update_memtable(struct segment_file *seg, int key, unsigned int offset)
 int segf_read_memtable(struct segment_file *seg, int key, unsigned int *offset)
 {
 	return memtable_read(seg->table, key, offset);
+}
+
+/*
+ * Opens the segment file identified by seg->name. Sets the given segment
+ * file structs seg_fd field to the return file descriptor.
+ *
+ * Params:
+ *	seg => segment file to open and assign the file descriptor
+ *
+ * Returns:
+ *	-1 if the file can't be opened, 0 if successful
+ */
+int segf_open_file(struct segment_file *seg)
+{
+	int fd;
+
+	if ((fd = open(seg->name, O_RDWR)) < 0)
+		return -1;
+
+	seg->seg_fd = fd;
+	return 0;
 }
 
 /*

@@ -42,7 +42,9 @@ struct hashDB *hashDB_repopulate(const char *data_dir)
 {
 	struct hashDB *db;
 	struct dirent **entries; // array of struct dirent pointers
-	int n;
+	int n, path_len;
+	char *seg_name;
+	struct segment_file *curr = NULL;
 
 	if ((db = malloc(sizeof(struct hashDB))) == NULL)
 		return NULL;
@@ -50,12 +52,32 @@ struct hashDB *hashDB_repopulate(const char *data_dir)
 	if ((n = scandir(data_dir, &entries, keep_entry, alphasort)) < 0)
 		return NULL;
 	
-	while (n--) { // iterate in descending order
-		printf("%s\n", entries[n]->d_name);
-		free(entries[n]);
-		// create segment_file struct
-		// read the segment file and repopulate the memtable
-		// free the dirent struct
+	db->head = NULL;
+	for (int i = 0; i < n; ++i) {
+		// + 2 for '/' and the null terminator
+		path_len = strlen(data_dir) + strlen(entries[i]->d_name) + 2;
+		seg_name = calloc(path_len, sizeof(char));
+
+		// build file path
+		strcat(seg_name, data_dir);
+		strcat(seg_name, "/");
+		strcat(seg_name, entries[i]->d_name);
+
+		if ((curr = segf_init(seg_name)) == NULL) {
+			hashDB_free(db);
+			free(entries[i]);
+			break; // MEMORY LEAK!!! remaining entries are not free
+		}
+
+		if (segf_open_file(curr) < 0)
+			printf("segf_open_file failed: %s\n", strerror(errno));
+		
+		// read the current segment file
+
+		segf_link_before(curr, db->head);
+		db->head = curr;
+
+		free(entries[i]);
 	}
 
 	free(entries);
@@ -95,4 +117,19 @@ struct hashDB *hashDB_mkempty(const char *data_dir)
 	db->next_id = 2;
 	db->head = first;
 	return db;
+}
+
+void hashDB_free(struct hashDB *db)
+{
+	struct segment_file *curr, *prev;	
+
+	curr = prev = db->head;
+	while (curr) {
+		curr = curr->next;
+		segf_free(prev);
+		prev = curr;
+	}
+
+	free(db);
+	db = NULL;
 }
