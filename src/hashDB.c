@@ -42,7 +42,7 @@ struct hashDB *hashDB_repopulate(const char *data_dir)
 {
 	struct hashDB *db;
 	struct dirent **entries; // array of struct dirent pointers
-	int n, path_len;
+	int n, path_len, i;
 	char *seg_name;
 	struct segment_file *curr = NULL;
 
@@ -53,8 +53,8 @@ struct hashDB *hashDB_repopulate(const char *data_dir)
 		return NULL;
 	
 	db->head = NULL;
-	for (int i = 0; i < n; ++i) {
-		// + 2 for '/' and the null terminator
+	for (i = 0; i < n; ++i) {
+		// + 2 for '/' and '\0'
 		path_len = strlen(data_dir) + strlen(entries[i]->d_name) + 2;
 		seg_name = calloc(path_len, sizeof(char));
 
@@ -63,21 +63,34 @@ struct hashDB *hashDB_repopulate(const char *data_dir)
 		strcat(seg_name, "/");
 		strcat(seg_name, entries[i]->d_name);
 
-		if ((curr = segf_init(seg_name)) == NULL) {
-			hashDB_free(db);
-			free(entries[i]);
-			break; // MEMORY LEAK!!! remaining entries are not free
-		}
+		if ((curr = segf_init(seg_name)) == NULL)
+			break;
 
 		if (segf_open_file(curr) < 0)
-			printf("segf_open_file failed: %s\n", strerror(errno));
-		
-		// read the current segment file
+			break;
+
+		if (segf_repop_memtable(curr) < 0)
+			break;
 
 		segf_link_before(curr, db->head);
 		db->head = curr;
 
 		free(entries[i]);
+	}
+	
+	if (i < n) { // clean up after error
+		printf("ERROR: hashDB_repopulate: %s\n", strerror(errno));
+		hashDB_free(db);	
+		db = NULL;
+		if (curr != NULL) {
+			if (curr->seg_fd != -1)
+				segf_close_file(curr);
+			segf_free(curr);
+		}
+		while (i < n) {
+			free(entries[i]);
+			i++;
+		}
 	}
 
 	free(entries);

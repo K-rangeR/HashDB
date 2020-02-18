@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
+#include <errno.h>
 #include "segment.h"
 
 /*
@@ -114,6 +115,22 @@ int segf_open_file(struct segment_file *seg)
 }
 
 /*
+ * Closes the given segment file. Does not free the segment file struct, but
+ * sets seg_fd = -1.
+ *
+ * Params:
+ *	seg => pointer to the segment file struct to close
+ *
+ * Returns:
+ *	void
+ */
+void segf_close_file(struct segment_file *seg)
+{
+	close(seg->seg_fd);
+	seg->seg_fd = -1;
+}
+
+/*
  * Creates a new segment file with the name seg->name. The file is opened
  * for read and write operations. The file descriptor is set in seg->seg_fd.
  *
@@ -159,6 +176,52 @@ int segf_delete_file(struct segment_file *seg)
 }
 
 /*
+ * Reads the segment file associated with the given segment file struct
+ * and repopulate its memtable with all keys and their value offsets.
+ *
+ * Params:
+ *	seg => segment file struct to repopulate
+ *
+ * Returns:
+ *	-1 if there is an error (check errno), 0 otherwise
+ */
+int segf_repop_memtable(struct segment_file *seg)
+{
+	unsigned int offset;
+	int key, key_len, val_len, n;
+
+	// seek to the front of the file
+	if (lseek(seg->seg_fd, 0, SEEK_SET) < 0)
+		return -1;
+
+	while (1) {
+		if ((offset = lseek(seg->seg_fd, 0, SEEK_CUR)) < 0)
+			return -1;
+
+		if ((n = read(seg->seg_fd, &val_len, sizeof(val_len))) < 0)
+			return -1;
+
+		if (n == 0) // EOF
+			break;
+
+		if (lseek(seg->seg_fd, val_len, SEEK_CUR) < 0)
+			return -1;
+
+		if (read(seg->seg_fd, &key_len, sizeof(key_len)) < 0)
+			return -1;
+
+		if (read(seg->seg_fd, &key, key_len) < 0)
+			return -1;
+
+		if (segf_update_memtable(seg, key, offset) < 0)
+			return -1;
+	}
+
+	seg->size = offset;
+	return 0;
+}
+
+/*
  * Appends the given key value pair to the segment file. This will also
  * add the key and the values offset in the file to the memtable.
  *
@@ -193,7 +256,7 @@ int segf_append(struct segment_file *seg, int key, char *val)
 
 	// append the key len
 	int key_len = sizeof(key);
-	if ((n = write(seg->seg_fd, &key_len, sizeof(size_t))) < 0)
+	if ((n = write(seg->seg_fd, &key_len, sizeof(key_len))) < 0)
 		return -1;
 	kv_pair_sz += n;
 

@@ -1,5 +1,5 @@
 /*
- * Tests for hashDB.c
+ * Tests for hashDB.c (these are hardly unit tests anymore)
  */
 #include <check.h>
 #include <stdlib.h>
@@ -102,9 +102,34 @@ START_TEST(test_hashDB_repopulate)
 		ck_abort_msg("ERROR: Could not repopulate DB\n");
 	
 	int i = 0;
+	int j;
+	char *val;
+	unsigned int offset;
 	struct segment_file *seg = db->head;
 	while (seg) {
 		ck_assert_str_eq(test_file_names[i], seg->name);
+		ck_assert_ptr_nonnull(seg->table);
+
+		// check that the key is in the memtable
+		j = 0;
+		while (j < 4) {
+			if (!segf_read_memtable(seg, td[j].key, &offset))
+				ck_abort_msg("ERROR: key not found\n");
+			++j;
+		}
+
+		// assert the size of the file some how
+
+		// check that the offset is correct
+		j = 0;
+		while (j < 4) {
+			if (segf_read_file(seg, td[j].key, &val) < 0)
+				ck_abort_msg("ERROR: could not read file\n");
+			ck_assert_str_eq(val, td[j].val);
+			free(val);
+			++j;
+		}
+
 		seg = seg->next;
 		++i;
 	}
