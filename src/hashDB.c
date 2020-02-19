@@ -38,6 +38,23 @@ struct hashDB *hashDB_init(const char *data_dir)
 	return db;
 }
 
+/*
+ * Reads from the given data directory path and builds an in memory list
+ * of segment_file structs that represent each of the segment files in the
+ * data directory. The segment_file struct memtables are repopulated with
+ * the most recent key value pairs found in the segment file.
+ *
+ * Params:
+ *	data_dir => name of a directory containing segment files
+ *
+ * Returns:
+ *	Dynamically allocated hashDB struct that represents the key value
+ *	database. If there is any error repopulating the database NULL is
+ *	returned and errno is set. 
+
+ *	Note, the returned hashDB struct must be deallocated with hashDB_free
+ *	when it is no longer needed.
+ */
 struct hashDB *hashDB_repopulate(const char *data_dir)
 {
 	struct hashDB *db;
@@ -97,6 +114,18 @@ struct hashDB *hashDB_repopulate(const char *data_dir)
 	return db;
 }
 
+/*
+ * Predicate function used by scandir to determine if a directory entry
+ * should be included in the array of sorted directory entries. It returns
+ * true if the file in data directory is an appropiately named segment file
+ * and false otherwise.
+ *
+ * Param:
+ *	entry => pointer a dirent struct that is having its name checked
+ *
+ * Returns:
+ *	1 if dirent->d_name is a valid segment file name and 0 otherwise
+ */
 int keep_entry(const struct dirent *entry)
 {
 	if ((strcmp(entry->d_name, ".") == 0) ||
@@ -106,6 +135,20 @@ int keep_entry(const struct dirent *entry)
 	return 1;
 }
 
+/*
+ * Creates an empty directory name after the given string. The first empty
+ * segment file is also created in the directory.
+ *
+ * Param:
+ *	data_dir => name of the data directory to create
+ *
+ * Returns:
+ *	Pointer a dynamically allocated hashDB struct that represents the
+ *	new key value database.
+ *
+ *	Note, the returned hashDB struct must be deallocated with hashDB_free
+ *	when it is no longer needed.
+ */
 struct hashDB *hashDB_mkempty(const char *data_dir)
 {
 	if (mkdir(data_dir, 0755) < 0)
@@ -132,6 +175,16 @@ struct hashDB *hashDB_mkempty(const char *data_dir)
 	return db;
 }
 
+/*
+ * Deallocates all of the in memory data structures used by the hashDB struct.
+ * This includes all segment_file structs and their respective data structures.
+ *
+ * Param:
+ *	db => pointer to the hashDB struct to free
+ *
+ * Returns:
+ *	void
+ */
 void hashDB_free(struct hashDB *db)
 {
 	struct segment_file *curr, *prev;	
