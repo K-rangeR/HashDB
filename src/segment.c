@@ -281,7 +281,7 @@ int segf_append(struct segment_file *seg, int key, char *val)
 	}
 
 	// add key and offset to the memtable
-	if (memtable_write(seg->table, key, offset) < 0) {
+	if (segf_update_memtable(seg, key, offset) < 0) {
 		free(buf);
 		return -1;
 	}
