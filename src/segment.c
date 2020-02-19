@@ -238,39 +238,58 @@ int segf_append(struct segment_file *seg, int key, char *val)
 {
 	unsigned int offset;
 	unsigned int kv_pair_sz = 0;
-	int n;
+	int val_len, key_len, buf_offset;
+	char *buf;
+
+	val_len = strlen(val) + 1; // include null char
+	key_len = sizeof(key);
+	kv_pair_sz = sizeof(val_len) + val_len + (key_len * 2);
+
+	// allocate space for buffer
+	if ((buf = malloc(kv_pair_sz * sizeof(char))) == NULL)
+		return -1;
+	memset(buf, 0, kv_pair_sz);
+
+	buf_offset = 0;
+
+	// add the val length
+	memcpy(buf + buf_offset, &val_len, sizeof(val_len));
+	buf_offset += sizeof(val_len);
+
+	// add the val
+	memcpy(buf + buf_offset, val, val_len);
+	buf_offset += val_len;
+
+	// add the key length
+	memcpy(buf + buf_offset, &key_len, key_len);
+	buf_offset += key_len;
+
+	// add the key
+	memcpy(buf + buf_offset, &key, key_len);
+	buf_offset += key_len;
 
 	// seek to the end of the file
-	if ((offset = lseek(seg->seg_fd, 0, SEEK_END)) < 0)
+	if ((offset = lseek(seg->seg_fd, 0, SEEK_END)) < 0) {
+		free(buf);
 		return -1;
+	}
 
-	// append the val len (remember offset)
-	int val_len = strlen(val) + 1; // include null char
-	if ((n = write(seg->seg_fd, &val_len, sizeof(val_len))) < 0)
+	// handle event where write return n < kv_pair_sz
+	if (write(seg->seg_fd, buf, kv_pair_sz) < 0) {
+		free(buf);
 		return -1;
-	kv_pair_sz += n;
-
-	// append the val
-	if ((n = write(seg->seg_fd, val, val_len)) < 0)
-		return -1;
-
-	// append the key len
-	int key_len = sizeof(key);
-	if ((n = write(seg->seg_fd, &key_len, sizeof(key_len))) < 0)
-		return -1;
-	kv_pair_sz += n;
-
-	// append the key
-	if ((n = write(seg->seg_fd, &key, sizeof(key))) < 0)
-		return -1;
-	kv_pair_sz += n;
+	}
 
 	// add key and offset to the memtable
-	if (memtable_write(seg->table, key, offset) < 0)
+	if (memtable_write(seg->table, key, offset) < 0) {
+		free(buf);
 		return -1;
+	}
 
 	// update the size field
 	seg->size += kv_pair_sz;
+
+	free(buf);
 	return 0;
 }
 
@@ -296,7 +315,7 @@ int segf_read_file(struct segment_file *seg, int key, char **val)
 	if (lseek(seg->seg_fd, offset, SEEK_SET) < 0)
 		return -1;
 
-	int val_len;	
+	int val_len = 0;
 	if (read(seg->seg_fd, &val_len, sizeof(val_len)) < 0)
 		return -1;
 
