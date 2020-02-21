@@ -222,6 +222,33 @@ int segf_repop_memtable(struct segment_file *seg)
 }
 
 /*
+ * Appends the givne tombstone to the end of the file. The tombstone
+ * is a byte that will store metadata about a key value pair in the 
+ * segment file.
+ *
+ * As of now the only metadata being stored is a flag that indicates if
+ * the kv pair has been deleted (1) or not (0).
+ *
+ * Note, this function must be called before any call to segf_append.
+ *
+ * Params:
+ *	seg => represents the segment file to append to
+ *	tombstone => represents the meta data to add to the segment file
+ *
+ * Returns:
+ *	-1 if there was an error writing to the file (check errno), 0
+ *	otherwise
+ */
+int segf_append_tombstone(struct segment_file *seg, char tombstone)
+{
+	if (lseek(seg->seg_fd, 0, SEEK_END) < 0)
+		return -1;
+
+
+	return 0;	
+}
+
+/*
  * Appends the given key value pair to the segment file. This will also
  * add the key and the values offset in the file to the memtable.
  *
@@ -230,11 +257,14 @@ int segf_repop_memtable(struct segment_file *seg)
  *             segment file and the memtable to add to
  *	key => key to add to the file and memtable
  *	val => value to add to the file and memtable
+ *	tombstone => byte of metadata associated with key value pair, as of
+ *	             now all it does is indicate if the kv pair is being
+ *	             deleted. 1 if it is 0 if not.
  *
  * Returns:
  *	-1 if there is an error (check errno), 0 otherwise
  */
-int segf_append(struct segment_file *seg, int key, char *val)
+int segf_append(struct segment_file *seg, int key, char *val, char tombstone)
 {
 	unsigned int offset;
 	unsigned int kv_pair_sz = 0;
@@ -243,7 +273,8 @@ int segf_append(struct segment_file *seg, int key, char *val)
 
 	val_len = strlen(val) + 1; // include null char
 	key_len = sizeof(key);
-	kv_pair_sz = sizeof(val_len) + val_len + (key_len * 2);
+	kv_pair_sz = sizeof(tombstone) + sizeof(val_len) 
+			+ val_len + (key_len * 2);
 
 	// allocate space for buffer
 	if ((buf = malloc(kv_pair_sz * sizeof(char))) == NULL)
@@ -251,6 +282,10 @@ int segf_append(struct segment_file *seg, int key, char *val)
 	memset(buf, 0, kv_pair_sz);
 
 	buf_offset = 0;
+
+	// add the tombstone
+	memcpy(buf + buf_offset, &tombstone, sizeof(tombstone));
+	buf_offset += sizeof(tombstone);
 
 	// add the val length
 	memcpy(buf + buf_offset, &val_len, sizeof(val_len));
@@ -279,6 +314,8 @@ int segf_append(struct segment_file *seg, int key, char *val)
 		free(buf);
 		return -1;
 	}
+
+	offset += sizeof(tombstone); // skip to offset of value length
 
 	// add key and offset to the memtable
 	if (segf_update_memtable(seg, key, offset) < 0) {

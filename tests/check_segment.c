@@ -183,7 +183,7 @@ START_TEST(test_segf_read_append)
 	extern struct segment_file *segf_init(char*);
 	extern void segf_free(struct segment_file*);
 	extern int segf_read_file(struct segment_file*, int, char**);	
-	extern int segf_append(struct segment_file*, int, char*);
+	extern int segf_append(struct segment_file*, int, char*, char);
 	extern int segf_delete_file(struct segment_file*);	
 	extern int segf_create_file(struct segment_file*);	
 
@@ -219,7 +219,7 @@ START_TEST(test_segf_read_append)
 
 	// test append
 	for (int i = 0; i < 5; ++i) {
-		if (segf_append(seg, td[i].key, td[i].val) < 0)
+		if (segf_append(seg, td[i].key, td[i].val, 0) < 0)
 			ck_abort_msg("ERROR: could not append to file\n");
 	}
 
