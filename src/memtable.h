@@ -28,6 +28,7 @@ void memtable_free(struct memtable *tbl);
 void memtable_dump(struct memtable *tbl);
 int memtable_read(struct memtable *tbl, int key, unsigned int *offset);
 int memtable_write(struct memtable *tbl, int key, unsigned int offset);
+int memtable_remove(struct memtable *tbl, int key);
 int default_hash(int key);
 
 #endif
