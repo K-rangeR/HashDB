@@ -20,7 +20,7 @@ void segf_close_file(struct segment_file *seg);
 int segf_delete_file(struct segment_file *seg);
 int segf_read_file(struct segment_file *seg, int key, char **val);
 int segf_append(struct segment_file *seg, int key, char *val);
-int segf_remove_key(struct segment_file *seg, int key);
+int segf_remove_pair(struct segment_file *seg, int key);
 int segf_repop_memtable(struct segment_file *seg);
 int segf_update_memtable(struct segment_file *seg, int key, unsigned int offset);
 int segf_read_memtable(struct segment_file *seg, int key, unsigned int *offset);
