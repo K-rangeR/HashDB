@@ -61,33 +61,6 @@ void memte_place_before(struct memtable_entry *e1, struct memtable_entry *e2)
 }
 
 /*
- * Removes e from the linked list. Sets its next ptr to NULL.
- *
- * Params:
- *	head => start of the linked list
- *	e => entry to remove
- *
- * Returns:
- *	void
- */
-void memte_remove(struct memtable_entry *head, struct memtable_entry *e)
-{
-	struct memtable_entry *prev;
-
-	if (head == e) {
-		e->next = NULL;
-		return;
-	}
-
-	prev = head;
-	while (prev && prev->next != e)
-		prev = head->next;
-	
-	prev->next = e->next;
-	e->next = NULL;
-}
-
-/*
  * Allocates an empty memtable of MAX_TBL_SZ
  *
  * Params:
@@ -220,6 +193,40 @@ int memtable_read(struct memtable *tbl, int key, unsigned int *offset)
 			*offset = curr->offset;
 			return 1;
 		}
+		curr = curr->next;
+	}
+
+	return 0;
+}
+
+/*
+ * Remove the entry in the memtable with the given key
+ *
+ * Params:
+ *	tbl => pointer to the memtable struct to remove from
+ *	key => key of the kv pair to remove
+ *
+ * Returns:
+ *	1 if the key was found and removed, 0 otherwise
+ */
+int memtable_remove(struct memtable *tbl, int key)
+{
+	int hash = default_hash(key);		
+	hash = hash % MAX_TBL_SZ;
+
+	struct memtable_entry *curr, *prev;
+	prev = curr = tbl->table[hash];
+	while (curr) {
+		if (curr->key == key) {
+			if (curr == tbl->table[hash]) // bucket head
+				tbl->table[hash] = curr->next;	
+			else
+				prev->next = curr->next;
+			memte_free(curr);
+			tbl->entries -= 1;
+			return 1;
+		}
+		prev = curr;
 		curr = curr->next;
 	}
 

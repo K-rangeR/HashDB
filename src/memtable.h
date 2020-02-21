@@ -11,7 +11,6 @@ struct memtable_entry {
 struct memtable_entry *memte_init(int key, unsigned int offset);
 void memte_free(struct memtable_entry *entry);
 void memte_place_before(struct memtable_entry *e1, struct memtable_entry *e2);
-void memte_remove(struct memtable_entry *head, struct memtable_entry *entry);
 
 // Max number of entries in a memtable
 #define MAX_TBL_SZ 97

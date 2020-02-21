@@ -43,72 +43,6 @@ START_TEST(test_memte_place_before)
 	ck_assert_ptr_null(e1.next);
 } END_TEST
 
-START_TEST(test_memte_remove_mid)
-{
-	extern void memte_remove(struct memtable_entry*, struct memtable_entry*);
-
-	// make a list
-	struct memtable_entry one, two, three;
-	three.offset = 3;
-	three.next = NULL;
-
-	two.offset = 2;
-	two.next = &three;
-
-	one.offset = 1;
-	one.next = &two;
-
-	// remove two from the list
-	memte_remove(&one, &two);
-
-	ck_assert_ptr_null(two.next);
-	ck_assert_ptr_eq(one.next, &three);
-	ck_assert_ptr_null(three.next);
-} END_TEST
-
-START_TEST(test_memte_remove_front)
-{
-	extern void memte_remove(struct memtable_entry*, struct memtable_entry*);
-
-	// make a list
-	struct memtable_entry one, two, three;
-	three.offset = 3;
-	three.next = NULL;
-
-	two.offset = 2;
-	two.next = &three;
-
-	one.offset = 1;
-	one.next = &two;
-
-	// remove one from the list
-	memte_remove(&one, &one);
-	ck_assert_ptr_null(one.next);
-	ck_assert_ptr_eq(two.next, &three);
-	ck_assert_ptr_null(three.next);
-} END_TEST
-
-START_TEST(test_memte_remove_last)
-{
-	extern void memte_remove(struct memtable_entry*, struct memtable_entry*);
-
-	// make a list
-	struct memtable_entry one, two, three;
-	three.offset = 3;
-	three.next = NULL;
-
-	two.offset = 2;
-	two.next = &three;
-
-	one.offset = 1;
-	one.next = &two;
-
-	// remove three from the list
-	memte_remove(&one, &three);
-	ck_assert_ptr_null(two.next);
-	ck_assert_ptr_null(three.next);
-} END_TEST
-
 /*
  * Creates and returns a test suite for memtable entry functions
  */
@@ -122,9 +56,6 @@ Suite *memtable_entry_suite(void)
 
 	tcase_add_test(tc, test_memte_init);
 	tcase_add_test(tc, test_memte_place_before);
-	tcase_add_test(tc, test_memte_remove_mid);
-	tcase_add_test(tc, test_memte_remove_front);
-	tcase_add_test(tc, test_memte_remove_last);
 	/* Future memtable_entry test cases */
 
 	suite_add_tcase(s, tc);
@@ -177,6 +108,41 @@ START_TEST(test_memtable_read_write)
 	memtable_free(tbl);
 } END_TEST
 
+START_TEST(test_memtable_remove)
+{
+	extern struct memtable *memtable_init();
+	extern void memtable_free(struct memtable*);
+	extern int memtable_write(struct memtable*, int, unsigned int);
+	extern int memtable_read(struct memtable*, int, unsigned int*);
+
+	struct memtable *tbl;
+	if ((tbl = memtable_init()) == NULL)
+		ck_abort_msg("Could not create memtable\n");
+
+	// add testing data
+	int key;
+	unsigned int offset;
+	for (key = 1; key < 5; key++) {
+		offset = key + 1;		
+		if (memtable_write(tbl, key, offset) < 0)
+			ck_abort_msg("Could not insert into tbl\n");
+	}
+
+	// delete all kv pairs one by one from tbl
+	int key_found;
+	for (key = 1; key < 5; key++) {
+		if (memtable_remove(tbl, key) == 0)
+			ck_abort_msg("Could not find '%d' to delete\n", key);
+
+		// attempt to read the deleted kv pair
+		if (memtable_read(tbl, key, &offset) != 0)
+			ck_abort_msg("(%d,%d) was not deleted\n", key, offset);
+	}
+
+	ck_assert_uint_eq(tbl->entries, 0);
+	memtable_free(tbl);
+} END_TEST
+
 /*
  * Creates and returns a test suite for memtable functions
  */
@@ -190,6 +156,7 @@ Suite *memtable_suite(void)
 
 	tcase_add_test(tc, test_memtable_init);
 	tcase_add_test(tc, test_memtable_read_write);
+	tcase_add_test(tc, test_memtable_remove);
 	/* Future memtable test cases */
 
 	suite_add_tcase(s, tc);
