@@ -222,33 +222,6 @@ int segf_repop_memtable(struct segment_file *seg)
 }
 
 /*
- * Appends the givne tombstone to the end of the file. The tombstone
- * is a byte that will store metadata about a key value pair in the 
- * segment file.
- *
- * As of now the only metadata being stored is a flag that indicates if
- * the kv pair has been deleted (1) or not (0).
- *
- * Note, this function must be called before any call to segf_append.
- *
- * Params:
- *	seg => represents the segment file to append to
- *	tombstone => represents the meta data to add to the segment file
- *
- * Returns:
- *	-1 if there was an error writing to the file (check errno), 0
- *	otherwise
- */
-int segf_append_tombstone(struct segment_file *seg, char tombstone)
-{
-	if (lseek(seg->seg_fd, 0, SEEK_END) < 0)
-		return -1;
-
-
-	return 0;	
-}
-
-/*
  * Appends the given key value pair to the segment file. This will also
  * add the key and the values offset in the file to the memtable.
  *
