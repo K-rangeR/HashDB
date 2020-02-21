@@ -200,7 +200,8 @@ int memtable_read(struct memtable *tbl, int key, unsigned int *offset)
 }
 
 /*
- * Remove the entry in the memtable with the given key
+ * Remove the entry in the memtable with the given key. This will remove
+ * any memory used the key and value pair.
  *
  * Params:
  *	tbl => pointer to the memtable struct to remove from
