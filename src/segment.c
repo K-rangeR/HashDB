@@ -188,21 +188,30 @@ int segf_delete_file(struct segment_file *seg)
 int segf_repop_memtable(struct segment_file *seg)
 {
 	unsigned int offset;
-	int key, key_len, val_len, n;
+	int key, key_len, val_len, n, pair_deleted;
+	char tombstone;
 
 	// seek to the front of the file
 	if (lseek(seg->seg_fd, 0, SEEK_SET) < 0)
 		return -1;
 
+	tombstone = 0;
+	pair_deleted = 0;
 	while (1) {
 		if ((offset = lseek(seg->seg_fd, 0, SEEK_CUR)) < 0)
 			return -1;
 
-		if ((n = read(seg->seg_fd, &val_len, sizeof(val_len))) < 0)
+		if ((n = read(seg->seg_fd, &tombstone, sizeof(tombstone))) < 0)
 			return -1;
+
+		if (tombstone == 1)
+			pair_deleted = 1;
 
 		if (n == 0) // EOF
 			break;
+
+		if ((n = read(seg->seg_fd, &val_len, sizeof(val_len))) < 0)
+			return -1;
 
 		if (lseek(seg->seg_fd, val_len, SEEK_CUR) < 0)
 			return -1;
@@ -213,8 +222,14 @@ int segf_repop_memtable(struct segment_file *seg)
 		if (read(seg->seg_fd, &key, key_len) < 0)
 			return -1;
 
+		if (pair_deleted)
+			continue; // skip this pair, its been deleted
+
+		offset += sizeof(tombstone);
 		if (segf_update_memtable(seg, key, offset) < 0)
 			return -1;
+
+		pair_deleted = 0;
 	}
 
 	seg->size = offset;

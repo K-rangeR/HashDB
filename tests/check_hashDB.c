@@ -59,7 +59,7 @@ void add_testing_data()
 		}
 
 		for (int j = 0; j < 4; ++j) {
-			if (segf_append(seg, td[j].key, td[j].val) < 0) {
+			if (segf_append(seg, td[j].key, td[j].val, 0) < 0) {
 				printf("ERROR: append failed: ");
 				printf("%s\n", strerror(errno));
 				exit(1);
