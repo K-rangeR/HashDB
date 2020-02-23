@@ -36,5 +36,6 @@ test_kv td[] = {
 };
 
 #define TOTAL_KV_PAIRS 5
+#define FILE_SIZE (sizeof(char) * 5) + (sizeof(int) * 15) + 24
 
 #endif

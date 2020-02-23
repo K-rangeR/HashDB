@@ -92,7 +92,7 @@ START_TEST(test_hashDB_repopulate)
 			++j;
 		}
 
-		// assert the size of the file some how
+		ck_assert_int_eq(seg->size, FILE_SIZE);
 
 		// check that the offset is correct
 		j = 0;
