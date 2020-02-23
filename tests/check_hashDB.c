@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <dirent.h>
 #include <string.h>
 #include <errno.h>
 #include "../src/hashDB.h"
@@ -111,6 +112,40 @@ START_TEST(test_hashDB_repopulate)
 	hashDB_free(db);
 } END_TEST
 
+START_TEST(test_hashDB_mkempty)
+{
+	extern struct hashDB * hashDB_mkempty(const char *);	
+	extern void hashDB_free(struct hashDB*);
+
+	struct hashDB *tdb;
+	if ((tdb = hashDB_mkempty("2_tdata")) == NULL)
+		ck_abort_msg("ERROR: could not create hashDB\n");
+
+	// check the directory was created
+	DIR *tdir = opendir("2_tdata");
+	if (!tdir || errno == ENOENT)
+		ck_abort_msg("ERROR: directory not created\n");
+	closedir(tdir);
+
+	// check the first segment file was created
+	int err = access("2_tdata/1.dat", F_OK);
+	if (err == -1 && errno == ENOENT) {
+		ck_abort_msg("ERROR: first segment file does not exist: %s\n",
+			strerror(errno));
+	} else if (err == -1 && errno != 0) {
+		ck_abort_msg("ERROR: %s\n", strerror(errno));
+	}
+
+	// check that the segment file struct was created
+	ck_assert_ptr_nonnull(tdb->head);
+	ck_assert_str_eq(tdb->head->name, "2_tdata/1.dat");
+
+	// check that the next ID is correct
+	ck_assert_int_eq(tdb->next_id, 2);
+
+	hashDB_free(tdb);
+} END_TEST
+
 Suite *hashDB_suite(void)
 {
 	Suite *s;
@@ -120,6 +155,7 @@ Suite *hashDB_suite(void)
 	tc = tcase_create("Core");
 
 	tcase_add_test(tc, test_hashDB_repopulate);
+	tcase_add_test(tc, test_hashDB_mkempty);
 
 	suite_add_tcase(s, tc);
 	return s;

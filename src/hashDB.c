@@ -153,9 +153,19 @@ struct hashDB *hashDB_mkempty(const char *data_dir)
 {
 	if (mkdir(data_dir, 0755) < 0)
 		return NULL;
+	
+	// +7 = '/' + 1.dat\0
+	char *test_file_path = calloc(strlen(data_dir)+7, sizeof(char));
+	if (test_file_path == NULL)
+		return NULL;
+
+	// build the path to the fist test file
+	strcat(test_file_path, data_dir);
+	strcat(test_file_path, "/");
+	strcat(test_file_path, "1.dat");
 
 	struct segment_file *first;
-	if ((first = segf_init("1.dat")) == NULL)
+	if ((first = segf_init(test_file_path)) == NULL)
 		return NULL;
 
 	if (segf_create_file(first) < 0) {
