@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include "../src/segment.h"
+#include "data.h"
 
 START_TEST(test_segf_init)
 {
@@ -204,34 +205,21 @@ START_TEST(test_segf_read_append)
 	char *t = "xyz";
 	char *test_ptrs[5] = {t, t, t, t, t};
 
-	typedef struct test_kv {
-		int key;
-		char *val;
-	} test_kv;
-
-	test_kv td[] = {
-		{1, "one"},
-		{2, "two"},
-		{3, "three"},
-		{4, "four"},
-		{5, "five"}
-	};
-
 	// test append
-	for (int i = 0; i < 5; ++i) {
+	for (int i = 0; i < TOTAL_KV_PAIRS; ++i) {
 		if (segf_append(seg, td[i].key, td[i].val, 0) < 0)
 			ck_abort_msg("ERROR: could not append to file\n");
 	}
 
 	// test read
-	for (int i = 0; i < 5; ++i) {
+	for (int i = 0; i < TOTAL_KV_PAIRS; ++i) {
 		if (segf_read_file(seg, i+1, &test_ptrs[i]) <= 0)
 			ck_abort_msg("ERROR: could not read from file\n");
 		ck_assert_str_eq(test_ptrs[i], td[i].val);
 	}
 
 	// free the values read from the file
-	for (int i = 0; i < 5; ++i)
+	for (int i = 0; i < TOTAL_KV_PAIRS; ++i)
 		free(test_ptrs[i]);
 
 	if (segf_delete_file(seg) < 0)
@@ -261,28 +249,15 @@ START_TEST(test_segf_remove_pair)
 	if (segf_create_file(seg) < 0)
 		ck_abort_msg("ERROR: could not create file\n");
 	
-	typedef struct test_kv {
-		int key;
-		char *val;
-	} test_kv;
-
-	test_kv td[] = {
-		{1, "one"},
-		{2, "two"},
-		{3, "three"},
-		{4, "four"},
-		{5, "five"}
-	};
-
 	// add the testing data
-	for (int i = 0; i < 5; ++i) {
+	for (int i = 0; i < TOTAL_KV_PAIRS; ++i) {
 		if (segf_append(seg, td[i].key, td[i].val, 0) < 0)
 			ck_abort_msg("ERROR: could not append to file\n");
 	}
 
 	unsigned int offset;
 	int err;
-	for (int i = 0; i < 5; ++i) {
+	for (int i = 0; i < TOTAL_KV_PAIRS; ++i) {
 		if ((err = segf_remove_pair(seg, td[i].key)) <= 0) {
 			if (err == 0)
 				ck_abort_msg("ERROR: key not found\n");

@@ -8,33 +8,7 @@
 #include <string.h>
 #include <errno.h>
 #include "../src/hashDB.h"
-
-/*
- * Names of all segment files used to test hashDB functions on
- */
-char *test_file_names[] = {
-	"tdata/4.dat",
-	"tdata/3.dat",
-	"tdata/2.dat",
-	"tdata/1.dat"
-};
-
-typedef struct test_kv {
-	int key;	
-	char *val;
-} test_kv;
-
-/*
- * Testing data, this is added to the segment files in the data directory
- * each time the test suite runs, and is removed from the segment files
- * when the suite is done.
- */
-test_kv td[] = {
-	{1, "one"},
-	{2, "two"},
-	{3, "three"},
-	{4, "four"}
-};
+#include "data.h"
 
 /*
  * Adds the testing data to the testing segment files. This happens each
@@ -45,7 +19,7 @@ void add_testing_data()
 {
 	struct segment_file *seg;
 
-	for (int i = 0; i < 4; ++i) { // test files
+	for (int i = 0; i < TOTAL_TEST_FILES; ++i) { // test files
 		if ((seg = segf_init(test_file_names[i])) == NULL) {
 			printf("ERROR: could not create segment struct: ");
 			printf("%s\n", strerror(errno));
@@ -58,7 +32,7 @@ void add_testing_data()
 			exit(1);
 		}
 
-		for (int j = 0; j < 4; ++j) {
+		for (int j = 0; j < TOTAL_KV_PAIRS; ++j) {
 			if (segf_append(seg, td[j].key, td[j].val, 0) < 0) {
 				printf("ERROR: append failed: ");
 				printf("%s\n", strerror(errno));
@@ -78,7 +52,7 @@ void add_testing_data()
  */
 void delete_testing_data()
 {
-	for (int i = 0; i < 4; ++i) {
+	for (int i = 0; i < TOTAL_TEST_FILES; ++i) {
 		if (truncate(test_file_names[i], 0) < 0) {
 			printf("ERROR: could not truncate file: ");
 			printf("%s\n", strerror(errno));
@@ -112,7 +86,7 @@ START_TEST(test_hashDB_repopulate)
 
 		// check that the key is in the memtable
 		j = 0;
-		while (j < 4) {
+		while (j < TOTAL_KV_PAIRS) {
 			if (!segf_read_memtable(seg, td[j].key, &offset))
 				ck_abort_msg("ERROR: key not found\n");
 			++j;
@@ -122,7 +96,7 @@ START_TEST(test_hashDB_repopulate)
 
 		// check that the offset is correct
 		j = 0;
-		while (j < 4) {
+		while (j < TOTAL_KV_PAIRS) {
 			if (segf_read_file(seg, td[j].key, &val) <= 0)
 				ck_abort_msg("ERROR: could not read file\n");
 			ck_assert_str_eq(val, td[j].val);
