@@ -237,6 +237,46 @@ int segf_repop_memtable(struct segment_file *seg)
 }
 
 /*
+ * Removes a key value pair from the memtable and segment file.
+ *
+ * Params:
+ *	seg => represents the segment file to remove from
+ *	key => identifies the kv pair to remove
+ *
+ * Returns:
+ *	-1 if there is an error (check errno), 0 if the key was not found,
+ *	or 1 if the kv pair was removed
+ *
+ *	Note, if there is an error the memtable is left unchanged
+ */
+int segf_remove_pair(struct segment_file *seg, int key)
+{
+	unsigned int offset;
+	char *val;
+	int err;
+
+	// look up the offset
+	if (segf_read_memtable(seg, key, &offset) == 0)
+		return 0; // key not found
+
+	// look up value
+	if ((err = segf_read_file(seg, key, &val)) != 1)
+		return err;
+
+	// remove from memtable, don't need to check if the key was found
+	// because segf_read_memtable already did
+	err = memtable_remove(seg->table, key);
+
+	if (segf_append(seg, key, val, 1) < 0) {
+		// put the kv pair back in the memtable!!
+		segf_update_memtable(seg, key, offset);
+		return -1;
+	}
+
+	return 1;
+}
+
+/*
  * Appends the given key value pair to the segment file. This will also
  * add the key and the values offset in the file to the memtable.
  *
@@ -305,10 +345,12 @@ int segf_append(struct segment_file *seg, int key, char *val, char tombstone)
 
 	offset += sizeof(tombstone); // skip to offset of value length
 
-	// add key and offset to the memtable
-	if (segf_update_memtable(seg, key, offset) < 0) {
-		free(buf);
-		return -1;
+	// add key and offset to the memtable if not deleting
+	if (tombstone == 0) {
+		if (segf_update_memtable(seg, key, offset) < 0) {
+			free(buf);
+			return -1;
+		}
 	}
 
 	// update the size field
@@ -328,14 +370,15 @@ int segf_append(struct segment_file *seg, int key, char *val, char tombstone)
  *	val => stores the value read from the segment file
  *
  * Returns:
- *	-1 if there is an error (check errno), 0 otherwise	
+ *	-1 if there is an error (check errno), 0 if the key was not found,
+ *	or 1 if the key was found
  */
 int segf_read_file(struct segment_file *seg, int key, char **val)
 {
 	unsigned int offset;	
 
 	if (memtable_read(seg->table, key, &offset) == 0)
-		return -1;
+		return 0; // key not found
 	
 	if (lseek(seg->seg_fd, offset, SEEK_SET) < 0)
 		return -1;
@@ -354,7 +397,7 @@ int segf_read_file(struct segment_file *seg, int key, char **val)
 	}
 	
 	*val = v;
-	return 0;
+	return 1;
 }
 
 /*

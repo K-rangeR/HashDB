@@ -225,7 +225,7 @@ START_TEST(test_segf_read_append)
 
 	// test read
 	for (int i = 0; i < 5; ++i) {
-		if (segf_read_file(seg, i+1, &test_ptrs[i]) < 0)
+		if (segf_read_file(seg, i+1, &test_ptrs[i]) <= 0)
 			ck_abort_msg("ERROR: could not read from file\n");
 		ck_assert_str_eq(test_ptrs[i], td[i].val);
 	}
@@ -234,6 +234,68 @@ START_TEST(test_segf_read_append)
 	for (int i = 0; i < 5; ++i)
 		free(test_ptrs[i]);
 
+	if (segf_delete_file(seg) < 0)
+		ck_abort_msg("ERROR: could not delete file\n");	
+	
+	segf_free(seg);
+} END_TEST
+
+START_TEST(test_segf_remove_pair)
+{
+	extern struct segment_file *segf_init(char*);
+	extern void segf_free(struct segment_file*);
+	extern int segf_append(struct segment_file*, int, char*, char);
+	extern int segf_delete_file(struct segment_file*);	
+	extern int segf_create_file(struct segment_file*);	
+	extern int segf_remove_pair(struct segment_file*, int);
+
+	char *tname = malloc(sizeof(char) * 9);
+	if (tname == NULL)
+		ck_abort_msg("Could not malloc space for file name\n");
+	strcpy(tname, "test.dat");
+
+	struct segment_file *seg;	
+	if ((seg = segf_init(tname)) < 0)
+		ck_abort_msg("ERROR: could not create segment struct\n");
+	
+	if (segf_create_file(seg) < 0)
+		ck_abort_msg("ERROR: could not create file\n");
+	
+	typedef struct test_kv {
+		int key;
+		char *val;
+	} test_kv;
+
+	test_kv td[] = {
+		{1, "one"},
+		{2, "two"},
+		{3, "three"},
+		{4, "four"},
+		{5, "five"}
+	};
+
+	// add the testing data
+	for (int i = 0; i < 5; ++i) {
+		if (segf_append(seg, td[i].key, td[i].val, 0) < 0)
+			ck_abort_msg("ERROR: could not append to file\n");
+	}
+
+	unsigned int offset;
+	int err;
+	for (int i = 0; i < 5; ++i) {
+		if ((err = segf_remove_pair(seg, td[i].key)) <= 0) {
+			if (err == 0)
+				ck_abort_msg("ERROR: key not found\n");
+			else
+				ck_abort_msg("ERROR: delete failed\n");
+		}
+
+		// verify the key is not in the memtable
+		if (segf_read_memtable(seg, td[i].key, &offset) == 1)
+			ck_abort_msg("ERROR: key still in memtable\n");
+	}
+
+	// clean up
 	if (segf_delete_file(seg) < 0)
 		ck_abort_msg("ERROR: could not delete file\n");	
 	
@@ -254,6 +316,7 @@ Suite *segment_file_io_suite(void)
 	tcase_add_test(tc, test_segf_create_file);
 	tcase_add_test(tc, test_segf_delete_file);
 	tcase_add_test(tc, test_segf_read_append);
+	tcase_add_test(tc, test_segf_remove_pair);
 
 	suite_add_tcase(s, tc);
 	return s;

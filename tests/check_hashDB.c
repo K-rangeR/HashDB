@@ -123,7 +123,7 @@ START_TEST(test_hashDB_repopulate)
 		// check that the offset is correct
 		j = 0;
 		while (j < 4) {
-			if (segf_read_file(seg, td[j].key, &val) < 0)
+			if (segf_read_file(seg, td[j].key, &val) <= 0)
 				ck_abort_msg("ERROR: could not read file\n");
 			ck_assert_str_eq(val, td[j].val);
 			free(val);
