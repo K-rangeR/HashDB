@@ -151,11 +151,15 @@ int keep_entry(const struct dirent *entry)
  */
 struct hashDB *hashDB_mkempty(const char *data_dir)
 {
+	char *test_file_path;
+	struct segment_file *first;
+	struct hashDB *db;
+
 	if (mkdir(data_dir, 0755) < 0)
 		return NULL;
 	
 	// +7 = '/' + 1.dat\0
-	char *test_file_path = calloc(strlen(data_dir)+7, sizeof(char));
+	test_file_path = calloc(strlen(data_dir)+7, sizeof(char));
 	if (test_file_path == NULL)
 		return NULL;
 
@@ -164,7 +168,6 @@ struct hashDB *hashDB_mkempty(const char *data_dir)
 	strcat(test_file_path, "/");
 	strcat(test_file_path, "1.dat");
 
-	struct segment_file *first;
 	if ((first = segf_init(test_file_path)) == NULL)
 		return NULL;
 
@@ -173,7 +176,6 @@ struct hashDB *hashDB_mkempty(const char *data_dir)
 		return NULL;
 	}
 
-	struct hashDB *db;
 	if ((db = malloc(sizeof(struct hashDB))) == NULL) {
 		segf_delete_file(first);
 		segf_free(first);
