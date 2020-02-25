@@ -112,6 +112,68 @@ START_TEST(test_hashDB_repopulate)
 	hashDB_free(db);
 } END_TEST
 
+START_TEST(test_hashDB_repopulate_with_delete)
+{
+	extern struct hashDB * hashDB_repopulate(const char *data_dir);
+	extern void hashDB_free(struct hashDB*);
+	extern struct segment_file * segf_init(char*);
+	extern void segf_free(struct segment_file*);
+	extern int segf_create_file(struct segment_file*);
+	extern int segf_delete_file(struct segment_file*);
+
+	char *name = "tdata2/tmp.dat";
+	char *tname = calloc(strlen(name), sizeof(char));
+	if (tname == NULL)
+		ck_abort_msg("ERROR: could not make space for test file name\n");
+	strcat(tname, name);
+	
+	// create segment file
+	struct segment_file *seg;
+	if ((seg = segf_init(tname)) == NULL)
+		ck_abort_msg("ERROR: could not create segment_file struct\n");
+	if (segf_create_file(seg) < 0)
+		ck_abort_msg("ERROR: could not create segment file: %s\n", 
+				strerror(errno));
+
+	// add data to segment file
+	for (int i = 0; i < TOTAL_KV_PAIRS; ++i) {
+		if (segf_append(seg, td[i].key, td[i].val, 0) < 0)
+			ck_abort_msg("ERROR: could not append to file: %s\n",
+					strerror(errno));
+	}
+
+	// delete kv pair from segment file
+	int err;	
+	if ((err = segf_remove_pair(seg, td[3].key)) <= 0) {
+		if (err == 0)
+			ck_abort_msg("ERROR: could not find key to delete\n");
+		else
+			ck_abort_msg("ERROR: delete failed\n");
+	}
+
+	// free segment_file struct
+	segf_free(seg);
+
+	// call hashDB_repopulate
+	struct hashDB *db;
+	if ((db = hashDB_repopulate("tdata2")) == NULL)
+		ck_abort_msg("ERROR: could not repopulate DB: %s\n",
+				strerror(errno));
+
+	// check that the deleted kv pair is not in the memtable
+	unsigned int offset;
+	if (segf_read_memtable(db->head, td[3].key, &offset) != 0)
+		ck_abort_msg("ERROR: deleted key is in the memtable\n");
+	
+	// delete the test file
+	if (segf_delete_file(db->head) < 0)
+		ck_abort_msg("ERROR: could not delete segment file: %s\n",
+				strerror(errno));
+
+	// free the hashDB struct
+	hashDB_free(db);
+} END_TEST
+
 START_TEST(test_hashDB_mkempty)
 {
 	extern struct hashDB * hashDB_mkempty(const char *);	
@@ -156,6 +218,7 @@ Suite *hashDB_suite(void)
 	tc = tcase_create("Core");
 
 	tcase_add_test(tc, test_hashDB_repopulate);
+	tcase_add_test(tc, test_hashDB_repopulate_with_delete);
 	tcase_add_test(tc, test_hashDB_mkempty);
 
 	suite_add_tcase(s, tc);
