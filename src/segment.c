@@ -337,12 +337,6 @@ int segf_append(struct segment_file *seg, int key, char *val, char tombstone)
 		return -1;
 	}
 
-	// handle event where write return n < kv_pair_sz
-	if (write(seg->seg_fd, buf, kv_pair_sz) < 0) {
-		free(buf);
-		return -1;
-	}
-
 	offset += sizeof(tombstone); // skip to offset of value length
 
 	// add key and offset to the memtable if not deleting
@@ -351,6 +345,14 @@ int segf_append(struct segment_file *seg, int key, char *val, char tombstone)
 			free(buf);
 			return -1;
 		}
+	}
+
+	// handle event where write return n < kv_pair_sz
+	if (write(seg->seg_fd, buf, kv_pair_sz) < 0) {
+		if (tombstone == 0)
+			memtable_remove(seg->table, key);
+		free(buf);
+		return -1;
 	}
 
 	// update the size field
