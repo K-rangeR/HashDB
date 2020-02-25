@@ -68,7 +68,7 @@ void delete_testing_data()
 START_TEST(test_hashDB_repopulate)
 {
 	extern struct hashDB * hashDB_repopulate(const char *data_dir);
-	extern void hashDB_free(struct hashDB*);
+	extern   void hashDB_free(struct hashDB*);
 
 	const char *test_dir = "tdata";
 
@@ -115,11 +115,11 @@ START_TEST(test_hashDB_repopulate)
 START_TEST(test_hashDB_repopulate_with_delete)
 {
 	extern struct hashDB * hashDB_repopulate(const char *data_dir);
-	extern void hashDB_free(struct hashDB*);
+	extern   void hashDB_free(struct hashDB*);
 	extern struct segment_file * segf_init(char*);
-	extern void segf_free(struct segment_file*);
-	extern int segf_create_file(struct segment_file*);
-	extern int segf_delete_file(struct segment_file*);
+	extern   void segf_free(struct segment_file*);
+	extern    int segf_create_file(struct segment_file*);
+	extern    int segf_delete_file(struct segment_file*);
 
 	char *name = "tdata2/tmp.dat";
 	char *tname = calloc(strlen(name), sizeof(char));
@@ -177,7 +177,7 @@ START_TEST(test_hashDB_repopulate_with_delete)
 START_TEST(test_hashDB_mkempty)
 {
 	extern struct hashDB * hashDB_mkempty(const char *);	
-	extern void hashDB_free(struct hashDB*);
+	extern   void hashDB_free(struct hashDB*);
 
 	struct hashDB *tdb;
 	if ((tdb = hashDB_mkempty("2_tdata")) == NULL)

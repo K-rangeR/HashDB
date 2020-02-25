@@ -12,14 +12,14 @@
 START_TEST(test_segf_init)
 {
 	extern struct segment_file *segf_init(char*);
-	extern void segf_free(struct segment_file*);
+	extern   void segf_free(struct segment_file*);
 
-	struct segment_file *seg;
 	char *tname = malloc(sizeof(char) * 9);
 	if (tname == NULL)
 		ck_abort_msg("Could not malloc space for file name\n");
 	strcpy(tname, "test.dat");
 
+	struct segment_file *seg;
 	if ((seg = segf_init(tname)) == NULL)
 		ck_abort_msg("Could not create segment file struct\n");
 	
@@ -28,6 +28,7 @@ START_TEST(test_segf_init)
 	ck_assert_int_eq(seg->seg_fd, -1);
 	ck_assert_ptr_nonnull(seg->table);
 	ck_assert_ptr_null(seg->next);
+
 	segf_free(seg);
 } END_TEST
 
@@ -54,6 +55,7 @@ START_TEST(test_segf_unlink_front)
 
 	// make a list of segment_files
 	struct segment_file s1, s2, s3;
+
 	s3.name = "s2.dat";
 	s3.next = NULL;
 
@@ -75,6 +77,7 @@ START_TEST(test_segf_unlink_mid)
 
 	// make a list of segment_files
 	struct segment_file s1, s2, s3;
+
 	s3.name = "s2.dat";
 	s3.next = NULL;
 
@@ -95,6 +98,7 @@ START_TEST(test_segf_unlink_last)
 
 	// make a list of segment_files
 	struct segment_file s1, s2, s3;
+
 	s3.name = "s2.dat";
 	s3.next = NULL;
 
@@ -145,8 +149,7 @@ START_TEST(test_segf_create_file)
 	if (segf_create_file(&seg) < 0)
 		ck_abort_msg("ERROR: Could not create segment file\n");
 
-	int err;
-	err = access(seg.name, F_OK);
+	int err = access(seg.name, F_OK);
 	if (err == -1 && errno == ENOENT) {
 		ck_abort_msg("ERROR: segf_create_file did not create '%s'\n",
 				seg.name);
@@ -182,11 +185,11 @@ START_TEST(test_segf_delete_file)
 START_TEST(test_segf_read_append)
 {
 	extern struct segment_file *segf_init(char*);
-	extern void segf_free(struct segment_file*);
-	extern int segf_read_file(struct segment_file*, int, char**);	
-	extern int segf_append(struct segment_file*, int, char*, char);
-	extern int segf_delete_file(struct segment_file*);	
-	extern int segf_create_file(struct segment_file*);	
+	extern   void segf_free(struct segment_file*);
+	extern    int segf_read_file(struct segment_file*, int, char**);
+	extern    int segf_append(struct segment_file*, int, char*, char);
+	extern    int segf_delete_file(struct segment_file*);	
+	extern    int segf_create_file(struct segment_file*);	
 
 	char *tname = malloc(sizeof(char) * 9);
 	if (tname == NULL)
@@ -231,11 +234,11 @@ START_TEST(test_segf_read_append)
 START_TEST(test_segf_remove_pair)
 {
 	extern struct segment_file *segf_init(char*);
-	extern void segf_free(struct segment_file*);
-	extern int segf_append(struct segment_file*, int, char*, char);
-	extern int segf_delete_file(struct segment_file*);	
-	extern int segf_create_file(struct segment_file*);	
-	extern int segf_remove_pair(struct segment_file*, int);
+	extern   void segf_free(struct segment_file*);
+	extern    int segf_append(struct segment_file*, int, char*, char);
+	extern    int segf_delete_file(struct segment_file*);	
+	extern    int segf_create_file(struct segment_file*);	
+	extern    int segf_remove_pair(struct segment_file*, int);
 
 	char *tname = malloc(sizeof(char) * 9);
 	if (tname == NULL)
