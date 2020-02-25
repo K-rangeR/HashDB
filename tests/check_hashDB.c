@@ -119,7 +119,8 @@ START_TEST(test_hashDB_mkempty)
 
 	struct hashDB *tdb;
 	if ((tdb = hashDB_mkempty("2_tdata")) == NULL)
-		ck_abort_msg("ERROR: could not create hashDB\n");
+		ck_abort_msg("ERROR: could not create hashDB: %s\n",
+				strerror(errno));
 
 	// check the directory was created
 	DIR *tdir = opendir("2_tdata");

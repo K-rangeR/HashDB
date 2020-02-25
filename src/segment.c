@@ -222,8 +222,12 @@ int segf_repop_memtable(struct segment_file *seg)
 		if (read(seg->seg_fd, &key, key_len) < 0)
 			return -1;
 
-		if (pair_deleted)
+		if (pair_deleted) {
+			// remove the pair from the memtable if it was
+			// previously added
+			memtable_remove(seg->table, key);
 			continue; // skip this pair, its been deleted
+		}
 
 		offset += sizeof(tombstone);
 		if (segf_update_memtable(seg, key, offset) < 0)
