@@ -3,9 +3,9 @@
 
 // Represents an entry in the memtables bucket chain
 struct memtable_entry {
-	int key;
-	unsigned int offset;
-	struct memtable_entry *next;
+	int key;                     // used to look up data in the memtable
+	unsigned int offset;         // byte offset of the kv pair in segment file
+	struct memtable_entry *next; // pointer to the next entry in chain
 };
 
 struct memtable_entry *memte_init(int key, unsigned int offset);
@@ -18,8 +18,8 @@ void memte_place_before(struct memtable_entry *e1, struct memtable_entry *e2);
 // Represents a memtable (hash table) that maps a key to a values offset
 // in a segment file
 struct memtable {
-	unsigned int entries;
-	struct memtable_entry **table;
+	unsigned int entries;          // number of key offset pairs in the table
+	struct memtable_entry **table; // array of the memtable entry structs
 };
 
 struct memtable *memtable_init();

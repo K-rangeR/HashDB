@@ -5,11 +5,11 @@
 
 // Represents a segment file that stores the databases key value pairs
 struct segment_file {
-	unsigned int size;
-	char *name;
-	int seg_fd;
-	struct memtable *table;
-	struct segment_file *next;
+	unsigned int size;         // size in bytes of the segment file
+	char *name;                // name of the segment file (allocated on heap)
+	int seg_fd;                // file descriptor of open segment file
+	struct memtable *table;    // pointer to segment files memtable
+	struct segment_file *next; // pointer to the next (older) segment file struct
 };
 
 struct segment_file *segf_init(char *name);

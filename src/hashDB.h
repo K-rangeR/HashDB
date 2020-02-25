@@ -3,10 +3,13 @@
 
 #include "segment.h"
 
-// Represents the database
+// Represents a database handler. Through this users can interact with
+// the data stored in the semgent files
 struct hashDB {
 	// start of the linked list of active segment files
 	struct segment_file *head;
+
+	// ID to be given to the next newly created segment file
 	int next_id;
 };
 
