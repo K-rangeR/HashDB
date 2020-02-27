@@ -160,6 +160,16 @@ int memtable_write(struct memtable *tbl, int key, unsigned int offset)
 	int hash = default_hash(key);
 	hash = hash % MAX_TBL_SZ;
 
+	// check if the key offset pair already exists in the memtable
+	struct memtable_entry *curr = tbl->table[hash];
+	while (curr && curr->key != key)
+		curr = curr->next;
+
+	if (curr) { // key already exist in the memtable
+		curr->offset = offset;	
+		return 0;
+	}
+
 	struct memtable_entry *entry;
 	if ((entry = memte_init(key, offset)) == NULL)
 		return -1;

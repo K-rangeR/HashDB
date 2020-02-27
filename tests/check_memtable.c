@@ -108,6 +108,48 @@ START_TEST(test_memtable_read_write)
 	memtable_free(tbl);
 } END_TEST
 
+START_TEST(test_memtable_write_with_update)
+{
+	extern struct memtable *memtable_init();	
+	extern   void memtable_free(struct memtable*);
+	extern    int memtable_write(struct memtable*, int, unsigned int);
+	extern    int memtable_read(struct memtable*, int, unsigned int*);
+
+	struct memtable *tbl;
+	if ((tbl = memtable_init()) == NULL)
+		ck_abort_msg("Could not create memtable\n");
+
+	unsigned int offset = 0;
+	for (int i = 0; i < 5; ++i) { // write some test data to memtable
+		if (memtable_write(tbl, i, offset) < 0)
+			ck_abort_msg("Could not write to memtable\n");
+		offset += 1;
+	}
+
+	ck_assert_uint_eq(tbl->entries, 5);
+
+	// update some of the offsets
+	offset = 1;
+	for (int i = 0; i < 5; i += 2) {
+		if (memtable_write(tbl, i, offset) < 0)
+			ck_abort_msg("Could not write to memtable\n");
+		offset += 1;
+	}
+
+	ck_assert_uint_eq(tbl->entries, 5);
+	
+	offset = 1;
+	unsigned int returned_offset = 0;
+	for (int i = 0; i < 5; i += 2) {
+		if (memtable_read(tbl, i, &returned_offset) == 0)
+			ck_abort_msg("Could not read memtable\n");	
+		ck_assert_uint_eq(returned_offset, offset);
+		offset += 1;
+	}
+
+	memtable_free(tbl);	
+} END_TEST
+
 START_TEST(test_memtable_remove)
 {
 	extern struct memtable *memtable_init();
@@ -155,6 +197,7 @@ Suite *memtable_suite(void)
 
 	tcase_add_test(tc, test_memtable_init);
 	tcase_add_test(tc, test_memtable_read_write);
+	tcase_add_test(tc, test_memtable_write_with_update);
 	tcase_add_test(tc, test_memtable_remove);
 	/* Future memtable test cases */
 
