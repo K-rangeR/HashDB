@@ -145,7 +145,8 @@ void memtable_dump(struct memtable *tbl)
 }
 
 /*
- * Adds the offset to the memtable
+ * Adds the offset to the memtable. Updates the offset if the key offset
+ * pair is already in the memtable.
  *
  * Params:
  *	tbl => pointer to the memtable to add to
