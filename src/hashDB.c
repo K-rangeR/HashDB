@@ -136,7 +136,7 @@ int keep_entry(const struct dirent *entry)
 }
 
 /*
- * Creates an empty directory name after the given string. The first empty
+ * Creates a directory named after the given string. The first empty
  * segment file is also created in the directory.
  *
  * Param:
