@@ -163,7 +163,7 @@ struct hashDB *hashDB_mkempty(const char *data_dir)
 	if (test_file_path == NULL)
 		return NULL;
 
-	// build the path to the fist test file
+	// build the path to the first test file
 	strcat(test_file_path, data_dir);
 	strcat(test_file_path, "/");
 	strcat(test_file_path, "1.dat");
