@@ -26,5 +26,6 @@ int hashDB_compact(struct hashDB *db,
 int hashDB_merge(struct hashDB *db,
                  struct segment_file *s1,
                  struct segment_file *s2);
+int get_id_from_fname(const char *);
 
 #endif

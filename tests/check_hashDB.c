@@ -76,6 +76,8 @@ START_TEST(test_hashDB_repopulate)
 	struct hashDB *db;
 	if ((db = hashDB_repopulate(test_dir)) == NULL)
 		ck_abort_msg("ERROR: Could not repopulate DB\n");
+
+	ck_assert_int_eq(db->next_id, TOTAL_TEST_FILES + 1);
 	
 	int i = 0;
 	int j;
@@ -226,16 +228,55 @@ Suite *hashDB_suite(void)
 	return s;
 }
 
+START_TEST(test_get_id_from_fname)
+{
+	extern int get_id_from_fname(const char *);	
+
+	int res;
+
+	char *tn1 = "testdir/1.dat";
+	res = get_id_from_fname(tn1);
+	ck_assert_int_eq(res, 1);
+
+	char *tn2 = "testdir/subdir/2.dat";
+	res = get_id_from_fname(tn2);
+	ck_assert_int_eq(res, 2);
+
+	char *tn3 = "testdir/11.dat";
+	res = get_id_from_fname(tn3);
+	ck_assert_int_eq(res, 11);
+
+	char *tn4 = "testdir/1";
+	res = get_id_from_fname(tn4);
+	ck_assert_int_eq(res, -1);
+} END_TEST
+
+Suite *util_suite(void)
+{
+	Suite *s;
+	TCase *tc;
+
+	s = suite_create("Utils");
+	tc = tcase_create("Core");
+
+	tcase_add_test(tc, test_get_id_from_fname);
+
+	suite_add_tcase(s, tc);
+	return s;
+}
+
 int main(void)
 {
 	int fail = 0;
-	Suite *s;
+	Suite *s, *s2;
 	SRunner *runner;
 
 	add_testing_data();
 
 	s = hashDB_suite();
+	s2 = util_suite();
 	runner = srunner_create(s);
+	srunner_add_suite(runner, s2);
 
 	srunner_run_all(runner, CK_NORMAL);
 	fail = srunner_ntests_failed(runner);

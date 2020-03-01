@@ -93,6 +93,9 @@ struct hashDB *hashDB_repopulate(const char *data_dir)
 		segf_link_before(curr, db->head);
 		db->head = curr;
 
+		if (i == n-1)
+			db->next_id = get_id_from_fname(entries[i]->d_name)+1;
+
 		free(entries[i]);
 	}
 	
@@ -134,6 +137,46 @@ int keep_entry(const struct dirent *entry)
 		return 0;
 	}
 	return 1;
+}
+
+/*
+ * Gets the segment file ID from the segment files path
+ *
+ * Param:
+ *	path => path to the segment file
+ *
+ * Returns:
+ *	segment files ID if the name was in the correct format
+ *	-1 otherwise
+ */
+int get_id_from_fname(const char *path)
+{
+	int i = strlen(path);
+	int j = 0;
+	while (i >= 0) {
+		if (path[i] == '.') // start of the file extention
+			j = i;
+		if (path[i] == '/') // last '/' in file path
+			break;
+		--i;
+	}
+
+	if (j <= i) {
+		printf("%s is not in the correct format\n", path);
+		return -1;
+	}
+
+	// File ID will be between i and j
+	char id[5];
+	int k = 0;
+	i += 1; // skip '/'
+	while (i < j) {
+		id[k] = path[i];
+		++i;
+		++k;
+	}
+
+	return atoi(id);
 }
 
 /*
