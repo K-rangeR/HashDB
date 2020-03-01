@@ -34,7 +34,8 @@ void add_testing_data()
 		}
 
 		for (int j = 0; j < TOTAL_KV_PAIRS; ++j) {
-			if (segf_append(seg, td[j].key, td[j].val, 0) < 0) {
+			if (segf_append(seg, td[j].key, 
+					td[j].val, TOMBSTONE_INS) < 0) {
 				printf("ERROR: append failed: ");
 				printf("%s\n", strerror(errno));
 				exit(1);
@@ -137,7 +138,7 @@ START_TEST(test_hashDB_repopulate_with_delete)
 
 	// add data to segment file
 	for (int i = 0; i < TOTAL_KV_PAIRS; ++i) {
-		if (segf_append(seg, td[i].key, td[i].val, 0) < 0)
+		if (segf_append(seg, td[i].key, td[i].val, TOMBSTONE_INS) < 0)
 			ck_abort_msg("ERROR: could not append to file: %s\n",
 					strerror(errno));
 	}

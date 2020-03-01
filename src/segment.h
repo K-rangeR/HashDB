@@ -12,6 +12,9 @@ struct segment_file {
 	struct segment_file *next; // pointer to the next (older) segment file struct
 };
 
+#define TOMBSTONE_INS 0 // tombstone for inserting a kv pair
+#define TOMBSTONE_DEL 1 // tombstone for deleting a kv pair
+
 struct segment_file *segf_init(char *name);
 void segf_free(struct segment_file *seg);
 int segf_create_file(struct segment_file *seg);

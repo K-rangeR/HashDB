@@ -204,7 +204,7 @@ int segf_repop_memtable(struct segment_file *seg)
 		if ((n = read(seg->seg_fd, &tombstone, sizeof(tombstone))) < 0)
 			return -1;
 
-		if (tombstone == 1)
+		if (tombstone == TOMBSTONE_DEL)
 			pair_deleted = 1;
 
 		if (n == 0) // EOF
@@ -271,7 +271,7 @@ int segf_remove_pair(struct segment_file *seg, int key)
 	// because segf_read_memtable already did
 	err = memtable_remove(seg->table, key);
 
-	if (segf_append(seg, key, val, 1) < 0) {
+	if (segf_append(seg, key, val, TOMBSTONE_DEL) < 0) {
 		// put the kv pair back in the memtable!!
 		segf_update_memtable(seg, key, offset);
 		return -1;
@@ -344,7 +344,7 @@ int segf_append(struct segment_file *seg, int key, char *val, char tombstone)
 	offset += sizeof(tombstone); // skip to offset of value length
 
 	// add key and offset to the memtable if not deleting
-	if (tombstone == 0) {
+	if (tombstone == TOMBSTONE_INS) {
 		if (segf_update_memtable(seg, key, offset) < 0) {
 			free(buf);
 			return -1;
@@ -353,7 +353,7 @@ int segf_append(struct segment_file *seg, int key, char *val, char tombstone)
 
 	// handle event where write return n < kv_pair_sz
 	if (write(seg->seg_fd, buf, kv_pair_sz) < 0) {
-		if (tombstone == 0)
+		if (tombstone == TOMBSTONE_INS)
 			memtable_remove(seg->table, key);
 		free(buf);
 		return -1;

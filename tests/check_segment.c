@@ -210,7 +210,7 @@ START_TEST(test_segf_read_append)
 
 	// test append
 	for (int i = 0; i < TOTAL_KV_PAIRS; ++i) {
-		if (segf_append(seg, td[i].key, td[i].val, 0) < 0)
+		if (segf_append(seg, td[i].key, td[i].val, TOMBSTONE_INS) < 0)
 			ck_abort_msg("ERROR: could not append to file\n");
 	}
 
@@ -254,7 +254,7 @@ START_TEST(test_segf_remove_pair)
 	
 	// add the testing data
 	for (int i = 0; i < TOTAL_KV_PAIRS; ++i) {
-		if (segf_append(seg, td[i].key, td[i].val, 0) < 0)
+		if (segf_append(seg, td[i].key, td[i].val, TOMBSTONE_INS) < 0)
 			ck_abort_msg("ERROR: could not append to file\n");
 	}
 
