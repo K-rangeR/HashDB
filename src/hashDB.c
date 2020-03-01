@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 #include <sys/stat.h>
 #include <dirent.h>
 #include <errno.h>
@@ -152,7 +153,7 @@ int keep_entry(const struct dirent *entry)
 struct hashDB *hashDB_mkempty(const char *data_dir)
 {
 	char *test_file_path;
-	struct segment_file *first;
+	struct segment_file *first = NULL;
 	struct hashDB *db;
 
 	if (mkdir(data_dir, 0755) < 0)
@@ -161,7 +162,7 @@ struct hashDB *hashDB_mkempty(const char *data_dir)
 	// +7 = '/' + 1.dat\0
 	test_file_path = calloc(strlen(data_dir)+7, sizeof(char));
 	if (test_file_path == NULL)
-		return NULL;
+		goto err;
 
 	// build the path to the first test file
 	strcat(test_file_path, data_dir);
@@ -169,22 +170,25 @@ struct hashDB *hashDB_mkempty(const char *data_dir)
 	strcat(test_file_path, "1.dat");
 
 	if ((first = segf_init(test_file_path)) == NULL)
-		return NULL;
+		goto err;
 
-	if (segf_create_file(first) < 0) {
-		segf_free(first);
-		return NULL;
-	}
+	if (segf_create_file(first) < 0)
+		goto err;
 
-	if ((db = malloc(sizeof(struct hashDB))) == NULL) {
-		segf_delete_file(first);
-		segf_free(first);
-		return NULL;
-	}
+	if ((db = malloc(sizeof(struct hashDB))) == NULL)
+		goto err;
 	
 	db->next_id = 2;
 	db->head = first;
 	return db;
+
+err:
+	if (first && first->seg_fd != -1)
+		segf_delete_file(first);
+	if (first)
+		segf_free(first);
+	rmdir(data_dir);
+	return NULL;
 }
 
 /*
