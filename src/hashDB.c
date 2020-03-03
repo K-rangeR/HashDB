@@ -7,7 +7,7 @@
 #include <string.h>
 #include "hashDB.h"
 
-int keep_entry(const struct dirent *);
+static int keep_entry(const struct dirent *);
 
 /*
  * Creates a hashDB struct that represents an active database. If data_dir
@@ -130,7 +130,7 @@ struct hashDB *hashDB_repopulate(const char *data_dir)
  * Returns:
  *	1 if dirent->d_name is a valid segment file name and 0 otherwise
  */
-int keep_entry(const struct dirent *entry)
+static int keep_entry(const struct dirent *entry)
 {
 	if ((strcmp(entry->d_name, ".") == 0) ||
 	    (strcmp(entry->d_name, "..") == 0)) {
