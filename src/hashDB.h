@@ -21,8 +21,7 @@ int hashDB_put(struct hashDB *db, int key, int val_len, char *val);
 int hashDB_get(struct hashDB *db, int key, char **val);
 int hashDB_delete(struct hashDB *db, int key);
 int hashDB_compact(struct hashDB *db,
-                   struct segment_file *s1,
-                   struct segment_file *s2);
+                   struct segment_file *seg);
 int hashDB_merge(struct hashDB *db,
                  struct segment_file *s1,
                  struct segment_file *s2);
