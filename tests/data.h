@@ -35,7 +35,32 @@ test_kv td[] = {
 	{5, "five"}
 };
 
+char *test_file_namesxl[] = {
+	"perm/4.dat",
+	"perm/3.dat",
+	"perm/2.dat",
+	"perm/1.dat"
+};
+
+test_kv tdxl[] = {
+	{1, "one"},
+	{2, "two"},
+	{3, "three"},
+	{4, "four"},
+	{5, "five"},
+	{6, "six"},
+	{7, "seven"},
+	{8, "eight"},
+	{9, "nine"},
+	{10, "ten"},
+	{11, "eleven"},
+	{12, "twelve"}
+};
+
+#define KV_PAIRS_PER_FILE 3
+
 #define TOTAL_KV_PAIRS 5
+#define TOTAL_KVXL_PAIRS 12
 #define FILE_SIZE (sizeof(char) * 5) + (sizeof(int) * 15) + 24
 
 #endif

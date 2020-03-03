@@ -212,6 +212,31 @@ START_TEST(test_hashDB_mkempty)
 	hashDB_free(tdb);
 } END_TEST
 
+START_TEST(test_hashDB_get)
+{
+	extern struct hashDB * hashDB_init(const char *);	
+	extern void hashDB_free(struct hashDB *);
+
+	int res, idx;
+	char *val;
+	struct hashDB *db;
+
+	if ((db = hashDB_init("perm")) == NULL)
+		ck_abort_msg("ERROR: could not create hashDB");
+
+	// try and get from each segment file
+	idx = 0;
+	for (int i = 0; i < TOTAL_TEST_FILES; ++i) {
+		idx = i * KV_PAIRS_PER_FILE;
+		res = hashDB_get(db, tdxl[idx].key, &val);
+		if (res == -1 || res == 0)
+			ck_abort_msg("ERROR: could not read segment file\n");
+		ck_assert_str_eq(val, tdxl[idx].val);
+	}
+
+	hashDB_free(db);
+} END_TEST
+
 Suite *hashDB_suite(void)
 {
 	Suite *s;
@@ -223,6 +248,7 @@ Suite *hashDB_suite(void)
 	tcase_add_test(tc, test_hashDB_repopulate);
 	tcase_add_test(tc, test_hashDB_repopulate_with_delete);
 	tcase_add_test(tc, test_hashDB_mkempty);
+	tcase_add_test(tc, test_hashDB_get);
 
 	suite_add_tcase(s, tc);
 	return s;

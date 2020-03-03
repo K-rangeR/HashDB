@@ -3,7 +3,9 @@ tests/*.o
 tests/check_memtable
 tests/check_segment
 tests/check_hashDB
+tests/write_perm
 tests/test.dat
 tests/tdata
 tests/tdata/*
+tests/perm/*
 src/*.o

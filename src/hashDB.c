@@ -258,3 +258,30 @@ void hashDB_free(struct hashDB *db)
 	free(db);
 	db = NULL;
 }
+
+/*
+ * Gets the value associated with the given key
+ *
+ * Params:
+ *	db => hashDB to read from
+ *	key => used to look up the value
+ *	val => pointer to where the value will be stored if the key was found
+ *
+ * Returns:
+ *	-1 if there is an error (check errno), 0 if the key was not found,
+ *	of 1 if the key was found
+ */
+int hashDB_get(struct hashDB *db, int key, char **val)
+{
+	struct segment_file *curr = db->head;	
+	int res;
+
+	while (curr) {
+		res = segf_read_file(curr, key, val);
+		if (res != 0) // found or error
+			return res;
+		curr = curr->next;
+	}
+
+	return 0;
+}

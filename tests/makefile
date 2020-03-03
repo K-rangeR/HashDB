@@ -29,6 +29,13 @@ check_hashDB: check_hashDB.o hashDB.o segment.o memtable.o
 check_hashDB.o: check_hashDB.c
 	$(CC) -c check_hashDB.c -o check_hashDB.o
 
+# Build program to create testing data
+write_perm: write_perm.o segment.o memtable.o
+	$(CC) write_perm.o segment.o memtable.o -o write_perm
+
+write_perm.o: write_perm.c data.h
+	$(CC) -c write_perm.c -o write_perm.o
+
 memtable.o: $(SRCDIR)/memtable.c $(SRCDIR)/memtable.h
 	$(CC) $(CFLAGS) -c $(SRCDIR)/memtable.c -o memtable.o
 
