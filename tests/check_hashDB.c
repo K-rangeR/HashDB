@@ -215,6 +215,7 @@ START_TEST(test_hashDB_mkempty)
 START_TEST(test_hashDB_get)
 {
 	extern struct hashDB * hashDB_init(const char *);	
+	extern int hashDB_get(struct hashDB *, int, char**);
 	extern void hashDB_free(struct hashDB *);
 
 	int res, idx;
