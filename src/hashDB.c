@@ -58,11 +58,11 @@ struct hashDB *hashDB_init(const char *data_dir)
  */
 struct hashDB *hashDB_repopulate(const char *data_dir)
 {
-	struct hashDB *db;
-	struct dirent **entries; // array of struct dirent pointers
-	int n, path_len, i;
-	char *seg_name;
-	struct segment_file *curr = NULL;
+	struct hashDB        *db;
+	struct dirent        **entries; // array of struct dirent pointers
+	int                  n, path_len, i;
+	char                 *seg_name;
+	struct segment_file  *curr = NULL;
 
 	if ((db = malloc(sizeof(struct hashDB))) == NULL)
 		return NULL;
@@ -195,9 +195,9 @@ int get_id_from_fname(const char *path)
  */
 struct hashDB *hashDB_mkempty(const char *data_dir)
 {
-	char *test_file_path;
-	struct segment_file *first = NULL;
-	struct hashDB *db;
+	char                 *test_file_path;
+	struct segment_file  *first = NULL;
+	struct hashDB        *db;
 
 	if (mkdir(data_dir, 0755) < 0)
 		return NULL;
@@ -273,8 +273,8 @@ void hashDB_free(struct hashDB *db)
  */
 int hashDB_get(struct hashDB *db, int key, char **val)
 {
-	struct segment_file *curr = db->head;	
-	int res;
+	struct segment_file  *curr = db->head;	
+	int                   res;
 
 	while (curr) {
 		res = segf_read_file(curr, key, val);

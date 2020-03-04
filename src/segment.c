@@ -187,9 +187,9 @@ int segf_delete_file(struct segment_file *seg)
  */
 int segf_repop_memtable(struct segment_file *seg)
 {
-	unsigned int offset;
-	int key, key_len, val_len, n, pair_deleted;
-	char tombstone;
+	unsigned int  offset;
+	int           key, key_len, val_len, n, pair_deleted;
+	char          tombstone;
 
 	// seek to the front of the file
 	if (lseek(seg->seg_fd, 0, SEEK_SET) < 0)
@@ -255,9 +255,9 @@ int segf_repop_memtable(struct segment_file *seg)
  */
 int segf_remove_pair(struct segment_file *seg, int key)
 {
-	unsigned int offset;
-	char *val;
-	int err;
+	unsigned int  offset;
+	char          *val;
+	int           err;
 
 	// look up the offset
 	if (segf_read_memtable(seg, key, &offset) == 0)
@@ -298,10 +298,10 @@ int segf_remove_pair(struct segment_file *seg, int key)
  */
 int segf_append(struct segment_file *seg, int key, char *val, char tombstone)
 {
-	unsigned int offset;
-	unsigned int kv_pair_sz = 0;
-	int val_len, key_len, buf_offset;
-	char *buf;
+	unsigned int  offset;
+	unsigned int  kv_pair_sz = 0;
+	int           val_len, key_len, buf_offset;
+	char          *buf;
 
 	val_len = strlen(val) + 1; // include null char
 	key_len = sizeof(key);
