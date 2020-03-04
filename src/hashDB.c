@@ -259,6 +259,15 @@ void hashDB_free(struct hashDB *db)
 	db = NULL;
 }
 
+unsigned int get_kv_size(int key, int val_len)
+{
+	unsigned int sz = sizeof(char)
+			+ (sizeof(key)*2)
+			+ sizeof(val_len)
+			+ val_len;
+	return sz;
+}
+
 /*
  * Gets the value associated with the given key
  *
