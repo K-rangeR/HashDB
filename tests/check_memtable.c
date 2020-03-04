@@ -89,10 +89,12 @@ START_TEST(test_memtable_read_write)
 	struct memtable *tbl;
 	if ((tbl = memtable_init()) == NULL)
 		ck_abort_msg("Could not create memtable\n");
+
+	const int kv_pairs = 50;
 	
 	// add to the db
 	unsigned int offset;
-	for (int key = 1; key < 50; key++) {
+	for (int key = 1; key < kv_pairs; key++) {
 		offset = key + 1;
 		if (memtable_write(tbl, key, offset) < 0)
 			ck_abort_msg("Could not insert into tbl\n");
@@ -100,7 +102,7 @@ START_TEST(test_memtable_read_write)
 	}
 
 	// check the read
-	for (int key = 1; key < 50; key++) {
+	for (int key = 1; key < kv_pairs; key++) {
 		memtable_read(tbl, key, &offset);
 		ck_assert_uint_eq(offset, key+1);
 	}
@@ -119,28 +121,29 @@ START_TEST(test_memtable_write_with_update)
 	if ((tbl = memtable_init()) == NULL)
 		ck_abort_msg("Could not create memtable\n");
 
+	const int kv_pairs = 5;
 	unsigned int offset = 0;
-	for (int i = 0; i < 5; ++i) { // write some test data to memtable
+	for (int i = 0; i < kv_pairs; ++i) {
 		if (memtable_write(tbl, i, offset) < 0)
 			ck_abort_msg("Could not write to memtable\n");
 		offset += 1;
 	}
 
-	ck_assert_uint_eq(tbl->entries, 5);
+	ck_assert_uint_eq(tbl->entries, kv_pairs);
 
 	// update some of the offsets
 	offset = 1;
-	for (int i = 0; i < 5; i += 2) {
+	for (int i = 0; i < kv_pairs; i += 2) {
 		if (memtable_write(tbl, i, offset) < 0)
 			ck_abort_msg("Could not write to memtable\n");
 		offset += 1;
 	}
 
-	ck_assert_uint_eq(tbl->entries, 5);
+	ck_assert_uint_eq(tbl->entries, kv_pairs);
 	
 	offset = 1;
 	unsigned int returned_offset = 0;
-	for (int i = 0; i < 5; i += 2) {
+	for (int i = 0; i < kv_pairs; i += 2) {
 		if (memtable_read(tbl, i, &returned_offset) == 0)
 			ck_abort_msg("Could not read memtable\n");	
 		ck_assert_uint_eq(returned_offset, offset);
@@ -162,8 +165,9 @@ START_TEST(test_memtable_remove)
 		ck_abort_msg("Could not create memtable\n");
 
 	// add testing data
+	const int kv_pairs = 5;
 	unsigned int offset;
-	for (int key = 1; key < 5; key++) {
+	for (int key = 1; key < kv_pairs; key++) {
 		offset = key + 1;		
 		if (memtable_write(tbl, key, offset) < 0)
 			ck_abort_msg("Could not insert into tbl\n");
@@ -171,7 +175,7 @@ START_TEST(test_memtable_remove)
 
 	// delete all kv pairs one by one from tbl
 	int key_found;
-	for (int key = 1; key < 5; key++) {
+	for (int key = 1; key < kv_pairs; key++) {
 		if (memtable_remove(tbl, key) == 0)
 			ck_abort_msg("Could not find '%d' to delete\n", key);
 
