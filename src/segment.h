@@ -15,8 +15,11 @@ struct segment_file {
 #define TOMBSTONE_INS 0 // tombstone for inserting a kv pair
 #define TOMBSTONE_DEL 1 // tombstone for deleting a kv pair
 
+/* Struct constructors and destructors */
 struct segment_file *segf_init(char *name);
 void segf_free(struct segment_file *seg);
+
+/* Segment file IO functions */
 int segf_create_file(struct segment_file *seg);
 int segf_open_file(struct segment_file *seg);
 void segf_close_file(struct segment_file *seg);
@@ -24,9 +27,13 @@ int segf_delete_file(struct segment_file *seg);
 int segf_read_file(struct segment_file *seg, int key, char **val);
 int segf_append(struct segment_file *seg, int key, char *val, char tombstone);
 int segf_remove_pair(struct segment_file *seg, int key);
+
+/* Segment file memtable functions */
 int segf_repop_memtable(struct segment_file *seg);
 int segf_update_memtable(struct segment_file *seg, int key, unsigned int offset);
 int segf_read_memtable(struct segment_file *seg, int key, unsigned int *offset);
+
+/* Segment file linked list functions */
 void segf_link_before(struct segment_file *s1, struct segment_file *s2);
 void segf_unlink(struct segment_file *head, struct segment_file *seg);
 
