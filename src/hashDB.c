@@ -376,14 +376,6 @@ static char *get_next_segf_name(struct hashDB *db)
 }
 
 /*
- * TODO: Write this function!!!!
- */
-int hashDB_compact(struct hashDB *db, struct segment_file *seg)
-{
-	return 0;
-}
-
-/*
  * Gets the value associated with the given key
  *
  * Params:
@@ -408,4 +400,22 @@ int hashDB_get(struct hashDB *db, int key, char **val)
 	}
 
 	return 0;
+}
+
+/*
+ * TODO: Write this function!!!!
+ */
+int hashDB_compact(struct hashDB *db, struct segment_file *seg)
+{
+	return 0;
+}
+
+/*
+ * TODO: Write this function!!!!
+ */
+int hashDB_merge(struct hashDB *db, 
+                 struct segment_file *s1, 
+                 struct segment_file *s2)
+{
+	return 0;	
 }
