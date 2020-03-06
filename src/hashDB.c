@@ -393,8 +393,7 @@ int hashDB_get(struct hashDB *db, int key, char **val)
 	int                   res;
 
 	while (curr) {
-		res = segf_read_file(curr, key, val);
-		if (res != 0) // found or error
+		if ((res = segf_read_file(curr, key, val)) != 0)
 			return res;
 		curr = curr->next;
 	}
@@ -415,8 +414,9 @@ int hashDB_get(struct hashDB *db, int key, char **val)
  */
 int hashDB_delete(struct hashDB *db, int key)
 {
-	int res = 0;
 	struct segment_file *curr = db->head;
+	int                 res = 0;
+
 	while (curr) {
 		// attempt to remove key from current segment file
 		if ((res = segf_remove_pair(curr, key)))
