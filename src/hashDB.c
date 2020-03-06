@@ -403,7 +403,41 @@ int hashDB_get(struct hashDB *db, int key, char **val)
 }
 
 /*
+ * Removes a key value pair from the database
+ *
+ * Params:
+ *	db => pointer to a database handler
+ *	key => key to look up and remove
+ *
+ * Returns:
+ *	1 if the key was found and the key value pair was deleted, 0 if the
+ *	key was not found, or -1 if there was an error (check errno)
+ */
+int hashDB_delete(struct hashDB *db, int key)
+{
+	int res = 0;
+	struct segment_file *curr = db->head;
+	while (curr) {
+		// attempt to remove key from current segment file
+		if ((res = segf_remove_pair(curr, key)))
+			break;
+		curr = curr->next;
+	}
+
+	if (res == -1)
+		return -1; // error removing key
+	if (!curr)
+		return 0;  // key was not found in any of the segment files
+	
+	if (curr->size >= 1024)
+		res = hashDB_compact(db, curr); // what if this fails?
+	
+	return (res == 1) ? 1 : -1;
+}
+
+/*
  * TODO: Write this function!!!!
+ * Returns 1 if successful, -1 otherwise
  */
 int hashDB_compact(struct hashDB *db, struct segment_file *seg)
 {
@@ -412,6 +446,7 @@ int hashDB_compact(struct hashDB *db, struct segment_file *seg)
 
 /*
  * TODO: Write this function!!!!
+ * Returns 1 if successful, -1 otherwise
  */
 int hashDB_merge(struct hashDB *db, 
                  struct segment_file *s1, 
