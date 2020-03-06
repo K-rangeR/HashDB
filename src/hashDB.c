@@ -424,15 +424,7 @@ int hashDB_delete(struct hashDB *db, int key)
 		curr = curr->next;
 	}
 
-	if (res == -1)
-		return -1; // error removing key
-	if (!curr)
-		return 0;  // key was not found in any of the segment files
-	
-	if (curr->size >= 1024)
-		res = hashDB_compact(db, curr); // what if this fails?
-	
-	return (res == 1) ? 1 : -1;
+	return (curr) ? res : 0;
 }
 
 /*
