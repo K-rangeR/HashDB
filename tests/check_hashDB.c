@@ -182,8 +182,9 @@ START_TEST(test_hashDB_mkempty)
 	extern struct hashDB * hashDB_mkempty(const char *);	
 	extern   void hashDB_free(struct hashDB*);
 
+	const char *test_dir = "2_tdata";
 	struct hashDB *tdb;
-	if ((tdb = hashDB_mkempty("2_tdata")) == NULL)
+	if ((tdb = hashDB_mkempty(test_dir)) == NULL)
 		ck_abort_msg("ERROR: could not create hashDB: %s\n",
 				strerror(errno));
 
@@ -224,6 +225,8 @@ START_TEST(test_hashDB_get)
 
 	if ((db = hashDB_init("perm")) == NULL)
 		ck_abort_msg("ERROR: could not create hashDB");
+
+	ck_assert_str_eq(db->data_dir, "perm");
 
 	// try and get from each segment file
 	idx = 0;

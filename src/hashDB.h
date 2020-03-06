@@ -11,6 +11,9 @@ struct hashDB {
 
 	// ID to be given to the next newly created segment file
 	int next_id;
+
+	// File path to the directory containing the segment files
+	const char *data_dir;
 };
 
 struct hashDB *hashDB_init(const char *data_dir);
@@ -20,8 +23,7 @@ void hashDB_free(struct hashDB *db);
 int hashDB_put(struct hashDB *db, int key, int val_len, char *val);
 int hashDB_get(struct hashDB *db, int key, char **val);
 int hashDB_delete(struct hashDB *db, int key);
-int hashDB_compact(struct hashDB *db,
-                   struct segment_file *seg);
+int hashDB_compact(struct hashDB *db, struct segment_file *seg);
 int hashDB_merge(struct hashDB *db,
                  struct segment_file *s1,
                  struct segment_file *s2);

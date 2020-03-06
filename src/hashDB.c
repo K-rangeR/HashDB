@@ -8,6 +8,7 @@
 #include "hashDB.h"
 
 static int keep_entry(const struct dirent *);
+static char *get_next_segf_name(struct hashDB *);
 
 /*
  * Creates a hashDB struct that represents an active database. If data_dir
@@ -36,6 +37,9 @@ struct hashDB *hashDB_init(const char *data_dir)
 		db = hashDB_mkempty(data_dir);	
 	} 
 
+	if (db)
+		db->data_dir = data_dir;
+		
 	return db;
 }
 
@@ -259,6 +263,70 @@ void hashDB_free(struct hashDB *db)
 	db = NULL;
 }
 
+/*
+ * Inserts the given key value pair into the data base
+ *
+ * Params:
+ *	db => pointer to the database resource handler
+ *	key => key to insert
+ *	val_len => length of the value (in bytes)
+ *	val => pointer to the value to insert
+ *
+ * Returns:
+ *	0 if successful, -1 otherwise (check errno). If there is an error
+ *	the database is left unchanged, however a compact and merge may
+ *	have taken place but the result of these are invisible to the user.
+ */
+int hashDB_put(struct hashDB *db, int key, int val_len, char *val)
+{
+	// get size of the new kv pair
+	unsigned int kv_sz = get_kv_size(key, val_len);
+
+	if ((kv_sz + db->head->size < 1014)) // normal append
+		return segf_append(db->head, key, val, TOMBSTONE_INS);
+
+	if (hashDB_compact(db, db->head) < 0)
+		return -1;
+
+	char *name;
+	if ((name = get_next_segf_name(db)) == NULL)
+		return -1;
+
+	struct segment_file *seg = NULL;
+	if ((seg = segf_init(name)) == NULL)
+		return -1;
+
+	if (segf_create_file(seg) < 0) {
+		segf_free(seg);
+		return -1;
+	}
+
+	segf_link_before(seg, db->head);
+	db->head = seg;
+
+	// append to the new segment file
+	if (segf_append(db->head, key, val, TOMBSTONE_INS) < 0) {
+		segf_delete_file(db->head);	
+		db->head = db->head->next;
+		segf_free(seg);
+		return -1;
+	}
+
+	db->next_id += 1;
+	return 0;
+}
+
+/*
+ * Calculates and returns the total size in bytes that the key value
+ * pair would take up in a segment file.
+ *
+ * Params:
+ *	key => key in the key value pair
+ *	val_len => length of the value
+ *
+ * Returns:
+ *	The size of the key length, key, val_len, and value
+ */
 unsigned int get_kv_size(int key, int val_len)
 {
 	unsigned int sz = sizeof(char)
@@ -266,6 +334,53 @@ unsigned int get_kv_size(int key, int val_len)
 			+ sizeof(val_len)
 			+ val_len;
 	return sz;
+}
+
+/*
+ * Uses the next_id and data_dir field in the given hashDB struct to
+ * build a string representing the file path to a new segment file.
+ *
+ * File paths be in the following format:
+ *	data_dir/[next_id].dat
+ *
+ * Params:
+ *	db => pointer a database handler
+ *
+ * Returns:
+ *	A pointer a dynamically allocated string reprsenting a segment 
+ * 	file path, or null if there is no memory available.
+ */
+static char *get_next_segf_name(struct hashDB *db)
+{
+	int  path_len, name_len;
+	char *path, *name;
+
+	path_len = strlen(db->data_dir) + 1; // +1 for '/'
+	name_len = (db->next_id >= 10) ? 7 : 6; // XX.dat or X.dat and '\0'
+
+	path_len += name_len;
+	if ((path = calloc(path_len, sizeof(char))) == NULL)
+		return NULL;
+	
+	if ((name = calloc(name_len, sizeof(char))) == NULL) {
+		free(path);
+		return NULL;
+	}
+
+	sprintf(name, "%d.dat", db->next_id);
+	strncat(path, "/", 1);
+	strncat(path, name, name_len);
+
+	free(name);
+	return path;
+}
+
+/*
+ * TODO: Write this function!!!!
+ */
+int hashDB_compact(struct hashDB *db, struct segment_file *seg)
+{
+	return 0;
 }
 
 /*
