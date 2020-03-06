@@ -264,7 +264,7 @@ void hashDB_free(struct hashDB *db)
 }
 
 /*
- * Inserts the given key value pair into the data base
+ * Inserts the given key value pair into the database
  *
  * Params:
  *	db => pointer to the database resource handler
