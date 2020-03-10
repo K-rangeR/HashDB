@@ -47,8 +47,18 @@ int main(void)
 		if (segf_append(seg, tdxl[i].key, 
 				tdxl[i].val, TOMBSTONE_INS) < 0) {
 			printf("ERROR: append failed: %s\n", 
-					strerror(errno));
+				strerror(errno));
 			exit(1);
+		}
+	}
+
+	for (int i = 0; i < TOTAL_KVXL_PAIRS; ++i) {
+		if (i % KV_PAIRS_PER_FILE == 0) {
+			if (segf_remove_pair(seg, tdxl[i].key) < 0) {
+				printf("ERROR: remove failed:%s\n", 
+					strerror(errno));
+				exit(1);
+			}
 		}
 	}
 

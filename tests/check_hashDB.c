@@ -29,7 +29,7 @@ START_TEST(test_hashDB_repopulate)
 
 	ck_assert_int_eq(db->next_id, TOTAL_TEST_FILES + 1);
 	
-	int i = 0, curr_start = 0;
+	int i = 0, curr_start = 0, res = 0;
 	struct segment_file *seg = db->head;
 	while (seg) {
 		ck_assert_str_eq(test_file_namesxl[i], seg->name);
@@ -39,8 +39,15 @@ START_TEST(test_hashDB_repopulate)
 		unsigned int offset;
 		int j = curr_start;
 		while (j < KV_PAIRS_PER_FILE) {
-			if (!segf_read_memtable(seg, tdxl[j].key, &offset))
-				ck_abort_msg("ERROR: key not found\n");
+			if ((res = segf_read_memtable(seg, 
+					tdxl[j].key, &offset)) != 1) {
+				if (res == -1)
+					ck_abort_msg("ERROR: memtable error\n");
+				
+				// first pair is deleted
+				if (res == 0 && j != curr_start)
+					ck_abort_msg("ERROR: key not found\n");
+			}
 			++j;
 		}
 
@@ -48,8 +55,14 @@ START_TEST(test_hashDB_repopulate)
 		j = curr_start;
 		while (j < KV_PAIRS_PER_FILE) {
 			char *val;
-			if (segf_read_file(seg, tdxl[j].key, &val) <= 0)
-				ck_abort_msg("ERROR: could not read file\n");
+			if ((res = segf_read_file(seg, tdxl[j].key, 
+					&val)) <= 0) {
+				if (res == -1)
+					ck_abort_msg("ERROR: read fail\n");
+				if (res == 0 && j != curr_start)
+					ck_abort_msg("ERROR: key not found\n");
+			}
+
 			ck_assert_str_eq(val, tdxl[j].val);
 			free(val);
 			++j;
@@ -116,9 +129,8 @@ START_TEST(test_hashDB_get)
 	ck_assert_str_eq(db->data_dir, data_dir);
 
 	// try and get from each segment file
-	idx = 0;
 	for (int i = 0; i < TOTAL_TEST_FILES; ++i) {
-		idx = i * KV_PAIRS_PER_FILE; // get first pair in file
+		idx = i * KV_PAIRS_PER_FILE + 1;
 		res = hashDB_get(db, tdxl[idx].key, &val);
 		if (res == -1 || res == 0)
 			ck_abort_msg("ERROR: could not read segment file\n");
