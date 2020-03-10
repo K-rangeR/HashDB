@@ -6,8 +6,14 @@
 #include <unistd.h>
 #include <errno.h>
 #include <stdio.h>
+#include <fcntl.h>
+
 #include "../src/segment.h"
 #include "data.h"
+
+#define TEST_FILE_PATH "tdata/segment_tdata/1.dat"
+#define TEST_FILE_PATH_2 "tdata/segment_tdata/2.dat"
+#define TEST_FILE_PATH_LEN 25
 
 START_TEST(test_segf_init)
 {
@@ -185,77 +191,64 @@ START_TEST(test_segf_delete_file)
 START_TEST(test_segf_read_append)
 {
 	extern struct segment_file *segf_init(char*);
-	extern   void segf_free(struct segment_file*);
-	extern    int segf_read_file(struct segment_file*, int, char**);
+	extern    int segf_open_file(struct segment_file*);
 	extern    int segf_append(struct segment_file*, int, char*, char);
-	extern    int segf_delete_file(struct segment_file*);	
-	extern    int segf_create_file(struct segment_file*);	
+	extern    int segf_read_file(struct segment_file*, int, char**);
+	extern   void segf_free(struct segment_file*);
 
-	char *tname = malloc(sizeof(char) * 9);
+	char *tname = calloc(TEST_FILE_PATH_LEN, sizeof(char));
 	if (tname == NULL)
-		ck_abort_msg("Could not malloc space for file name\n");
-	strcpy(tname, "test.dat");
+		ck_abort_msg("ERROR: malloc file name\n");
+	strcpy(tname, TEST_FILE_PATH);
 
-	struct segment_file *seg;	
+	struct segment_file *seg;
 	if ((seg = segf_init(tname)) < 0)
-		ck_abort_msg("ERROR: could not create segment struct\n");
-	
-	if (segf_create_file(seg) < 0)
-		ck_abort_msg("ERROR: could not create file\n");
-	
-	// pointers used during the read part of the tests
-	// will point to the values read from the file
-	char *t = "xyz";
-	char *test_ptrs[5] = {t, t, t, t, t};
+		ck_abort_msg("ERROR: creating segment file struct\n");
+	if (segf_open_file(seg) < 0)
+		ck_abort_msg("ERROR: opening file\n");
 
-	// test append
+	// Test append
 	for (int i = 0; i < TOTAL_KV_PAIRS; ++i) {
 		if (segf_append(seg, td[i].key, td[i].val, TOMBSTONE_INS) < 0)
 			ck_abort_msg("ERROR: could not append to file\n");
 	}
 
-	// test read
+	// Test read
 	for (int i = 0; i < TOTAL_KV_PAIRS; ++i) {
-		if (segf_read_file(seg, i+1, &test_ptrs[i]) <= 0)
+		char *val;
+		if (segf_read_file(seg, i+1, &val) <= 0)
 			ck_abort_msg("ERROR: could not read from file\n");
-		ck_assert_str_eq(test_ptrs[i], td[i].val);
+		ck_assert_str_eq(val, td[i].val);
+		free(val);
 	}
 
-	// free the values read from the file
-	for (int i = 0; i < TOTAL_KV_PAIRS; ++i)
-		free(test_ptrs[i]);
-
-	if (segf_delete_file(seg) < 0)
-		ck_abort_msg("ERROR: could not delete file\n");	
-	
+	close(seg->seg_fd);
 	segf_free(seg);
 } END_TEST
 
 START_TEST(test_segf_remove_pair)
 {
 	extern struct segment_file *segf_init(char*);
-	extern   void segf_free(struct segment_file*);
-	extern    int segf_append(struct segment_file*, int, char*, char);
-	extern    int segf_delete_file(struct segment_file*);	
-	extern    int segf_create_file(struct segment_file*);	
+	extern    int segf_open_file(struct segment_file*);
 	extern    int segf_remove_pair(struct segment_file*, int);
+	extern    int segf_read_memtable(struct segment_file*, 
+				         int, unsigned int*);
+	extern void segf_free(struct segment_file*);
 
-	char *tname = malloc(sizeof(char) * 9);
+	char *tname = calloc(TEST_FILE_PATH_LEN, sizeof(char));
 	if (tname == NULL)
-		ck_abort_msg("Could not malloc space for file name\n");
-	strcpy(tname, "test.dat");
+		ck_abort_msg("ERROR: malloc file name\n");
+	strcpy(tname, TEST_FILE_PATH_2);
 
-	struct segment_file *seg;	
+	struct segment_file *seg;
 	if ((seg = segf_init(tname)) < 0)
-		ck_abort_msg("ERROR: could not create segment struct\n");
-	
-	if (segf_create_file(seg) < 0)
-		ck_abort_msg("ERROR: could not create file\n");
-	
-	// add the testing data
+		ck_abort_msg("ERROR: creating segment file struct\n");
+	if (segf_open_file(seg) < 0)
+		ck_abort_msg("ERROR: opening file\n");
+
 	for (int i = 0; i < TOTAL_KV_PAIRS; ++i) {
 		if (segf_append(seg, td[i].key, td[i].val, TOMBSTONE_INS) < 0)
-			ck_abort_msg("ERROR: could not append to file\n");
+			ck_abort_msg("ERROR: append to file\n");
 	}
 
 	unsigned int offset;
@@ -273,10 +266,7 @@ START_TEST(test_segf_remove_pair)
 			ck_abort_msg("ERROR: key still in memtable\n");
 	}
 
-	// clean up
-	if (segf_delete_file(seg) < 0)
-		ck_abort_msg("ERROR: could not delete file\n");	
-	
+	close(seg->seg_fd);
 	segf_free(seg);
 } END_TEST
 
@@ -314,6 +304,13 @@ int main(void)
 	srunner_run_all(runner, CK_NORMAL);
 	fail = srunner_ntests_failed(runner);
 	srunner_free(runner);
+
+	// clear the test files
+	int fd = open(TEST_FILE_PATH, O_RDONLY|O_TRUNC);
+	close(fd);
+
+	fd = open(TEST_FILE_PATH_2, O_RDONLY|O_TRUNC);
+	close(fd);
 
 	return (fail == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

@@ -36,10 +36,10 @@ test_kv td[] = {
 };
 
 char *test_file_namesxl[] = {
-	"perm/4.dat",
-	"perm/3.dat",
-	"perm/2.dat",
-	"perm/1.dat"
+	"tdata/hashDB_tdata/4.dat",
+	"tdata/hashDB_tdata/3.dat",
+	"tdata/hashDB_tdata/2.dat",
+	"tdata/hashDB_tdata/1.dat"
 };
 
 test_kv tdxl[] = {
