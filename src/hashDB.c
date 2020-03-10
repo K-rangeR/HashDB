@@ -104,7 +104,8 @@ struct hashDB *hashDB_repopulate(const char *data_dir)
 	}
 	
 	if (i < n) { // clean up after error
-		printf("ERROR: hashDB_repopulate: %s\n", strerror(errno));
+		printf("ERROR: hashDB.c: hashDB_repopulate: %s\n", 
+				strerror(errno));
 		hashDB_free(db);	
 		db = NULL;
 		if (curr != NULL) {
