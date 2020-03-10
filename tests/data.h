@@ -5,18 +5,6 @@
  * Testing data and info that can be used by testing code
  */
 
-/*
- * Names of all segment files used to test hashDB functions on
- */
-char *test_file_names[] = {
-	"tdata/4.dat",
-	"tdata/3.dat",
-	"tdata/2.dat",
-	"tdata/1.dat"
-};
-
-#define TOTAL_TEST_FILES 4
-
 typedef struct test_kv {
 	int key;
 	char *val;
@@ -41,6 +29,8 @@ char *test_file_namesxl[] = {
 	"tdata/hashDB_tdata/2.dat",
 	"tdata/hashDB_tdata/1.dat"
 };
+
+#define TOTAL_TEST_FILES 4
 
 test_kv tdxl[] = {
 	{1, "one"},
