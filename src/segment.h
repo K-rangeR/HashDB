@@ -3,6 +3,13 @@
 
 #include "memtable.h"
 
+// Use a small max segment file size when running tests
+#ifdef TESTING
+#define MAX_SEG_FILE_SIZE 100
+#else
+#define MAX_SEG_FILE_SIZE 1024
+#endif
+
 // Represents a segment file that stores the databases key value pairs
 struct segment_file {
 	unsigned int size;         // size in bytes of the segment file

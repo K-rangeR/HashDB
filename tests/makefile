@@ -1,6 +1,6 @@
 # Builds the unit tests
 CC = gcc
-CFLAGS = -Wall
+CFLAGS = -Wall -DTESTING
 
 # List of dependencies for compiling programs that 
 # use the check testing framework
