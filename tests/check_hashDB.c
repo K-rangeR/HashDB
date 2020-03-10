@@ -128,7 +128,6 @@ START_TEST(test_hashDB_get)
 
 	ck_assert_str_eq(db->data_dir, data_dir);
 
-	// try and get from each segment file
 	for (int i = 0; i < TOTAL_TEST_FILES; ++i) {
 		idx = i * KV_PAIRS_PER_FILE + 1;
 		res = hashDB_get(db, tdxl[idx].key, &val);
