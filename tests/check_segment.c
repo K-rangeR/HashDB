@@ -166,6 +166,7 @@ START_TEST(test_segf_next_key)
 	}
 
 	ck_assert_int_eq(cnt, 0); // check that 5 keys were read
+	ck_assert_int_eq(seg->next_bucket, 0);
 
 	memtable_free(seg->table);
 	free(seg);
