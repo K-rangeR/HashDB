@@ -32,6 +32,8 @@ START_TEST(test_segf_init)
 	ck_assert_int_eq(seg->size, 0);
 	ck_assert_str_eq(seg->name, tname);
 	ck_assert_int_eq(seg->seg_fd, -1);
+	ck_assert_int_eq(seg->next_bucket, 0);
+	ck_assert_ptr_null(seg->next_entry);
 	ck_assert_ptr_nonnull(seg->table);
 	ck_assert_ptr_null(seg->next);
 

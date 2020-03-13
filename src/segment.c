@@ -33,10 +33,12 @@ struct segment_file *segf_init(char *name)
 	seg->size = 0;
 	seg->name = name;
 	seg->seg_fd = -1;
+	seg->next_bucket = 0;
 	if ((seg->table = memtable_init()) == NULL) {
 		free(seg);
 		return NULL;
 	}
+	seg->next_entry = seg->table->table[0];
 	seg->next = NULL;
 
 	return seg;

@@ -12,11 +12,26 @@
 
 // Represents a segment file that stores the databases key value pairs
 struct segment_file {
-	unsigned int size;         // size in bytes of the segment file
-	char *name;                // name of the segment file (allocated on heap)
-	int seg_fd;                // file descriptor of open segment file
-	struct memtable *table;    // pointer to segment files memtable
-	struct segment_file *next; // pointer to the next (older) segment file struct
+	// size in bytes of the segment file
+	unsigned int size;
+
+	// name of the segment file (allocated on heap)
+	char *name;
+
+	// file descriptor of open segment file
+	int seg_fd;
+
+	// index of the next hash bucket used by segf_next_key
+	int next_bucket;
+
+	// next entry in the bucket chain used by segf_next_key
+	struct memtable_entry *next_entry;
+
+	// pointer to segment files memtable
+	struct memtable *table;
+
+	// pointer to the next (older) segment file struct
+	struct segment_file *next;
 };
 
 #define TOMBSTONE_INS 0 // tombstone for inserting a kv pair
