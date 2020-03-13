@@ -54,6 +54,7 @@ int segf_remove_pair(struct segment_file *seg, int key);
 int segf_repop_memtable(struct segment_file *seg);
 int segf_update_memtable(struct segment_file *seg, int key, unsigned int offset);
 int segf_read_memtable(struct segment_file *seg, int key, unsigned int *offset);
+int segf_next_key(struct segment_file *seg);
 
 /* Segment file linked list functions */
 void segf_link_before(struct segment_file *s1, struct segment_file *s2);
