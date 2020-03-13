@@ -3,7 +3,7 @@
  * that can be used by all the tests in check_segment and check_hashDB.
  *
  * Should only have to execute this program once for every version of the
- * segf_write_file function.
+ * segf_append function.
  *
  * The functions used are assumed to be correct.
  */
