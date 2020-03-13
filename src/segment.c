@@ -96,6 +96,40 @@ int segf_read_memtable(struct segment_file *seg, int key, unsigned int *offset)
 }
 
 /*
+ * Returns the next key from the segment files memtable.
+ *
+ * Params:
+ *	seg => pointer to the segment file struct containing the memtable to
+ *             read from 
+ *
+ * Returns:
+ *	The next key if there is one, or -1 if there are no more keys
+ */
+int segf_next_key(struct segment_file *seg)
+{
+	int bucket_idx = seg->next_bucket;
+	if (seg->next_entry == NULL) {
+		bucket_idx += 1;
+		while (bucket_idx < MAX_TBL_SZ && !seg->table->table[bucket_idx])
+			bucket_idx += 1;
+
+		if (bucket_idx == MAX_TBL_SZ) {
+			seg->next_bucket = 0; // reset for future calls
+			seg->next_entry = seg->table->table[0];
+			return -1;
+		}
+
+		// new bucket
+		seg->next_bucket = bucket_idx;
+		seg->next_entry = seg->table->table[bucket_idx];
+	}
+
+	int key = seg->next_entry->key;
+	seg->next_entry = seg->next_entry->next;	
+	return key;
+}
+
+/*
  * Opens the segment file identified by seg->name. Sets the given segment
  * file structs seg_fd field to the return file descriptor.
  *

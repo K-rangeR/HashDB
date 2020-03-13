@@ -122,6 +122,55 @@ START_TEST(test_segf_unlink_last)
 	ck_assert_ptr_eq(s1.next, &s2);
 } END_TEST
 
+START_TEST(test_segf_next_key)
+{
+	extern struct segment_file *segf_init(char*);
+	extern int segf_next_key(struct segment_file*);
+	extern void segf_free(struct segment_file*);
+
+	struct segment_file *seg;
+	if ((seg = segf_init("test")) == NULL)
+		ck_abort_msg("ERROR: segf_init failed\n");
+
+	struct key_found_pair {
+		int key;     // testing key
+		char found;  // flag = 1 if key was found, flag = 0 if not
+	};
+
+	struct key_found_pair test_data[] = {
+		{0, 0},	
+		{1, 0},	
+		{2, 0},	
+		{3, 0},	
+		{4, 0},	
+	};
+
+	// Add some testing key offset data
+	for (int i = 0; i < 5; ++i) {
+		int key = test_data[i].key;
+		if (segf_update_memtable(seg, key, key+1) < 0)
+			ck_abort_msg("ERROR: segf_update_memtable failed\n");
+	}
+
+	int key, cnt = 5;
+	while ((key = segf_next_key(seg)) != -1) {
+		if (key > 5)
+			ck_abort_msg("Unknown key: %d\n", key);
+
+		if (test_data[key].found)
+			ck_abort_msg("Key read twice: %d\n", key);
+
+		ck_assert_int_eq(key, test_data[key].key);
+		test_data[key].found = 1;
+		cnt -= 1;
+	}
+
+	ck_assert_int_eq(cnt, 0); // check that 5 keys were read
+
+	memtable_free(seg->table);
+	free(seg);
+} END_TEST
+
 /*
  * Creates and returns a test suite for segmet_file functions
  */
@@ -138,6 +187,7 @@ Suite *segment_file_suite(void)
 	tcase_add_test(tc, test_segf_unlink_front);
 	tcase_add_test(tc, test_segf_unlink_mid);
 	tcase_add_test(tc, test_segf_unlink_last);
+	tcase_add_test(tc, test_segf_next_key);
 	/* Add future segment_file struct test cases */
 	
 	suite_add_tcase(s, tc);
