@@ -10,6 +10,8 @@
 /* 'Private' helper functions */
 static int keep_entry(const struct dirent *);
 static char *get_next_segf_name(struct hashDB *);
+static char *allocate_tmp_file_name(const char *name);
+static struct segment_file *create_segment_file(char*);
 static int copy_file_name(struct segment_file*, struct segment_file*);
 static void replace_segf_in_list(struct hashDB*, 
                                  struct segment_file*,
@@ -444,21 +446,14 @@ int hashDB_delete(struct hashDB *db, int key)
  */
 int hashDB_compact(struct hashDB *db, struct segment_file *seg)
 {
-	// Create the temporary files name on heap (required by segf_init)
-	const char *tmp_file_name = "tmp.dat";
-	char *tmp_name = calloc(strlen(tmp_file_name)+1, sizeof(char));
-	if (tmp_name == NULL) // no memory
-		return -1;
-	strcpy(tmp_name, tmp_file_name);
-
-	// Create the temporary segment file struct and file
-	char file_created = 0;
 	struct segment_file *tmp = NULL;
-	if ((tmp = segf_init(tmp_name)) == NULL)
+
+	char *tmp_name = allocate_tmp_file_name("tmp.dat");
+	if (tmp_name == NULL)
 		goto err;
-	if (segf_create_file(tmp) < 0)
+
+	if ((tmp = create_segment_file(tmp_name)) == NULL)
 		goto err;
-	file_created = 1;
 
 	// Read from seg and append to tmp
 	int key;
@@ -474,25 +469,60 @@ int hashDB_compact(struct hashDB *db, struct segment_file *seg)
 		free(val);
 	}
 
-	// Set tmp->name to seg->name
 	if (copy_file_name(seg, tmp) < 0)
 		goto err;
 	
-	// Replace seg with tmp in the hashDB linked list
 	replace_segf_in_list(db, seg, tmp);
 
-	// Delete the old segment file
 	segf_delete_file(seg);
 	segf_free(seg);
 	return 1;
 
 err:
 	// clean up after error
-	if (tmp && file_created)
+	if (tmp && tmp->seg_fd != -1)
 		segf_delete_file(tmp);
 	if (tmp)
 		segf_free(tmp);
 	return -1;
+}
+
+/*
+ * Allocates space on the heap for a temporary segment file name
+ *
+ * Param:
+ *	name => name of the segment file
+ *
+ * Returns:
+ *	a pointer to the segment file name string, or NULL if out of memory
+ */
+static char *allocate_tmp_file_name(const char *name)
+{
+	char *tmp_name = calloc(strlen(name)+1, sizeof(char));
+	if (tmp_name == NULL)
+		return NULL;
+	strcpy(tmp_name, name);
+	return tmp_name;
+}
+
+/*
+ * Creates a new segment file struct and backing segment file
+ *
+ * Params:
+ *	name => string representing the name of the new segment file
+ *
+ * Returns:
+ *	a pointer to the new segment_file struct on the heap, NULL if there
+ *	is an error
+ */
+static struct segment_file *create_segment_file(char *name)
+{
+	struct segment_file *tmp = NULL;
+	if ((tmp = segf_init(name)) == NULL)
+		return NULL;
+	if (segf_create_file(tmp) < 0)
+		return NULL;
+	return tmp;
 }
 
 /*
