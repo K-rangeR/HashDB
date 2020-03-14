@@ -7,8 +7,13 @@
 #include <string.h>
 #include "hashDB.h"
 
+/* 'Private' helper functions */
 static int keep_entry(const struct dirent *);
 static char *get_next_segf_name(struct hashDB *);
+static int copy_file_name(struct segment_file*, struct segment_file*);
+static void replace_segf_in_list(struct hashDB*, 
+                                 struct segment_file*,
+                                 struct segment_file*);
 
 /*
  * Creates a hashDB struct that represents an active database. If data_dir
@@ -280,7 +285,6 @@ void hashDB_free(struct hashDB *db)
  */
 int hashDB_put(struct hashDB *db, int key, int val_len, char *val)
 {
-	// get size of the new kv pair
 	unsigned int kv_sz = get_kv_size(key, val_len);
 
 	if ((kv_sz + db->head->size < 1014)) // normal append
@@ -429,12 +433,112 @@ int hashDB_delete(struct hashDB *db, int key)
 }
 
 /*
- * TODO: Write this function!!!!
- * Returns 1 if successful, -1 otherwise
+ * Compacts the given segment file.
+ *
+ * Params:
+ *	db => pointer to the database handler
+ *	seg => pointer to the segment file to compact
+ *
+ * Returns: 
+ *	1 if successful, -1 otherwise (check errno)
  */
 int hashDB_compact(struct hashDB *db, struct segment_file *seg)
 {
+	// Create the temporary files name on heap (required by segf_init)
+	const char *tmp_file_name = "tmp.dat";
+	char *tmp_name = calloc(strlen(tmp_file_name)+1, sizeof(char));
+	if (tmp_name == NULL) // no memory
+		return -1;
+	strcpy(tmp_name, tmp_file_name);
+
+	// Create the temporary segment file struct and file
+	char file_created = 0;
+	struct segment_file *tmp = NULL;
+	if ((tmp = segf_init(tmp_name)) == NULL)
+		goto err;
+	if (segf_create_file(tmp) < 0)
+		goto err;
+	file_created = 1;
+
+	// Read from seg and append to tmp
+	int key;
+	while ((key = segf_next_key(seg)) != -1) {
+		char *val;
+		if (segf_read_file(seg, key, &val) < 0)
+			goto err;
+
+		if (segf_append(tmp, key, val, TOMBSTONE_INS) < 0) {
+			free(val);
+			goto err;
+		}
+		free(val);
+	}
+
+	// Set tmp->name to seg->name
+	if (copy_file_name(seg, tmp) < 0)
+		goto err;
+	
+	// Replace seg with tmp in the hashDB linked list
+	replace_segf_in_list(db, seg, tmp);
+
+	// Delete the old segment file
+	segf_delete_file(seg);
+	segf_free(seg);
+	return 1;
+
+err:
+	// clean up after error
+	if (tmp && file_created)
+		segf_delete_file(tmp);
+	if (tmp)
+		segf_free(tmp);
+	return -1;
+}
+
+/*
+ * Copies seg->name to tmp->name
+ *
+ * Params:
+ *	seg => source of the name copy
+ *	tmp => destination of the name copy
+ *	
+ * Returns:
+ *	0 if successful, -1 if out of memory
+ */
+static int copy_file_name(struct segment_file *seg, struct segment_file *tmp)
+{
+	char *name;
+	if ((name = calloc(strlen(seg->name)+1, sizeof(char))) == NULL)
+		return -1;
+	free(tmp->name);
+	tmp->name = name;
+	strcpy(tmp->name, seg->name);
 	return 0;
+}
+
+/*
+ * Replaces seg in db's linked list of segment files with tmp
+ *
+ * Params:
+ *	db => pointer to database resource handler
+ *	seg => segment file to replace
+ *	tmp => segment file to replace with
+ *
+ * Returns:
+ *	void
+ */
+static void replace_segf_in_list(struct hashDB *db,
+                                 struct segment_file *seg,
+                                 struct segment_file *tmp)
+{
+	struct segment_file *curr, *prev;
+	curr = prev = db->head;
+	while (curr && curr != seg) {
+		prev = curr;
+		curr = curr->next;
+	}
+	prev->next = tmp;
+	tmp->next = curr->next;
 }
 
 /*
