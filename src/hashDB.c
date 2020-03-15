@@ -474,7 +474,6 @@ int hashDB_compact(struct hashDB *db, struct segment_file *seg)
 	
 	replace_segf_in_list(db, seg, tmp);
 
-	segf_delete_file(seg);
 	segf_free(seg);
 	return 1;
 
@@ -563,6 +562,12 @@ static void replace_segf_in_list(struct hashDB *db,
                                  struct segment_file *seg,
                                  struct segment_file *tmp)
 {
+	if (db->head == seg) {
+		tmp->next = db->head->next;		
+		db->head = tmp;
+		return;
+	}
+
 	struct segment_file *curr, *prev;
 	curr = prev = db->head;
 	while (curr && curr != seg) {

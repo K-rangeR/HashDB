@@ -8,6 +8,7 @@
 #include <dirent.h>
 #include <string.h>
 #include <errno.h>
+#include <fcntl.h>
 
 #include "../src/hashDB.h"
 #include "data.h"
@@ -139,6 +140,83 @@ START_TEST(test_hashDB_get)
 	hashDB_free(db);
 } END_TEST
 
+START_TEST(test_hashDB_compact)
+{
+	const char *compact_file_path = "tdata/compact/2.dat";
+	char *fname = calloc(strlen(compact_file_path)+1, sizeof(char));
+	if (fname == NULL)
+		ck_abort_msg("ERROR: calloc failed\n");
+	strcpy(fname, compact_file_path);
+
+	struct segment_file *seg;
+	if ((seg = segf_init(fname)) == NULL)
+		ck_abort_msg("ERROR: segf_init failed\n");
+	if (segf_open_file(seg) < 0)
+		ck_abort_msg("ERROR: segf_open_file failed\n");
+
+	// Write testing data to the segment file
+	for (int i = 0; i < TOTAL_KV_PAIRS; ++i) {
+		if (segf_append(seg, td[i].key, td[i].val, TOMBSTONE_INS) < 0)
+			ck_abort_msg("ERROR: segf_append failed\n");
+	}
+
+	// Update 2 of the key value pairs in the segment file
+	test_kv updated[] = { {2, "twO"}, {4, "fouR"} }; // even
+	for (int i = 0; i < 2; ++i) {
+		if (segf_append(seg, updated[i].key, 
+			        updated[i].val, TOMBSTONE_INS) < 0)
+			ck_abort_msg("ERROR: segf_append failed (update)\n");
+	}
+	
+	// Delete 2 others
+	int delete[] = {1, 3}; // odd
+	for (int i = 0; i < 2; ++i) {
+		if (segf_remove_pair(seg, delete[i]) < 0)
+			ck_abort_msg("ERROR: segf_remove_pair failed\n");
+	}
+
+	segf_close_file(seg);
+	segf_free(seg);
+
+	// Populate a new hashDB struct
+	struct hashDB *db = hashDB_repopulate("tdata/compact");
+	if (db == NULL)
+		ck_abort_msg("ERROR: hashDB_repopulate failed\n");
+
+	// Run compaction
+	if (hashDB_compact(db, db->head->next) == -1) // compact 2.dat
+		ck_abort_msg("ERROR: hashDB_compact failed\n");
+
+	ck_assert_str_eq(db->head->next->name, compact_file_path);
+
+	// Check that the updated data is there
+	for (int i = 0; i < 2; ++i) {
+		char *val;
+		int res = segf_read_file(db->head->next, updated[i].key, &val);
+		if (res != 1) {
+			if (res == -1)
+				ck_abort_msg("ERROR: segf_read_file failed\n");
+			else
+				ck_abort_msg("ERROR: key not found\n");
+		}
+		ck_assert_str_eq(val, updated[i].val);
+	}
+
+	// Check that the deleted data is not there
+	for (int i = 0; i < 2; ++i) {
+		unsigned int offset;
+		int a = segf_read_memtable(db->head->next, delete[i], &offset);
+		if (a != 0)
+			ck_abort_msg("ERROR: deleted key found\n");
+	}
+
+	hashDB_free(db);
+
+	// clear the test segment file
+	int fd = open(compact_file_path, O_TRUNC);
+	close(fd);
+} END_TEST
+
 Suite *hashDB_suite(void)
 {
 	Suite *s;
@@ -150,6 +228,7 @@ Suite *hashDB_suite(void)
 	tcase_add_test(tc, test_hashDB_repopulate);
 	tcase_add_test(tc, test_hashDB_get);
 	tcase_add_test(tc, test_hashDB_mkempty);
+	tcase_add_test(tc, test_hashDB_compact);
 
 	suite_add_tcase(s, tc);
 	return s;
