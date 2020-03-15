@@ -480,6 +480,8 @@ int hashDB_compact(struct hashDB *db, struct segment_file *seg)
 
 err:
 	// clean up after error
+	if (tmp_name == NULL)
+		free(tmp_name);
 	if (tmp && tmp->seg_fd != -1)
 		segf_delete_file(tmp);
 	if (tmp)
