@@ -10,7 +10,7 @@
 /* 'Private' helper functions */
 static int keep_entry(const struct dirent *);
 static char *get_next_segf_name(struct hashDB *);
-static char *allocate_tmp_file_name(const char *name);
+static char *allocate_tmp_file_name(struct hashDB*);
 static struct segment_file *create_segment_file(char*);
 static int copy_file_name(struct segment_file*, struct segment_file*);
 static void replace_segf_in_list(struct hashDB*, 
@@ -448,7 +448,7 @@ int hashDB_compact(struct hashDB *db, struct segment_file *seg)
 {
 	struct segment_file *tmp = NULL;
 
-	char *tmp_name = allocate_tmp_file_name("tmp.dat");
+	char *tmp_name = allocate_tmp_file_name(db);
 	if (tmp_name == NULL)
 		goto err;
 
@@ -469,6 +469,10 @@ int hashDB_compact(struct hashDB *db, struct segment_file *seg)
 		free(val);
 	}
 
+	segf_delete_file(seg);
+
+	rename(tmp->name, seg->name);
+
 	if (copy_file_name(seg, tmp) < 0)
 		goto err;
 	
@@ -479,12 +483,12 @@ int hashDB_compact(struct hashDB *db, struct segment_file *seg)
 
 err:
 	// clean up after error
-	if (tmp_name == NULL)
-		free(tmp_name);
 	if (tmp && tmp->seg_fd != -1)
 		segf_delete_file(tmp);
 	if (tmp)
 		segf_free(tmp);
+	if (tmp_name != NULL)
+		free(tmp_name);
 	return -1;
 }
 
@@ -497,12 +501,16 @@ err:
  * Returns:
  *	a pointer to the segment file name string, or NULL if out of memory
  */
-static char *allocate_tmp_file_name(const char *name)
+static char *allocate_tmp_file_name(struct hashDB *db)
 {
-	char *tmp_name = calloc(strlen(name)+1, sizeof(char));
+	const char *t = "tmp.dat";
+	int len = strlen(db->data_dir) + strlen(t) + 2;
+	char *tmp_name = calloc(len, sizeof(char));
 	if (tmp_name == NULL)
 		return NULL;
-	strcpy(tmp_name, name);
+	strcat(tmp_name, db->data_dir);
+	strcat(tmp_name, "/");
+	strcat(tmp_name, t);
 	return tmp_name;
 }
 

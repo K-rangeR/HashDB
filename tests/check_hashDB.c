@@ -179,7 +179,8 @@ START_TEST(test_hashDB_compact)
 	segf_free(seg);
 
 	// Populate a new hashDB struct
-	struct hashDB *db = hashDB_repopulate("tdata/compact");
+	const char *data_dir = "tdata/compact";
+	struct hashDB *db = hashDB_init(data_dir);
 	if (db == NULL)
 		ck_abort_msg("ERROR: hashDB_repopulate failed\n");
 

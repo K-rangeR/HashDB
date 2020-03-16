@@ -58,6 +58,7 @@ void segf_free(struct segment_file *seg)
 {
 	memtable_free(seg->table);
 	free(seg->name);
+	seg->name = NULL;
 	free(seg);
 }
 
