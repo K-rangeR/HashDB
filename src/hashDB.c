@@ -529,8 +529,12 @@ static struct segment_file *create_segment_file(char *name)
 	struct segment_file *tmp = NULL;
 	if ((tmp = segf_init(name)) == NULL)
 		return NULL;
-	if (segf_create_file(tmp) < 0)
+
+	if (segf_create_file(tmp) < 0) {
+		segf_free(tmp);
 		return NULL;
+	}
+
 	return tmp;
 }
 
