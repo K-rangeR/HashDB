@@ -85,8 +85,10 @@ struct hashDB *hashDB_repopulate(const char *data_dir)
 	if ((db = malloc(sizeof(struct hashDB))) == NULL)
 		return NULL;
 
-	if ((n = scandir(data_dir, &entries, keep_entry, alphasort)) < 0)
+	if ((n = scandir(data_dir, &entries, keep_entry, alphasort)) < 0) {
+		free(db);
 		return NULL;
+	}
 	
 	db->head = NULL;
 	for (i = 0; i < n; ++i) {
@@ -120,7 +122,7 @@ struct hashDB *hashDB_repopulate(const char *data_dir)
 	if (i < n) { // clean up after error
 		printf("ERROR: hashDB.c: hashDB_repopulate: %s\n", 
 				strerror(errno));
-		hashDB_free(db);	
+		hashDB_free(db);
 		db = NULL;
 		if (curr != NULL) {
 			if (curr->seg_fd != -1)
