@@ -14,6 +14,7 @@
 #include "../src/segment.h"
 #include "data.h"
 
+
 static struct segment_file *init_new_seg(int idx)
 {
 	struct segment_file *seg;
@@ -32,6 +33,7 @@ static struct segment_file *init_new_seg(int idx)
 	
 	return seg;
 }
+
 
 int main(void)
 {

@@ -9,11 +9,15 @@ struct memtable_entry {
 };
 
 struct memtable_entry *memte_init(int key, unsigned int offset);
+
 void memte_free(struct memtable_entry *entry);
+
 void memte_place_before(struct memtable_entry *e1, struct memtable_entry *e2);
+
 
 // Max number of entries in a memtable
 #define MAX_TBL_SZ 97
+
 
 // Represents a memtable (hash table) that maps a key to a values offset
 // in a segment file
@@ -23,11 +27,17 @@ struct memtable {
 };
 
 struct memtable *memtable_init();
+
 void memtable_free(struct memtable *tbl);
+
 void memtable_dump(struct memtable *tbl);
+
 int memtable_read(struct memtable *tbl, int key, unsigned int *offset);
+
 int memtable_write(struct memtable *tbl, int key, unsigned int offset);
+
 int memtable_remove(struct memtable *tbl, int key);
+
 int default_hash(int key);
 
 #endif

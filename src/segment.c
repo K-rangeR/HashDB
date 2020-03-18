@@ -6,6 +6,7 @@
 #include <errno.h>
 #include "segment.h"
 
+
 /*
  * Allocates and returns a pointer to a segment_file struct. Note, this
  * does not create a segment file to back this struct, call segf_create_file
@@ -44,6 +45,7 @@ struct segment_file *segf_init(char *name)
 	return seg;
 }
 
+
 /*
  * Deallocates the memory used by the give segment_file struct, including its
  * memtable.
@@ -61,6 +63,7 @@ void segf_free(struct segment_file *seg)
 	seg->name = NULL;
 	free(seg);
 }
+
 
 /*
  * Adds the key offset pair to the given segment files memtable.
@@ -80,6 +83,7 @@ int segf_update_memtable(struct segment_file *seg, int key, unsigned int offset)
 	return 0;
 }
 
+
 /*
  * Reads the offset from the segment file memtable at the given key.
  *
@@ -95,6 +99,7 @@ int segf_read_memtable(struct segment_file *seg, int key, unsigned int *offset)
 {
 	return memtable_read(seg->table, key, offset);
 }
+
 
 /*
  * Returns the next key from the segment files memtable.
@@ -130,6 +135,7 @@ int segf_next_key(struct segment_file *seg)
 	return key;
 }
 
+
 /*
  * Opens the segment file identified by seg->name. Sets the given segment
  * file structs seg_fd field to the return file descriptor.
@@ -151,6 +157,7 @@ int segf_open_file(struct segment_file *seg)
 	return 0;
 }
 
+
 /*
  * Closes the given segment file. Does not free the segment file struct, but
  * sets seg_fd = -1.
@@ -166,6 +173,7 @@ void segf_close_file(struct segment_file *seg)
 	close(seg->seg_fd);
 	seg->seg_fd = -1;
 }
+
 
 /*
  * Creates a new segment file with the name seg->name. The file is opened
@@ -189,6 +197,7 @@ int segf_create_file(struct segment_file *seg)
 	return 0;	
 }
 
+
 /*
  * Closes and deletes the segment file backing the given segment_file struct. 
  * Also sets the size field in the struct to 0 and seg_fd back to -1.
@@ -211,6 +220,7 @@ int segf_delete_file(struct segment_file *seg)
 	seg->size = 0;
 	return 0;
 }
+
 
 /*
  * Reads the segment file associated with the given segment file struct
@@ -277,6 +287,7 @@ int segf_repop_memtable(struct segment_file *seg)
 	return 0;
 }
 
+
 /*
  * Removes a key value pair from the memtable and segment file.
  *
@@ -316,6 +327,7 @@ int segf_remove_pair(struct segment_file *seg, int key)
 
 	return 1;
 }
+
 
 /*
  * Appends the given key value pair to the segment file. This will also
@@ -403,6 +415,7 @@ int segf_append(struct segment_file *seg, int key, char *val, char tombstone)
 	return 0;
 }
 
+
 /*
  * Reads the value using the key from the segment file
  *
@@ -443,6 +456,7 @@ int segf_read_file(struct segment_file *seg, int key, char **val)
 	return 1;
 }
 
+
 /*
  * Puts s1 before s2 in the linked list
  *
@@ -461,6 +475,7 @@ void segf_link_before(struct segment_file *s1, struct segment_file *s2)
 	}
 	s1->next = s2;
 }
+
 
 /*
  * Removes seg from the given list. Does not free seg.

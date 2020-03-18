@@ -9,13 +9,19 @@
 
 /* 'Private' helper functions */
 static int keep_entry(const struct dirent *);
+
 static char *get_next_segf_name(struct hashDB *);
+
 static char *allocate_tmp_file_name(struct hashDB*);
+
 static struct segment_file *create_segment_file(char*);
+
 static int copy_file_name(struct segment_file*, struct segment_file*);
+
 static void replace_segf_in_list(struct hashDB*, 
                                  struct segment_file*,
                                  struct segment_file*);
+
 
 /*
  * Creates a hashDB struct that represents an active database. If data_dir
@@ -49,6 +55,7 @@ struct hashDB *hashDB_init(const char *data_dir)
 		
 	return db;
 }
+
 
 /*
  * Reads from the given data directory path and builds an in memory list
@@ -130,6 +137,7 @@ struct hashDB *hashDB_repopulate(const char *data_dir)
 	return db;
 }
 
+
 /*
  * Predicate function used by scandir to determine if a directory entry
  * should be included in the array of sorted directory entries. It returns
@@ -150,6 +158,7 @@ static int keep_entry(const struct dirent *entry)
 	}
 	return 1;
 }
+
 
 /*
  * Gets the segment file ID from the segment files path
@@ -190,6 +199,7 @@ int get_id_from_fname(const char *path)
 
 	return atoi(id);
 }
+
 
 /*
  * Creates a directory named after the given string. The first empty
@@ -246,6 +256,7 @@ err:
 	return NULL;
 }
 
+
 /*
  * Deallocates all of the in memory data structures used by the hashDB struct.
  * This includes all segment_file structs and their respective data structures.
@@ -270,6 +281,7 @@ void hashDB_free(struct hashDB *db)
 	free(db);
 	db = NULL;
 }
+
 
 /*
  * Inserts the given key value pair into the database
@@ -323,6 +335,7 @@ int hashDB_put(struct hashDB *db, int key, int val_len, char *val)
 	return 0;
 }
 
+
 /*
  * Calculates and returns the total size in bytes that the key value
  * pair would take up in a segment file.
@@ -342,6 +355,7 @@ unsigned int get_kv_size(int key, int val_len)
 			+ val_len;
 	return sz;
 }
+
 
 /*
  * Uses the next_id and data_dir field in the given hashDB struct to
@@ -382,6 +396,7 @@ static char *get_next_segf_name(struct hashDB *db)
 	return path;
 }
 
+
 /*
  * Gets the value associated with the given key
  *
@@ -408,6 +423,7 @@ int hashDB_get(struct hashDB *db, int key, char **val)
 	return 0;
 }
 
+
 /*
  * Removes a key value pair from the database
  *
@@ -433,6 +449,7 @@ int hashDB_delete(struct hashDB *db, int key)
 
 	return (curr) ? res : 0;
 }
+
 
 /*
  * Compacts the given segment file.
@@ -492,6 +509,7 @@ err:
 	return -1;
 }
 
+
 /*
  * Allocates space on the heap for a temporary segment file name
  *
@@ -513,6 +531,7 @@ static char *allocate_tmp_file_name(struct hashDB *db)
 	strcat(tmp_name, t);
 	return tmp_name;
 }
+
 
 /*
  * Creates a new segment file struct and backing segment file
@@ -538,6 +557,7 @@ static struct segment_file *create_segment_file(char *name)
 	return tmp;
 }
 
+
 /*
  * Copies seg->name to tmp->name
  *
@@ -558,6 +578,7 @@ static int copy_file_name(struct segment_file *seg, struct segment_file *tmp)
 	strcpy(tmp->name, seg->name);
 	return 0;
 }
+
 
 /*
  * Replaces seg in db's linked list of segment files with tmp
@@ -589,6 +610,7 @@ static void replace_segf_in_list(struct hashDB *db,
 	prev->next = tmp;
 	tmp->next = curr->next;
 }
+
 
 /*
  * TODO: Write this function!!!!

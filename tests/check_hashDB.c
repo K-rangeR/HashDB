@@ -13,6 +13,7 @@
 #include "../src/hashDB.h"
 #include "data.h"
 
+
 /*
  * Note if any of the tests in check_memtable and check_segment fail
  * this test will probably fail to
@@ -77,6 +78,7 @@ START_TEST(test_hashDB_repopulate)
 	hashDB_free(db);
 } END_TEST
 
+
 START_TEST(test_hashDB_mkempty)
 {
 	extern struct hashDB * hashDB_mkempty(const char *);	
@@ -113,6 +115,7 @@ START_TEST(test_hashDB_mkempty)
 	hashDB_free(tdb);
 } END_TEST
 
+
 START_TEST(test_hashDB_get)
 {
 	extern struct hashDB * hashDB_init(const char *);	
@@ -139,6 +142,7 @@ START_TEST(test_hashDB_get)
 
 	hashDB_free(db);
 } END_TEST
+
 
 START_TEST(test_hashDB_compact)
 {
@@ -218,6 +222,7 @@ START_TEST(test_hashDB_compact)
 	close(fd);
 } END_TEST
 
+
 Suite *hashDB_suite(void)
 {
 	Suite *s;
@@ -234,6 +239,7 @@ Suite *hashDB_suite(void)
 	suite_add_tcase(s, tc);
 	return s;
 }
+
 
 START_TEST(test_get_id_from_fname)
 {
@@ -258,6 +264,7 @@ START_TEST(test_get_id_from_fname)
 	ck_assert_int_eq(res, -1);
 } END_TEST
 
+
 Suite *util_suite(void)
 {
 	Suite *s;
@@ -271,6 +278,7 @@ Suite *util_suite(void)
 	suite_add_tcase(s, tc);
 	return s;
 }
+
 
 int main(void)
 {

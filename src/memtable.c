@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "memtable.h"
 
+
 /*
  * Creates a memtable_entry. Caller is responsible for freeing this struct
  * by calling the memte_free function.
@@ -27,6 +28,7 @@ struct memtable_entry *memte_init(int key, unsigned int offset)
 	return e;
 }
 
+
 /*
  * Frees all memory allocated for the given memtable entry ONLY.
  * 
@@ -40,6 +42,7 @@ void memte_free(struct memtable_entry *entry)
 {
 	free(entry);
 }
+
 
 /*
  * Places e1 before e2 in the list. e1 must not be null.
@@ -59,6 +62,7 @@ void memte_place_before(struct memtable_entry *e1, struct memtable_entry *e2)
 	}
 	e1->next = e2;
 }
+
 
 /*
  * Allocates an empty memtable of MAX_TBL_SZ
@@ -88,6 +92,7 @@ struct memtable *memtable_init()
 
 	return tbl;
 }
+
 
 /*
  * Deallocates all memory used by the memtable, this includes the table and
@@ -120,6 +125,7 @@ void memtable_free(struct memtable *tbl)
 	free(tbl);
 }
 
+
 /*
  * Prints the entire memtable to stdout
  *
@@ -143,6 +149,7 @@ void memtable_dump(struct memtable *tbl)
 		printf("NULL\n");
 	}
 }
+
 
 /*
  * Adds the offset to the memtable. Updates the offset if the key offset
@@ -182,6 +189,7 @@ int memtable_write(struct memtable *tbl, int key, unsigned int offset)
 	return 0;
 }
 
+
 /*
  * Returns the offset of the given key in the memtable
  *
@@ -209,6 +217,7 @@ int memtable_read(struct memtable *tbl, int key, unsigned int *offset)
 
 	return 0;
 }
+
 
 /*
  * Remove the entry in the memtable with the given key. This will remove
@@ -244,6 +253,7 @@ int memtable_remove(struct memtable *tbl, int key)
 
 	return 0;
 }
+
 
 /*
  * Default hash function for 32 bit integer keys

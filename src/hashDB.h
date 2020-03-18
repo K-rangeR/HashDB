@@ -16,23 +16,34 @@ struct hashDB {
 	const char *data_dir;
 };
 
+
 /* Struct constructors and destructors */
 struct hashDB *hashDB_init(const char *data_dir);
+
 struct hashDB *hashDB_repopulate(const char *data_dir);
+
 struct hashDB *hashDB_mkempty(const char *data_dir);
+
 void hashDB_free(struct hashDB *db);
+
 
 /* Database interface functions */
 int hashDB_get(struct hashDB *db, int key, char **val);
+
 int hashDB_put(struct hashDB *db, int key, int val_len, char *val);
+
 int hashDB_delete(struct hashDB *db, int key);
+
 
 /* Background/helper functions */
 int hashDB_compact(struct hashDB *db, struct segment_file *seg);
+
 int hashDB_merge(struct hashDB *db,
                  struct segment_file *s1,
                  struct segment_file *s2);
+
 int get_id_from_fname(const char *);
+
 unsigned int get_kv_size(int key, int val_len);
 
 #endif

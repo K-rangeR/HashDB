@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include "../src/memtable.h"
 
+
 START_TEST(test_memte_init)
 {
 	extern struct memtable_entry *memte_init(int, unsigned int);
@@ -24,6 +25,7 @@ START_TEST(test_memte_init)
 
 	memte_free(e);
 } END_TEST
+
 
 START_TEST(test_memte_place_before)
 {
@@ -45,6 +47,7 @@ START_TEST(test_memte_place_before)
 	ck_assert_ptr_null(e1.next);
 } END_TEST
 
+
 /*
  * Creates and returns a test suite for memtable entry functions
  */
@@ -64,6 +67,7 @@ Suite *memtable_entry_suite(void)
 	return s;
 }
 
+
 START_TEST(test_memtable_init)
 {
 	extern struct memtable *memtable_init();
@@ -78,6 +82,7 @@ START_TEST(test_memtable_init)
 
 	memtable_free(tbl);
 } END_TEST
+
 
 START_TEST(test_memtable_read_write)
 {
@@ -109,6 +114,7 @@ START_TEST(test_memtable_read_write)
 
 	memtable_free(tbl);
 } END_TEST
+
 
 START_TEST(test_memtable_write_with_update)
 {
@@ -153,6 +159,7 @@ START_TEST(test_memtable_write_with_update)
 	memtable_free(tbl);	
 } END_TEST
 
+
 START_TEST(test_memtable_remove)
 {
 	extern struct memtable *memtable_init();
@@ -188,6 +195,7 @@ START_TEST(test_memtable_remove)
 	memtable_free(tbl);
 } END_TEST
 
+
 /*
  * Creates and returns a test suite for memtable functions
  */
@@ -208,6 +216,7 @@ Suite *memtable_suite(void)
 	suite_add_tcase(s, tc);
 	return s;
 }
+
 
 int main(void)
 {

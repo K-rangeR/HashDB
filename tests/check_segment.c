@@ -11,9 +11,11 @@
 #include "../src/segment.h"
 #include "data.h"
 
+
 #define TEST_FILE_PATH "tdata/segment_tdata/1.dat"
 #define TEST_FILE_PATH_2 "tdata/segment_tdata/2.dat"
 #define TEST_FILE_PATH_LEN 25
+
 
 START_TEST(test_segf_init)
 {
@@ -40,6 +42,7 @@ START_TEST(test_segf_init)
 	segf_free(seg);
 } END_TEST
 
+
 START_TEST(test_segf_link_before)
 {
 	extern void segf_link_before(struct segment_file*, struct segment_file*);
@@ -56,6 +59,7 @@ START_TEST(test_segf_link_before)
 	ck_assert_ptr_eq(s1.next, &s2);
 	ck_assert_ptr_null(s2.next);
 } END_TEST
+
 
 START_TEST(test_segf_unlink_front)
 {
@@ -79,6 +83,7 @@ START_TEST(test_segf_unlink_front)
 	ck_assert_ptr_null(s3.next);
 } END_TEST
 
+
 START_TEST(test_segf_unlink_mid)
 {
 	extern void segf_unlink(struct segment_file*, struct segment_file*);
@@ -99,6 +104,7 @@ START_TEST(test_segf_unlink_mid)
 	ck_assert_ptr_null(s2.next);
 	ck_assert_ptr_eq(s1.next, &s3);
 } END_TEST
+
 
 START_TEST(test_segf_unlink_last)
 {
@@ -121,6 +127,7 @@ START_TEST(test_segf_unlink_last)
 	ck_assert_ptr_null(s2.next);
 	ck_assert_ptr_eq(s1.next, &s2);
 } END_TEST
+
 
 START_TEST(test_segf_next_key)
 {
@@ -172,6 +179,7 @@ START_TEST(test_segf_next_key)
 	free(seg);
 } END_TEST
 
+
 /*
  * Creates and returns a test suite for segmet_file functions
  */
@@ -194,6 +202,7 @@ Suite *segment_file_suite(void)
 	suite_add_tcase(s, tc);
 	return s;
 }
+
 
 START_TEST(test_segf_create_file)
 {
@@ -220,6 +229,7 @@ START_TEST(test_segf_create_file)
 	ck_assert_int_ne(seg.seg_fd, -1);
 } END_TEST
 
+
 START_TEST(test_segf_delete_file)
 {
 	extern int segf_delete_file(struct segment_file*);	
@@ -240,6 +250,7 @@ START_TEST(test_segf_delete_file)
 	if (err == 0)
 		ck_abort_msg("ERROR: '%s' was not deleted\n", seg.name);
 } END_TEST
+
 
 START_TEST(test_segf_read_append)
 {
@@ -278,6 +289,7 @@ START_TEST(test_segf_read_append)
 	close(seg->seg_fd);
 	segf_free(seg);
 } END_TEST
+
 
 START_TEST(test_segf_remove_pair)
 {
@@ -323,6 +335,7 @@ START_TEST(test_segf_remove_pair)
 	segf_free(seg);
 } END_TEST
 
+
 /*
  * Creates and returns a test suite for segment_file IO functions
  */
@@ -342,6 +355,7 @@ Suite *segment_file_io_suite(void)
 	suite_add_tcase(s, tc);
 	return s;
 }
+
 
 int main(void)
 {

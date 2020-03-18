@@ -1,6 +1,7 @@
 #ifndef _TEST_DATA_H_
 #define _TEST_DATA_H_
 
+
 /*
  * Testing data and info that can be used by testing code
  */
@@ -9,6 +10,7 @@ typedef struct test_kv {
 	int key;
 	char *val;
 } test_kv;
+
 
 /*
  * Testing data, this is added to the segment files in the data directory
@@ -23,6 +25,7 @@ test_kv td[] = {
 	{5, "five"}
 };
 
+
 char *test_file_namesxl[] = {
 	"tdata/hashDB_tdata/4.dat",
 	"tdata/hashDB_tdata/3.dat",
@@ -30,7 +33,6 @@ char *test_file_namesxl[] = {
 	"tdata/hashDB_tdata/1.dat"
 };
 
-#define TOTAL_TEST_FILES 4
 
 test_kv tdxl[] = {
 	{1, "one"},
@@ -47,8 +49,9 @@ test_kv tdxl[] = {
 	{12, "twelve"}
 };
 
-#define KV_PAIRS_PER_FILE 3
 
+#define TOTAL_TEST_FILES 4
+#define KV_PAIRS_PER_FILE 3
 #define TOTAL_KV_PAIRS 5
 #define TOTAL_KVXL_PAIRS 12
 #define FILE_SIZE (sizeof(char) * 5) + (sizeof(int) * 15) + 24
