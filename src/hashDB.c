@@ -214,17 +214,17 @@ int get_id_from_fname(const char *path)
  */
 struct hashDB *hashDB_mkempty(const char *data_dir)
 {
-	char                 *test_file_path;
+	char                 *file_path = NULL;
 	struct segment_file  *first = NULL;
 	struct hashDB        *db;
 
 	if (mkdir(data_dir, 0755) < 0)
 		return NULL;
 
-	if ((test_file_path = create_file_path(data_dir, "1.dat")) == NULL)
+	if ((file_path = create_file_path(data_dir, "1.dat")) == NULL)
 		goto err;
 
-	if ((first = segf_init(test_file_path)) == NULL)
+	if ((first = segf_init(file_path)) == NULL)
 		goto err;
 
 	if (segf_create_file(first) < 0)
@@ -242,6 +242,8 @@ err:
 		segf_delete_file(first);
 	if (first)
 		segf_free(first);
+	if (file_path != NULL)
+		free(file_path);
 	rmdir(data_dir);
 	return NULL;
 }
