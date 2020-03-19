@@ -92,8 +92,9 @@ struct hashDB *hashDB_repopulate(const char *data_dir)
 	
 	db->head = NULL;
 	for (i = 0; i < n; ++i) {
-		// TODO: handle out of memory error (check for NULL return)
 		seg_name = create_file_path(data_dir, entries[i]->d_name);
+		if (seg_name == NULL)
+			break;
 
 		if ((curr = segf_init(seg_name)) == NULL)
 			break;
