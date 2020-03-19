@@ -224,10 +224,7 @@ struct hashDB *hashDB_mkempty(const char *data_dir)
 	if ((file_path = create_file_path(data_dir, "1.dat")) == NULL)
 		goto err;
 
-	if ((first = segf_init(file_path)) == NULL)
-		goto err;
-
-	if (segf_create_file(first) < 0)
+	if ((first = create_segment_file(file_path)) == NULL)
 		goto err;
 
 	if ((db = malloc(sizeof(struct hashDB))) == NULL)
@@ -309,13 +306,8 @@ int hashDB_put(struct hashDB *db, int key, int val_len, char *val)
 		return -1;
 
 	struct segment_file *seg = NULL;
-	if ((seg = segf_init(name)) == NULL)
+	if ((seg = create_segment_file(name)) == NULL)
 		return -1;
-
-	if (segf_create_file(seg) < 0) {
-		segf_free(seg);
-		return -1;
-	}
 
 	segf_link_before(seg, db->head);
 	db->head = seg;
