@@ -240,10 +240,15 @@ struct hashDB *hashDB_mkempty(const char *data_dir)
 err:
 	if (first && first->seg_fd != -1)
 		segf_delete_file(first);
-	if (first)
+
+	if (first) {
 		segf_free(first);
+		file_path = NULL;
+	}
+
 	if (file_path != NULL)
 		free(file_path);
+
 	rmdir(data_dir);
 	return NULL;
 }
@@ -494,10 +499,15 @@ err:
 	// clean up after error
 	if (tmp && tmp->seg_fd != -1)
 		segf_delete_file(tmp);
-	if (tmp)
+
+	if (tmp) {
 		segf_free(tmp);
+		tmp_name = NULL;
+	}
+
 	if (tmp_name != NULL)
 		free(tmp_name);
+
 	return -1;
 }
 
