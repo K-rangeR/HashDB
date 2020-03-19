@@ -41,6 +41,7 @@ struct memtable_entry *memte_init(int key, unsigned int offset)
 void memte_free(struct memtable_entry *entry)
 {
 	free(entry);
+	entry = NULL;
 }
 
 
@@ -123,6 +124,7 @@ void memtable_free(struct memtable *tbl)
 
 	free(tbl->table);
 	free(tbl);
+	tbl = NULL;
 }
 
 

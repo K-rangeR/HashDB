@@ -62,6 +62,7 @@ void segf_free(struct segment_file *seg)
 	free(seg->name);
 	seg->name = NULL;
 	free(seg);
+	seg = NULL;
 }
 
 
