@@ -10,9 +10,9 @@
 /* 'Private' helper functions */
 static int keep_entry(const struct dirent *);
 
-static char *get_next_segf_name(struct hashDB *);
+static char *create_file_path(const char *, const char *);
 
-static char *allocate_tmp_file_name(struct hashDB*);
+static char *get_next_segf_name(struct hashDB *);
 
 static struct segment_file *create_segment_file(char*);
 
@@ -78,7 +78,7 @@ struct hashDB *hashDB_repopulate(const char *data_dir)
 {
 	struct hashDB        *db;
 	struct dirent        **entries; // array of struct dirent pointers
-	int                  n, path_len, i;
+	int                  n, i;
 	char                 *seg_name;
 	struct segment_file  *curr = NULL;
 
@@ -92,14 +92,8 @@ struct hashDB *hashDB_repopulate(const char *data_dir)
 	
 	db->head = NULL;
 	for (i = 0; i < n; ++i) {
-		// + 2 for '/' and '\0'
-		path_len = strlen(data_dir) + strlen(entries[i]->d_name) + 2;
-		seg_name = calloc(path_len, sizeof(char));
-
-		// build file path
-		strcat(seg_name, data_dir);
-		strcat(seg_name, "/");
-		strcat(seg_name, entries[i]->d_name);
+		// TODO: handle out of memory error (check for NULL return)
+		seg_name = create_file_path(data_dir, entries[i]->d_name);
 
 		if ((curr = segf_init(seg_name)) == NULL)
 			break;
@@ -225,16 +219,9 @@ struct hashDB *hashDB_mkempty(const char *data_dir)
 
 	if (mkdir(data_dir, 0755) < 0)
 		return NULL;
-	
-	// +7 = '/' + 1.dat\0
-	test_file_path = calloc(strlen(data_dir)+7, sizeof(char));
-	if (test_file_path == NULL)
-		goto err;
 
-	// build the path to the first test file
-	strcat(test_file_path, data_dir);
-	strcat(test_file_path, "/");
-	strcat(test_file_path, "1.dat");
+	if ((test_file_path = create_file_path(data_dir, "1.dat")) == NULL)
+		goto err;
 
 	if ((first = segf_init(test_file_path)) == NULL)
 		goto err;
@@ -466,9 +453,9 @@ int hashDB_delete(struct hashDB *db, int key)
 int hashDB_compact(struct hashDB *db, struct segment_file *seg)
 {
 	struct segment_file *tmp = NULL;
+	char *tmp_name = NULL;
 
-	char *tmp_name = allocate_tmp_file_name(db);
-	if (tmp_name == NULL)
+	if ((tmp_name = create_file_path(db->data_dir, "tmp.dat")) == NULL)
 		goto err;
 
 	if ((tmp = create_segment_file(tmp_name)) == NULL)
@@ -509,29 +496,6 @@ err:
 	if (tmp_name != NULL)
 		free(tmp_name);
 	return -1;
-}
-
-
-/*
- * Allocates space on the heap for a temporary segment file name
- *
- * Param:
- *	name => name of the segment file
- *
- * Returns:
- *	a pointer to the segment file name string, or NULL if out of memory
- */
-static char *allocate_tmp_file_name(struct hashDB *db)
-{
-	const char *t = "tmp.dat";
-	int len = strlen(db->data_dir) + strlen(t) + 2;
-	char *tmp_name = calloc(len, sizeof(char));
-	if (tmp_name == NULL)
-		return NULL;
-	strcat(tmp_name, db->data_dir);
-	strcat(tmp_name, "/");
-	strcat(tmp_name, t);
-	return tmp_name;
 }
 
 
@@ -611,6 +575,36 @@ static void replace_segf_in_list(struct hashDB *db,
 	}
 	prev->next = tmp;
 	tmp->next = curr->next;
+}
+
+
+/*
+ * Creates a string representing a file path in the format dir_name/file_name.
+ * 
+ * Params:
+ *	dir_name => directory path
+ *	file_name => name of the file to add to the directory path
+ *
+ * Returns:
+ *	A string allocated on the heap, or NULL if there is no memory to
+ *	store the string
+ */
+static char *create_file_path(const char *dir_name, const char *file_name)
+{
+	int dir_len = strlen(dir_name);
+	int file_len = strlen(file_name);
+
+	// + 2 for '/' and '\0'
+	int len = dir_len + file_len + 2;
+	char *path = calloc(len, sizeof(char));
+	if (path == NULL)
+		return NULL;
+	
+	strncat(path, dir_name, dir_len);
+	strncat(path, "/", 1);
+	strncat(path, file_name, file_len);
+
+	return path;
 }
 
 
