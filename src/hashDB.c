@@ -454,6 +454,9 @@ int hashDB_compact(struct hashDB *db, struct segment_file *seg)
 {
 	struct segment_file *tmp = NULL;
 	char *tmp_name = NULL;
+	char *seg_tmp_name = NULL;
+	char *old_seg_name = NULL;
+	int name_changed = 0;
 
 	if ((tmp_name = create_file_path(db->data_dir, "tmp.dat")) == NULL)
 		goto err;
@@ -474,16 +477,22 @@ int hashDB_compact(struct hashDB *db, struct segment_file *seg)
 		}
 		free(val);
 	}
-
-	segf_delete_file(seg);
-
-	rename(tmp->name, seg->name);
-
-	if (copy_file_name(seg, tmp) < 0)
-		goto err;
 	
+	old_seg_name = seg->name;
+	if ((seg_tmp_name = create_file_path(db->data_dir, "old.dat")) == NULL)
+		goto err;
+
+	if (segf_rename_file(seg, seg_tmp_name) < 0)
+		goto err;
+
+	name_changed = 1;
+
+	if (segf_rename_file(tmp, old_seg_name) < 0)
+		goto err;
+
 	replace_segf_in_list(db, seg, tmp);
 
+	segf_delete_file(seg);
 	segf_free(seg);
 	return 1;
 
@@ -497,8 +506,14 @@ err:
 		tmp_name = NULL;
 	}
 
+	if (name_changed)
+		segf_rename_file(seg, old_seg_name);
+
 	if (tmp_name != NULL)
 		free(tmp_name);
+
+	if (seg_tmp_name != NULL)
+		free(seg_tmp_name);
 
 	return -1;
 }

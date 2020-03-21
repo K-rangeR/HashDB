@@ -255,7 +255,7 @@ int segf_rename_file(struct segment_file *seg, char *name)
 		return -1;
 	}
 	
-	free(old_name);
+	//free(old_name);
 	return 0;	
 }
 
