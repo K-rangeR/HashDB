@@ -16,8 +16,6 @@ static char *get_next_segf_name(struct hashDB *);
 
 static struct segment_file *create_segment_file(char*);
 
-static int copy_file_name(struct segment_file*, struct segment_file*);
-
 static void replace_segf_in_list(struct hashDB*, 
                                  struct segment_file*,
                                  struct segment_file*);
@@ -541,28 +539,6 @@ static struct segment_file *create_segment_file(char *name)
 	}
 
 	return tmp;
-}
-
-
-/*
- * Copies seg->name to tmp->name
- *
- * Params:
- *	seg => source of the name copy
- *	tmp => destination of the name copy
- *	
- * Returns:
- *	0 if successful, -1 if out of memory
- */
-static int copy_file_name(struct segment_file *seg, struct segment_file *tmp)
-{
-	char *name;
-	if ((name = calloc(strlen(seg->name)+1, sizeof(char))) == NULL)
-		return -1;
-	free(tmp->name);
-	tmp->name = name;
-	strcpy(tmp->name, seg->name);
-	return 0;
 }
 
 
