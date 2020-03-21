@@ -55,6 +55,8 @@ void segf_close_file(struct segment_file *seg);
 
 int segf_delete_file(struct segment_file *seg);
 
+int segf_rename_file(struct segment_file *seg, char *name);
+
 int segf_read_file(struct segment_file *seg, int key, char **val);
 
 int segf_append(struct segment_file *seg, int key, char *val, char tombstone);

@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include <string.h>
 
 #include "../src/segment.h"
 #include "data.h"
@@ -230,13 +231,39 @@ START_TEST(test_segf_create_file)
 } END_TEST
 
 
+START_TEST(test_segf_rename_file)
+{
+	extern int segf_rename_file(struct segment_file*, char*);
+
+	char *name = "test.dat";
+	char *first_name = calloc(strlen(name), sizeof(char));
+	if (first_name == NULL)
+		ck_abort_msg("ERROR: test_segf_rename_file: calloc fail\n");
+	strncpy(first_name, name, strlen(name));
+
+	struct segment_file seg;
+	seg.name = first_name;	
+
+	if (segf_rename_file(&seg, "test2.dat") < 0)
+		ck_abort_msg("ERROR: rename fail\n");
+
+	ck_assert_str_eq(seg.name, "test2.dat");
+		
+	int err = access(seg.name, F_OK);
+	if (err == -1)
+		ck_abort_msg("ERROR: file name not changed\n");
+
+	free(seg.name);
+} END_TEST
+
+
 START_TEST(test_segf_delete_file)
 {
 	extern int segf_delete_file(struct segment_file*);	
 	
 	struct segment_file seg;
 	seg.seg_fd = -1;
-	seg.name = "test.dat";
+	seg.name = "test2.dat";
 	seg.table = NULL;
 
 	if (segf_delete_file(&seg) < 0)
@@ -348,6 +375,7 @@ Suite *segment_file_io_suite(void)
 	tc = tcase_create("Core");
 	
 	tcase_add_test(tc, test_segf_create_file);
+	tcase_add_test(tc, test_segf_rename_file);
 	tcase_add_test(tc, test_segf_delete_file);
 	tcase_add_test(tc, test_segf_read_append);
 	tcase_add_test(tc, test_segf_remove_pair);

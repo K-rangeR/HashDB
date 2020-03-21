@@ -224,6 +224,43 @@ int segf_delete_file(struct segment_file *seg)
 
 
 /*
+ * Changes the given segment files name to given string. This function
+ * changes seg->name string and the name of the backing segment file.
+ *
+ * Params:
+ *	seg => pointer to a struct representing the segment to name change
+ *	name => new name of the segment file
+ *
+ * Returns:
+ *	0 if successful, -1 otherwise
+ */
+int segf_rename_file(struct segment_file *seg, char *name)
+{
+	char *new_name = NULL;
+	char *old_name = NULL;
+	int name_len = strlen(name);
+
+	// Update in memory segment file name
+	if ((new_name = calloc(name_len, sizeof(char))) == NULL)
+		return -1;
+
+	old_name = seg->name;
+	strncpy(new_name, name, name_len);
+	seg->name = new_name;
+
+	// Change segment file name in file system
+	if (rename(old_name, new_name) < 0) {
+		seg->name = old_name;		
+		free(new_name);
+		return -1;
+	}
+	
+	free(old_name);
+	return 0;	
+}
+
+
+/*
  * Reads the segment file associated with the given segment file struct
  * and repopulate its memtable with all keys and their value offsets.
  *
