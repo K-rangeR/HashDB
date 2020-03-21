@@ -224,7 +224,7 @@ int segf_delete_file(struct segment_file *seg)
 
 
 /*
- * Changes the given segment files name to given string. This function
+ * Changes the given segment files name to the given string. This function
  * changes seg->name string and the name of the backing segment file.
  *
  * Params:
