@@ -61,6 +61,8 @@ void segf_free(struct segment_file *seg)
 	memtable_free(seg->table);
 	free(seg->name);
 	seg->name = NULL;
+	if (seg->seg_fd != -1)
+		segf_close_file(seg);
 	free(seg);
 	seg = NULL;
 }
@@ -213,11 +215,11 @@ int segf_create_file(struct segment_file *seg)
 int segf_delete_file(struct segment_file *seg)
 {
 	close(seg->seg_fd);
+	seg->seg_fd = -1;
 
 	if (remove(seg->name) < 0)
 		return -1;
 	
-	seg->seg_fd = -1;
 	seg->size = 0;
 	return 0;
 }

@@ -117,11 +117,8 @@ struct hashDB *hashDB_repopulate(const char *data_dir)
 				strerror(errno));
 		hashDB_free(db);
 		db = NULL;
-		if (curr != NULL) {
-			if (curr->seg_fd != -1)
-				segf_close_file(curr);
+		if (curr != NULL)
 			segf_free(curr);
-		}
 		while (i < n) {
 			free(entries[i]);
 			i++;

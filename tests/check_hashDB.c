@@ -179,7 +179,6 @@ START_TEST(test_hashDB_compact)
 			ck_abort_msg("ERROR: segf_remove_pair failed\n");
 	}
 
-	segf_close_file(seg);
 	segf_free(seg);
 
 	// Populate a new hashDB struct
