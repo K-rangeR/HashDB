@@ -34,6 +34,13 @@ char *test_file_namesxl[] = {
 };
 
 
+char *test_merge_file_names[] = {
+	"tdata/merge/4.dat",
+	"tdata/merge/3.dat",
+	"tdata/merge/2.dat",
+	"tdata/merge/1.dat"
+};
+
 test_kv tdxl[] = {
 	{1, "one"},
 	{2, "two"},
