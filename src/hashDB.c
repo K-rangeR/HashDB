@@ -20,6 +20,10 @@ static void replace_segf_in_list(struct hashDB*,
                                  struct segment_file*,
                                  struct segment_file*);
 
+static void add_to_segf_list(struct segment_file**,
+                             struct segment_file*,
+                             int);
+
 
 /*
  * Creates a hashDB struct that represents an active database. If data_dir
@@ -464,7 +468,7 @@ int hashDB_compact(struct hashDB *db, struct segment_file *seg)
 	while ((key = segf_next_key(seg)) != -1) {
 		char *val;
 		if (segf_read_file(seg, key, &val) < 0)
-			goto err;
+			goto err; // TODO: reset next key logic in seg
 
 		if (segf_append(tmp, key, val, TOMBSTONE_INS) < 0) {
 			free(val);
@@ -609,5 +613,105 @@ int hashDB_merge(struct hashDB *db,
                  struct segment_file *s1, 
                  struct segment_file *s2)
 {
-	return 0;	
+	char *mtemp_name = NULL;
+	struct segment_file *mtemp = NULL;
+	struct segment_file *newer, *older;
+
+	if ((mtemp_name = create_file_path(db->data_dir, "mtemp.dat")) == NULL)
+		goto err;
+
+	if ((mtemp = create_segment_file(mtemp_name)) == NULL)
+		goto err;
+
+	int s1_id = get_id_from_fname(s1->name);
+	int s2_id = get_id_from_fname(s2->name);
+	if (s1_id > s2_id) {
+		newer = s1;
+		older = s2;
+	} else {
+		newer = s2;
+		older = s1;
+	}
+
+	int key;
+	while ((key = segf_next_key(newer)) != -1) {
+		char *val;
+		if (segf_read_file(newer, key, &val) < 0)
+			goto err; // TODO: reset next key logic in newer
+
+		if (segf_append(mtemp, key, val, TOMBSTONE_INS) < 0) {
+			free(val);
+			goto err;
+		}
+		
+		// Remove key value pair from older memtable if present
+		memtable_remove(older->table, key);
+
+		free(val);
+	}
+
+	while ((key = segf_next_key(older)) != -1) {
+		char *val;		
+		if (segf_read_file(older, key, &val) < 0)
+			goto err;
+
+		if (segf_append(mtemp, key, val, TOMBSTONE_INS) < 0) {
+			free(val);
+			goto err;
+		}
+		free(val);
+	}
+	
+	segf_unlink(db->head, s1);
+	segf_unlink(db->head, s2);
+
+	segf_delete_file(s1);
+	segf_delete_file(s2);
+
+	free(mtemp->name);
+	mtemp->name = newer->name;
+
+	if (newer == s1)
+		add_to_segf_list(&(db->head), mtemp, s1_id);
+	else
+		add_to_segf_list(&(db->head), mtemp, s2_id);
+
+	segf_free(s1);
+	segf_free(s2);
+
+	return 0;
+err:
+	if (mtemp == NULL)
+		free(mtemp_name);
+
+	if (mtemp != NULL) { 
+		segf_delete_file(mtemp);	
+		segf_free(mtemp);
+	}
+
+	return -1;
+}
+
+static void add_to_segf_list(struct segment_file **head,
+                             struct segment_file *seg, 
+                             int seg_id)
+{
+	struct segment_file *curr = *head;
+	struct segment_file *prev = NULL;
+
+	while (curr) {
+		int id = get_id_from_fname(curr->name);
+		if (seg_id > id)
+			break;
+		prev = curr;
+		curr = curr->next;
+	}
+
+	if (curr == *head) {
+		*head = seg;
+		(*head)->next = curr->next;
+	} else {
+		seg->next = curr;
+		prev->next = seg;	
+	}
 }
