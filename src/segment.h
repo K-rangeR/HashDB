@@ -77,6 +77,6 @@ int segf_next_key(struct segment_file *seg);
 /* Segment file linked list functions */
 void segf_link_before(struct segment_file *s1, struct segment_file *s2);
 
-void segf_unlink(struct segment_file *head, struct segment_file *seg);
+void segf_unlink(struct segment_file **head, struct segment_file *seg);
 
 #endif

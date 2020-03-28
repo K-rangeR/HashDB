@@ -527,19 +527,20 @@ void segf_link_before(struct segment_file *s1, struct segment_file *s2)
  * Returns:
  *	void
  */
-void segf_unlink(struct segment_file *head, struct segment_file *seg)
+void segf_unlink(struct segment_file **head, struct segment_file *seg)
 {
-	struct segment_file *prev;
+	struct segment_file *prev = NULL;
+	struct segment_file *walk = *head;
 
-	if (head == seg) {
-		seg->next = NULL;
-		return;
+	while (walk != seg) {
+		prev = walk;	
+		walk = walk->next;
 	}
 
-	prev = head;
-	while (prev && prev->next != seg)
-		prev = prev->next;
-	
-	prev->next = seg->next;
-	seg->next = NULL;
+	if (!prev)
+		*head = seg->next;
+	else
+		prev->next = seg->next;
+
+	seg->next = NULL;	
 }

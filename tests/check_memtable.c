@@ -1,5 +1,5 @@
 /*
- * Unit tests for memtable.c
+ * Tests for memtable.c
  */
 
 #include <check.h>

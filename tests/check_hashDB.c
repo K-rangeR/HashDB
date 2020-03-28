@@ -1,5 +1,5 @@
 /*
- * Tests for hashDB.c (these are hardly unit tests anymore)
+ * Tests for hashDB.c
  */
 #include <check.h>
 #include <stdlib.h>
@@ -222,6 +222,76 @@ START_TEST(test_hashDB_compact)
 } END_TEST
 
 
+START_TEST(test_hashDB_merge)
+{
+	char *s1_name_p, *s2_name_p;
+	struct segment_file *s1, *s2;	
+	struct hashDB *db;
+
+	char *s1_name = "tdata/merge/1.dat";
+	s1_name_p = calloc(strlen(s1_name), sizeof(char));
+	strcpy(s1_name_p, s1_name);
+
+	char *s2_name = "tdata/merge/2.dat";
+	s2_name_p = calloc(strlen(s2_name), sizeof(char));
+	strcpy(s2_name_p, s2_name);
+
+	// Open the segment files to merge
+	if ((s1 = segf_init(s1_name_p)) == NULL)
+		ck_abort_msg("ERROR: merge: segf_init 1.dat\n");
+	if (segf_open_file(s1) < 0)
+		ck_abort_msg("ERROR: merge: segf_open_file 1.dat\n");
+
+	if ((s2 = segf_init(s2_name_p)) == NULL)
+		ck_abort_msg("ERROR: merge: segf_init 2.dat\n");
+	if (segf_open_file(s2) < 0)
+		ck_abort_msg("ERROR: merge: segf_open_file 2.dat\n");
+		
+	// Build the hashDB struct
+	db->data_dir = "tdata/merge";	
+	db->next_id = 3;
+	db->head = s2;
+	s2->next = s1;
+	s1->next = NULL;
+
+	// Write testing data to the segment files
+	for (int i = 0; i < 3; i++) { // 3 kv pairs
+		if (segf_append(s1, td[i].key, td[i].val, TOMBSTONE_INS) < 0)
+			ck_abort_msg("ERROR: merge: segf_append\n");
+	}
+	for (int i = 0; i < 2; i++) { // 2 kv pairs
+		if (segf_append(s2, td[i].key, td[i].val, TOMBSTONE_INS) < 0)
+			ck_abort_msg("ERROR: merge: segf_append\n");
+	}
+
+	// Run the merge function
+	if (hashDB_merge(db, s1, s2) == -1)
+		ck_abort_msg("ERROR: merge: hashDB_merge\n");
+
+	// Check linked list
+	ck_assert_ptr_nonnull(db->head);
+
+	// Check name of segment file
+	ck_assert_str_eq(db->head->name, "tdata/merge/2.dat");
+
+	// Check that only one files remains
+	int err = access("tdata/merge/1.dat", F_OK);
+	if (err != -1 && errno != ENOENT)
+		ck_abort_msg("ERROR: merge: 1.dat still exists\n");
+
+	// Check that the correct data was merged
+	for (int i = 0; i < 3; i++) {
+		char *val;
+		if (segf_read_file(db->head, td[i].key, &val) < 0)
+			ck_abort_msg("ERROR: merge: segf_read_file\n");
+
+		ck_assert_str_eq(td[i].val, val);
+
+		free(val);
+	}
+} END_TEST
+
+
 Suite *hashDB_suite(void)
 {
 	Suite *s;
@@ -234,6 +304,7 @@ Suite *hashDB_suite(void)
 	tcase_add_test(tc, test_hashDB_get);
 	tcase_add_test(tc, test_hashDB_mkempty);
 	tcase_add_test(tc, test_hashDB_compact);
+	tcase_add_test(tc, test_hashDB_merge);
 
 	suite_add_tcase(s, tc);
 	return s;

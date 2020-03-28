@@ -662,14 +662,13 @@ int hashDB_merge(struct hashDB *db,
 		free(val);
 	}
 	
-	segf_unlink(db->head, s1);
-	segf_unlink(db->head, s2);
+	segf_unlink(&(db->head), s1);
+	segf_unlink(&(db->head), s2);
 
 	segf_delete_file(s1);
 	segf_delete_file(s2);
 
-	free(mtemp->name);
-	mtemp->name = newer->name;
+	segf_rename_file(mtemp, newer->name);
 
 	if (newer == s1)
 		add_to_segf_list(&(db->head), mtemp, s1_id);
@@ -709,7 +708,7 @@ static void add_to_segf_list(struct segment_file **head,
 
 	if (curr == *head) {
 		*head = seg;
-		(*head)->next = curr->next;
+		(*head)->next = (curr) ? (curr->next) : (NULL);
 	} else {
 		seg->next = curr;
 		prev->next = seg;	
