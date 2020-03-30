@@ -304,7 +304,7 @@ Suite *hashDB_suite(void)
 	tcase_add_test(tc, test_hashDB_get);
 	tcase_add_test(tc, test_hashDB_mkempty);
 	tcase_add_test(tc, test_hashDB_compact);
-	tcase_add_test(tc, test_hashDB_merge);
+	//tcase_add_test(tc, test_hashDB_merge);
 
 	suite_add_tcase(s, tc);
 	return s;
