@@ -504,6 +504,8 @@ err:
 	if (name_changed)
 		segf_rename_file(seg, old_seg_name);
 
+	segf_reset_next_key(seg);
+
 	if (tmp_name != NULL)
 		free(tmp_name);
 
@@ -677,6 +679,9 @@ err:
 		segf_delete_file(mtemp);	
 		segf_free(mtemp);
 	}
+
+	segf_reset_next_key(s1);
+	segf_reset_next_key(s2);
 
 	return -1;
 }
