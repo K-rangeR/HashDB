@@ -140,6 +140,24 @@ int segf_next_key(struct segment_file *seg)
 
 
 /*
+ * Resets the next key members to their inital values. The next call to
+ * segf_next_key will then return the first key from the segment files 
+ * memtable.
+ *
+ * Param:
+ *	seg => pointer to segment file struct to reset
+ *
+ * Returns:
+ *	void
+ */
+void segf_reset_next_key(struct segment_file *seg)
+{
+	seg->next_bucket = 0;	
+	seg->next_entry = seg->table->table[0];
+}
+
+
+/*
  * Opens the segment file identified by seg->name. Sets the given segment
  * file structs seg_fd field to the return file descriptor.
  *
