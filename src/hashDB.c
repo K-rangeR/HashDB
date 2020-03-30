@@ -24,6 +24,10 @@ static void add_to_segf_list(struct segment_file**,
                              struct segment_file*,
                              int);
 
+static inline int copy_kv_pair_to(struct segment_file*,
+                                  struct segment_file*,
+                                  int);
+
 
 /*
  * Creates a hashDB struct that represents an active database. If data_dir
@@ -463,18 +467,10 @@ int hashDB_compact(struct hashDB *db, struct segment_file *seg)
 	if ((tmp = create_segment_file(tmp_name)) == NULL)
 		goto err;
 
-	// Read from seg and append to tmp
 	int key;
 	while ((key = segf_next_key(seg)) != -1) {
-		char *val;
-		if (segf_read_file(seg, key, &val) < 0)
-			goto err; // TODO: reset next key logic in seg
-
-		if (segf_append(tmp, key, val, TOMBSTONE_INS) < 0) {
-			free(val);
+		if (copy_kv_pair_to(seg, tmp, key) < 0)
 			goto err;
-		}
-		free(val);
 	}
 	
 	old_seg_name = seg->name;
@@ -644,31 +640,16 @@ int hashDB_merge(struct hashDB *db,
 
 	int key;
 	while ((key = segf_next_key(newer)) != -1) {
-		char *val;
-		if (segf_read_file(newer, key, &val) < 0)
-			goto err; // TODO: reset next key logic in newer
-
-		if (segf_append(mtemp, key, val, TOMBSTONE_INS) < 0) {
-			free(val);
+		if (copy_kv_pair_to(newer, mtemp, key) < 0)
 			goto err;
-		}
-		
+
 		// Remove key value pair from older memtable if present
 		memtable_remove(older->table, key);
-
-		free(val);
 	}
 
 	while ((key = segf_next_key(older)) != -1) {
-		char *val;		
-		if (segf_read_file(older, key, &val) < 0)
+		if (copy_kv_pair_to(older, mtemp, key) < 0)
 			goto err;
-
-		if (segf_append(mtemp, key, val, TOMBSTONE_INS) < 0) {
-			free(val);
-			goto err;
-		}
-		free(val);
 	}
 	
 	segf_unlink(&(db->head), s1);
@@ -698,6 +679,36 @@ err:
 	}
 
 	return -1;
+}
+
+
+/*
+ * Copies the key value pair identified by 'key' from the segment file
+ * to the other.
+ *
+ * Params:
+ *	from => source segment file of copy	
+ *	to => destination segment file of copy
+ *	key => key to copy
+ *
+ * Returns:
+ *	0 of copy was successful, -1 otherwise
+ */
+static inline int copy_kv_pair_to(struct segment_file *from,
+                                  struct segment_file *to,
+				  int key)
+{
+	char *val;
+	if (segf_read_file(from, key, &val) < 0)
+		return -1;
+
+	if (segf_append(to, key, val, TOMBSTONE_INS) < 0) {
+		free(val);
+		return -1;
+	}
+
+	free(val);
+	return 0;
 }
 
 
