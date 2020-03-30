@@ -606,8 +606,17 @@ static char *create_file_path(const char *dir_name, const char *file_name)
 
 
 /*
- * TODO: Write this function!!!!
- * Returns 1 if successful, -1 otherwise
+ * Merges the two given segment files into one. The resulting segment file
+ * is given the same name as the newer of the two segment file (the one with
+ * larger name ID)
+ *
+ * Params:
+ *	db => pointer the database handler
+ *	s1 => one of two segment files to merge
+ *	s2 => two of two segment files to merge
+ *
+ * Returns: 
+ *	1 if successful, -1 otherwise (check errno)
  */
 int hashDB_merge(struct hashDB *db, 
                  struct segment_file *s1, 
@@ -678,7 +687,7 @@ int hashDB_merge(struct hashDB *db,
 	segf_free(s1);
 	segf_free(s2);
 
-	return 0;
+	return 1;
 err:
 	if (mtemp == NULL)
 		free(mtemp_name);
@@ -691,6 +700,20 @@ err:
 	return -1;
 }
 
+
+/*
+ * Adds the given segment file to its sorted place by name
+ * in the linked list
+ *
+ * Params:
+ *	head => double pointer to the start of the linked list
+ *	seg => segment file struct to add to the linked list
+ *	seg_id => ID of the segment file, this determines where in the
+ *	          linked list to place the segment file struct
+ *
+ * Returns:
+ *	void
+ */
 static void add_to_segf_list(struct segment_file **head,
                              struct segment_file *seg, 
                              int seg_id)
