@@ -1,5 +1,5 @@
-#ifndef _TEST_PIPELINE_TEST_STAGS_H_
-#define _TEST_PIPELINE_TEST_STAGS_H_
+#ifndef _TEST_PIPELINE_TEST_STAGES_H_
+#define _TEST_PIPELINE_TEST_STAGES_H_
 
 #include "stage.h"
 
