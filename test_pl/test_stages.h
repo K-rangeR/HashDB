@@ -17,4 +17,6 @@ int test_hashdb_mkempty(struct stage *s);
 int test_hashdb_compact(struct stage *s);
 int test_hashdb_merge(struct stage *s);
 
+int test_nothing(struct stage *s);
+
 #endif
