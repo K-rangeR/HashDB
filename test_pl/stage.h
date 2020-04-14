@@ -16,7 +16,7 @@ struct stage {
 	int seq_num;
 	struct kv_pairs *data;
 	struct stage *next;
-	int (*)(run)(struct stage *this);
+	int (*run)(struct stage *this);
 };
 
 #endif
