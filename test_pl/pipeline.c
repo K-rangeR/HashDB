@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "pipeline.h"
+#include "test_stages.h"
 
 
 /*
@@ -67,6 +68,7 @@ int pl_parse_stage_file(struct pipeline *pl, const char *stage_file)
 		struct stage *new_stage = stage_init("test_me", i);
 		if (new_stage == NULL)
 			return -1;
+		new_stage->run = test_nothing;
 		if (prev == NULL)
 			pl->first = new_stage;
 		else
@@ -91,7 +93,8 @@ int pl_run(struct pipeline *pl)
 {
 	struct stage *curr_stage = pl->first;
 	while (curr_stage) {
-		printf("%s | %d\n", curr_stage->name, curr_stage->seq_num);
+		if (!curr_stage->run(curr_stage))
+			return 0;
 		curr_stage = curr_stage->next;
 	}
 	return 1;
