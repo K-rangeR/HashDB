@@ -1,7 +1,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "stage.h"
+#include "test_stages.h"
 
+static void set_run_function(struct stage *);
 
 /*
  * Creates a new stage
@@ -30,8 +32,24 @@ struct stage *stage_init(char *name, int seq_num)
 	new_stage->seq_num = seq_num;
 	new_stage->data = NULL;
 	new_stage->next = NULL;
-	new_stage->run = NULL;
+	set_run_function(new_stage);
 	return new_stage;
+}
+
+
+/*
+ * Uses the stages name to set the run function
+ * to the appropriate test stage function
+ * 
+ * Params:
+ *	s => stage struct to update
+ *
+ * Returns:
+ *	void
+ */
+static void set_run_function(struct stage *s)
+{
+	s->run = test_nothing;
 }
 
 
