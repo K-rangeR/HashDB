@@ -19,4 +19,8 @@ struct stage {
 	int (*run)(struct stage *this);
 };
 
+struct stage *stage_init(const char *n, int seq_num);
+
+void stage_free(struct stage *s);
+
 #endif
