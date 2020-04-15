@@ -4,8 +4,8 @@ CFLAGS = -Wall -DTESTING
 
 SRCDIR = ../src
 
-testpl: main.o pipeline.o
-	$(CC) $(CFLAGS) main.o pipeline.o -o testpl
+testpl: main.o pipeline.o stage.o
+	$(CC) $(CFLAGS) main.o pipeline.o stage.o -o testpl
 
 main.o: main.c
 	$(CC) $(CFLAGS) -c main.c -o main.o
@@ -13,8 +13,8 @@ main.o: main.c
 pipeline.o: pipeline.c pipeline.h stage.h
 	$(CC) $(CFLAGS) -c pipeline.c -o pipeline.o
 
-#stage.o: stage.c stage.h
-	#$(CC) $(CFLAGS) -c stage.c -o stage.o
+stage.o: stage.c stage.h
+	$(CC) $(CFLAGS) -c stage.c -o stage.o
 
 #test_stages.o: ts.o db.o
 	#$(CC) $(CFLAGS) -c ts.o db.o -o test_stages.o

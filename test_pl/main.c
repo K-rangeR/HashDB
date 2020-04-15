@@ -9,5 +9,20 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
+	struct pipeline *pl = pl_init();
+	if (pl == NULL) {
+		printf("No memory\n");
+		exit(1);
+	}
+
+	if (pl_parse_stage_file(pl, argv[1]) < 0) {
+		printf("stage file parse failed\n");
+		pl_free(pl);
+		exit(1);
+	}
+
+	pl_run(pl);
+
+	pl_free(pl);
 	exit(0);
 }
