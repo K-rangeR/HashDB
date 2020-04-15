@@ -8,7 +8,7 @@ testpl: main.o pl.o
 	$(CC) $(CFLAGS) main.o pl.o -o testpl
 
 main.o: main.c
-	$(CC) $(CFLAGS) -c main.c -p main.o
+	$(CC) $(CFLAGS) -c main.c -o main.o
 
 pl.o: pipeline.o stage.o test_stages.o
 	$(CC) $(CFLAGS) -c pipeline.o stage.o test_stages.o -o pl.o
