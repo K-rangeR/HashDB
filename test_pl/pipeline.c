@@ -1,3 +1,4 @@
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "pipeline.h"
@@ -62,17 +63,23 @@ void pl_free(struct pipeline *pl)
  */
 int pl_parse_stage_file(struct pipeline *pl, const char *stage_file)
 {
-	struct stage *prev = NULL;
-	for (int i = 0; i < 5; ++i) {
-		struct stage *new_stage = stage_init("test_me", i);
-		if (new_stage == NULL)
-			return -1;
-		if (prev == NULL)
-			pl->first = new_stage;
-		else
-			prev->next = new_stage;
-		prev = new_stage;
+	FILE *fp;
+	if ((fp = fopen(stage_file, "r")) == NULL)
+		return -1;
+
+	char *line = NULL;
+	size_t len = 0;
+	ssize_t read;
+	while ((read = getline(&line, &len, fp)) != -1) {
+		if (line[0] == '#' ) // skip comment
+			continue;
+
+		printf("%s", line);
 	}
+
+	fclose(fp);
+	if (line)
+		free(line);
 	return 0;
 }
 

@@ -7,3 +7,4 @@ tests/write_perm
 src/*.o
 test_pl/*.o
 test_pl/testpl
+test_pl/pl.txt
