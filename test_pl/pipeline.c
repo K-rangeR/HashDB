@@ -1,7 +1,11 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "pipeline.h"
+
+
+static int parse_section_header_line(char *line);
 
 
 /*
@@ -67,19 +71,41 @@ int pl_parse_stage_file(struct pipeline *pl, const char *stage_file)
 	if ((fp = fopen(stage_file, "r")) == NULL)
 		return -1;
 
+	bool looking_for_section_header = true, in_data_section = false;
 	char *line = NULL;
 	size_t len = 0;
 	ssize_t read;
 	while ((read = getline(&line, &len, fp)) != -1) {
 		if (line[0] == '#' ) // skip comment
 			continue;
-
-		printf("%s", line);
+		
+		if (looking_for_section_header) {
+			parse_section_header_line(line);
+			looking_for_section_header = false;
+			in_data_section = true;
+		} else if (strcmp(line, "\n") == 0) {
+			looking_for_section_header = true;	
+			in_data_section = false;
+		} else if (in_data_section) {
+			printf("in data section\n");	
+		}
 	}
 
 	fclose(fp);
 	if (line)
 		free(line);
+	return 0;
+}
+
+
+static int parse_section_header_line(char *line)
+{
+	char *token = NULL, *string = line;
+	
+	while ((token = strsep(&string, " ")) != NULL) {
+		printf("%s\n", token);
+	}
+
 	return 0;
 }
 
