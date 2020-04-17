@@ -32,6 +32,7 @@ struct pipeline *pl_init()
 		return NULL;
 	pl->stages = 0;
 	pl->first = NULL;
+	pl->last = NULL;
 	return pl;
 }
 
@@ -185,14 +186,11 @@ static void append_stage(struct pipeline *pl, struct stage *s)
 {
 	if (pl->first == NULL) {
 		pl->first = s;
-		return;
+		pl->last = s;
+	} else {
+		pl->last->next = s;	
+		pl->last = s;
 	}
-
-	struct stage *curr = pl->first;
-	while (curr->next != NULL)
-		curr = curr->next;
-	
-	curr->next = s;
 }
 
 

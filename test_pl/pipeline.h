@@ -6,6 +6,7 @@
 struct pipeline {
 	int stages;	
 	struct stage *first;
+  struct stage *last;
 };
 
 struct pipeline *pl_init();
