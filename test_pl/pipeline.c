@@ -113,6 +113,17 @@ int pl_parse_stage_file(struct pipeline *pl, const char *stage_file)
 }
 
 
+/*
+ * Converts the given stage section header from the stage file into the
+ * appropriate stage struct.
+ *
+ * Params:
+ *	line => stage header line to parse
+ *
+ * Returns:
+ *	stage struct that contains the data from line if the line was in
+ *	the correct format, or NULL otherwise
+ */
 static struct stage *parse_section_header_line(char *line)
 {
 	char *token = NULL, *string = line;
@@ -130,6 +141,17 @@ static struct stage *parse_section_header_line(char *line)
 }
 
 
+/*
+ * Parses stage headers that begin with segf_*.
+ *
+ * Params:
+ *	name => name of the segf stage (first token on the line)
+ *	rest_of_line => un-parsed string from the stage header
+ *
+ * Returns:
+ *	stage struct that contains the data from line if the line was in
+ *	the correct format, or NULL otherwise
+ */
 static struct stage *parse_segf_section_header(char *name, char *rest_of_line)
 {
 	char *token = NULL, *argv[2];
@@ -150,7 +172,17 @@ static struct stage *parse_segf_section_header(char *name, char *rest_of_line)
 	return s;
 }
 
-
+/*
+ * Parses stage headers that begin with hashdb_*.
+ *
+ * Params:
+ *	name => name of the segf stage (first token on the line)
+ *	rest_of_line => un-parsed string from the stage header
+ *
+ * Returns:
+ *	stage struct that contains the data from line if the line was in
+ *	the correct format, or NULL otherwise
+ */
 static struct stage *parse_hashdb_section_header(char *name, char *rest_of_line)
 {
 	char *token = NULL, *argv[2];
@@ -182,6 +214,9 @@ static void parse_data_section_line(char *line)
 }
 
 
+/*
+ * Appends the given stage struct to end of the pipelines list of stages
+ */
 static void append_stage(struct pipeline *pl, struct stage *s)
 {
 	if (pl->first == NULL) {
