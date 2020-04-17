@@ -79,7 +79,7 @@ int pl_parse_stage_file(struct pipeline *pl, const char *stage_file)
 	size_t len = 0;
 	ssize_t read;
 	while ((read = getline(&line, &len, fp)) != -1) {
-		if (line[0] == '#' ) // skip comment
+		if (line[0] == '#') // skip comment
 			continue;
 		
 		if (looking_for_section_header) {
