@@ -6,6 +6,10 @@
 
 
 static struct stage *parse_section_header_line(char *line);
+static struct stage *parse_segf_section_header(char *name, 
+					       char *rest_of_line);
+static struct stage *parse_hashdb_section_header(char *name, 
+						 char *rest_of_line);
 static void parse_data_section_line(char *line);
 static void append_stage(struct pipeline *pl, struct stage *s);
 
@@ -108,30 +112,47 @@ int pl_parse_stage_file(struct pipeline *pl, const char *stage_file)
 static struct stage *parse_section_header_line(char *line)
 {
 	char *token = NULL, *string = line;
-	char *argv[3]; // name ID number_of_kv_pairs
-	int argc = 0;
+	struct stage *new_stage = NULL;
 
-	while ((token = strsep(&string, " ")) != NULL)
-		argv[argc++] = token;
-
-	if (argc != 3) {
-		printf("[!] Section header is missing info\n");
-		return NULL;
-	}
-
-	// TODO: add error checking
-	int id = atoi(argv[1]);
-	int data_count = atoi(argv[2]);
-
-	struct stage *new_stage = stage_init(argv[0], id, data_count);
-	if (!new_stage) {
-		printf("[!] Could not create stage\n");
-		return NULL;
+	token = strsep(&string, " ");
+	if (token[0] == 's') {
+		new_stage = parse_segf_section_header(token, string);
+	} else if (token[0] == 'h') {
+		new_stage = parse_hashdb_section_header(token, string);
+	} else {
+		printf("[!] Unknown stage name: %s\n", token);
 	}
 
 	return new_stage;
 }
 
+
+static struct stage *parse_segf_section_header(char *name, char *rest_of_line)
+{
+	char *token = NULL, *argv[2];
+	int argc = 0;
+
+	while ((token = strsep(&rest_of_line, " ")) != NULL)
+		argv[argc++] = token;	
+
+	if (argc != 2) {
+		printf("[!] segf_* stage header is incorrect\n");
+		printf("\tUsage: segf_* [file_id] [number_of_kv_pairs]\n");
+		return NULL;
+	}
+
+	int id = atoi(argv[0]);
+	int kv_pair_count = atoi(argv[1]);
+	struct stage *s = stage_init(name, id, kv_pair_count);
+	return s;
+}
+
+
+static struct stage *parse_hashdb_section_header(char *name, char *rest_of_line)
+{
+	printf("Parsing hashdb section header\n");
+	return NULL;
+}
 
 static void parse_data_section_line(char *line)
 {
