@@ -14,11 +14,6 @@ void pl_free(struct pipeline *pl);
 
 int pl_parse_stage_file(struct pipeline *pl, const char *file);
 
-int pl_parse_data_section(struct pipeline *pl, 
-                          struct stage *curr_stage, 
-                          int fd,
-                          int n);
-
 int pl_run(struct pipeline *pl);
 
 #endif
