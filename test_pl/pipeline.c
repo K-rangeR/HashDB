@@ -5,7 +5,8 @@
 #include "pipeline.h"
 
 
-static int parse_section_header_line(char *line);
+static struct stage *parse_section_header_line(char *line);
+static void parse_data_section_line(char *line);
 
 
 /*
@@ -72,6 +73,7 @@ int pl_parse_stage_file(struct pipeline *pl, const char *stage_file)
 		return -1;
 
 	bool looking_for_section_header = true, in_data_section = false;
+	struct stage *curr_stage = NULL;
 	char *line = NULL;
 	size_t len = 0;
 	ssize_t read;
@@ -80,14 +82,22 @@ int pl_parse_stage_file(struct pipeline *pl, const char *stage_file)
 			continue;
 		
 		if (looking_for_section_header) {
-			parse_section_header_line(line);
+			curr_stage = parse_section_header_line(line);
+			if (!curr_stage)
+				break; // TODO: set return code
+
+			printf("%s | %d | %d\n", 
+				curr_stage->name,
+				curr_stage->seq_num,
+				curr_stage->data.len);
+
 			looking_for_section_header = false;
 			in_data_section = true;
 		} else if (strcmp(line, "\n") == 0) {
 			looking_for_section_header = true;	
 			in_data_section = false;
 		} else if (in_data_section) {
-			printf("in data section\n");	
+			parse_data_section_line(line);
 		}
 	}
 
@@ -98,15 +108,37 @@ int pl_parse_stage_file(struct pipeline *pl, const char *stage_file)
 }
 
 
-static int parse_section_header_line(char *line)
+static struct stage *parse_section_header_line(char *line)
 {
 	char *token = NULL, *string = line;
-	
-	while ((token = strsep(&string, " ")) != NULL) {
-		printf("%s\n", token);
+	char *argv[3]; // name ID number_of_kv_pairs
+	int argc = 0;
+
+	while ((token = strsep(&string, " ")) != NULL)
+		argv[argc++] = token;
+
+	if (argc != 3) {
+		printf("[!] Section header is missing info\n");
+		return NULL;
 	}
 
-	return 0;
+	// TODO: add error checking
+	int id = atoi(argv[1]);
+	int data_count = atoi(argv[2]);
+
+	struct stage *new_stage = stage_init(argv[0], id, data_count);
+	if (!new_stage) {
+		printf("[!] Could not create stage\n");
+		return NULL;
+	}
+
+	return new_stage;
+}
+
+
+static void parse_data_section_line(char *line)
+{
+
 }
 
 
