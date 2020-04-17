@@ -18,8 +18,7 @@ int main(int argc, char *argv[])
 	}
 
 	if (pl_parse_stage_file(pl, argv[1]) < 0) {
-		printf("[!] Could not parse '%s': %s\n", argv[1],
-			strerror(errno));
+		printf("[!] Could not parse '%s', stopping...\n", argv[1]);
 		pl_free(pl);
 		exit(1);
 	}

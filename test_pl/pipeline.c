@@ -79,6 +79,7 @@ int pl_parse_stage_file(struct pipeline *pl, const char *stage_file)
 
 	bool looking_for_section_header = true, in_data_section = false;
 	struct stage *curr_stage = NULL;
+	int status = 0;
 	char *line = NULL;
 	size_t len = 0;
 	ssize_t read;
@@ -88,8 +89,10 @@ int pl_parse_stage_file(struct pipeline *pl, const char *stage_file)
 		
 		if (looking_for_section_header) {
 			curr_stage = parse_section_header_line(line);
-			if (!curr_stage)
-				break; // TODO: set return code
+			if (!curr_stage) {
+				status = -1;
+				break;
+			}
 			looking_for_section_header = false;
 			in_data_section = true;
 		} else if (strcmp(line, "\n") == 0) {
@@ -105,7 +108,7 @@ int pl_parse_stage_file(struct pipeline *pl, const char *stage_file)
 	fclose(fp);
 	if (line)
 		free(line);
-	return 0;
+	return status;
 }
 
 
