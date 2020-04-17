@@ -41,7 +41,7 @@ void pl_free(struct pipeline *pl)
 	prev = pl->first;
 	while (pl->first) {
 		pl->first = pl->first->next;
-		free(prev);
+		stage_free(prev);
 		prev = pl->first;
 	}
 
