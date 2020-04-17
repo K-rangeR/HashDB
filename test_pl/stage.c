@@ -11,11 +11,12 @@ static void set_run_function(struct stage *);
  * Params:
  *	name => pointer to a name to give the stage
  *	seq_num => sequence number of the stage relative to other stages
+ *	data_count => number of testing key value pairs for this stage
  *
  * Returns:
  *	Pointer to a new stage struct or NULL if there is no memory available
  */
-struct stage *stage_init(char *name, int seq_num)
+struct stage *stage_init(char *name, int seq_num, int data_count)
 {
 	struct stage *new_stage = NULL;
 	
@@ -30,7 +31,7 @@ struct stage *stage_init(char *name, int seq_num)
 
 	strncpy(new_stage->name, name, name_len);
 	new_stage->seq_num = seq_num;
-	new_stage->data = NULL;
+	new_stage->data.len = data_count;
 	new_stage->next = NULL;
 	set_run_function(new_stage);
 	return new_stage;

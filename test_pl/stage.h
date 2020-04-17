@@ -14,12 +14,12 @@ struct kv_pairs {
 struct stage {
 	char *name;
 	int seq_num;
-	struct kv_pairs *data;
+	struct kv_pairs data;
 	struct stage *next;
 	int (*run)(struct stage *this);
 };
 
-struct stage *stage_init(char *name, int seq_num);
+struct stage *stage_init(char *name, int seq_num, int data_count);
 
 void stage_free(struct stage *s);
 
