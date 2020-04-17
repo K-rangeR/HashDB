@@ -7,6 +7,7 @@
 
 static struct stage *parse_section_header_line(char *line);
 static void parse_data_section_line(char *line);
+static void append_stage(struct pipeline *pl, struct stage *s);
 
 
 /*
@@ -85,21 +86,17 @@ int pl_parse_stage_file(struct pipeline *pl, const char *stage_file)
 			curr_stage = parse_section_header_line(line);
 			if (!curr_stage)
 				break; // TODO: set return code
-
-			printf("%s | %d | %d\n", 
-				curr_stage->name,
-				curr_stage->seq_num,
-				curr_stage->data.len);
-
 			looking_for_section_header = false;
 			in_data_section = true;
 		} else if (strcmp(line, "\n") == 0) {
+			append_stage(pl, curr_stage);
 			looking_for_section_header = true;	
 			in_data_section = false;
 		} else if (in_data_section) {
 			parse_data_section_line(line);
 		}
 	}
+	append_stage(pl, curr_stage); // deal with final stage
 
 	fclose(fp);
 	if (line)
@@ -138,7 +135,22 @@ static struct stage *parse_section_header_line(char *line)
 
 static void parse_data_section_line(char *line)
 {
+	return;
+}
 
+
+static void append_stage(struct pipeline *pl, struct stage *s)
+{
+	if (pl->first == NULL) {
+		pl->first = s;
+		return;
+	}
+
+	struct stage *curr = pl->first;
+	while (curr->next != NULL)
+		curr = curr->next;
+	
+	curr->next = s;
 }
 
 

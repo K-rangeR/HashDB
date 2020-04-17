@@ -7,6 +7,6 @@
  */
 int test_nothing(struct stage *s)
 {
-	printf("test %d is testing nothing\n", s->seq_num);	
+	printf("%s | %d | %d\n", s->name, s->seq_num, s->data.len);
 	return 1;
 }
