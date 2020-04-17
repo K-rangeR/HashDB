@@ -115,13 +115,12 @@ static struct stage *parse_section_header_line(char *line)
 	struct stage *new_stage = NULL;
 
 	token = strsep(&string, " ");
-	if (token[0] == 's') {
+	if (token[0] == 's')
 		new_stage = parse_segf_section_header(token, string);
-	} else if (token[0] == 'h') {
+	else if (token[0] == 'h')
 		new_stage = parse_hashdb_section_header(token, string);
-	} else {
+	else
 		printf("[!] Unknown stage name: %s\n", token);
-	}
 
 	return new_stage;
 }
@@ -150,8 +149,27 @@ static struct stage *parse_segf_section_header(char *name, char *rest_of_line)
 
 static struct stage *parse_hashdb_section_header(char *name, char *rest_of_line)
 {
-	printf("Parsing hashdb section header\n");
-	return NULL;
+	char *token = NULL, *argv[2];
+	int argc = 0;
+
+	while ((token = strsep(&rest_of_line, " ")) != NULL)
+		argv[argc++] = token;
+
+	struct stage *s = NULL;
+	if (argc == 0) {
+		s = stage_init(name, 0, 0);
+	} else if (argc == 1) {
+		int kv_pair_count = atoi(argv[0]);
+		s = stage_init(name, 0, kv_pair_count);
+	} else if (argc == 2) {
+		int id1 = atoi(argv[0]);	
+		int id2 = atoi(argv[1]);	
+		s = stage_init(name, id1, id2); // TODO fix later
+	} else {
+		printf("[!] hashdb_* stage header is incorrect\n");
+	}
+
+	return s;
 }
 
 static void parse_data_section_line(char *line)
