@@ -172,6 +172,7 @@ static struct stage *parse_segf_section_header(char *name, char *rest_of_line)
 	return s;
 }
 
+
 /*
  * Parses stage headers that begin with hashdb_*.
  *
@@ -207,6 +208,7 @@ static struct stage *parse_hashdb_section_header(char *name, char *rest_of_line)
 
 	return s;
 }
+
 
 static void parse_data_section_line(char *line)
 {
