@@ -68,3 +68,10 @@ void stage_free(struct stage *s)
 	free(s->name);
 	free(s);
 }
+
+
+int stage_init_kv_pair_array(struct stage *s)
+{
+	s->kv_pair = calloc(s->data.len, sizeof(struct kv_pair));
+	return (s->kv_pair != NULL) ? 0 : -1;
+}

@@ -23,4 +23,6 @@ struct stage *stage_init(char *name, int seq_num, int data_count);
 
 void stage_free(struct stage *s);
 
+int stage_init_kv_pair_array(struct stage*);
+
 #endif
