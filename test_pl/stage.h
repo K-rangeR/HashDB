@@ -14,7 +14,7 @@ struct kv_pairs {
 struct stage {
 	char *name;
 	int seq_num;
-	struct kv_pairs data;
+	struct kv_pairs test_data;
 	struct stage *next;
 	int (*run)(struct stage *this);
 };
@@ -22,7 +22,5 @@ struct stage {
 struct stage *stage_init(char *name, int seq_num, int data_count);
 
 void stage_free(struct stage *s);
-
-int stage_init_kv_pair_array(struct stage*);
 
 #endif

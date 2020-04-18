@@ -3,7 +3,10 @@
 #include "stage.h"
 #include "test_stages.h"
 
+
 static void set_run_function(struct stage *);
+static int init_kv_pair_array(struct stage *);
+
 
 /*
  * Creates a new stage
@@ -31,7 +34,12 @@ struct stage *stage_init(char *name, int seq_num, int data_count)
 
 	strncpy(new_stage->name, name, name_len);
 	new_stage->seq_num = seq_num;
-	new_stage->data.len = data_count;
+	new_stage->test_data.len = data_count;
+	if (init_kv_pair_array(new_stage) < 0) {
+		free(new_stage->name);
+		free(new_stage);
+		return NULL;
+	}
 	new_stage->next = NULL;
 	set_run_function(new_stage);
 	return new_stage;
@@ -66,12 +74,16 @@ static void set_run_function(struct stage *s)
 void stage_free(struct stage *s)
 {
 	free(s->name);
+	// TODO: free test_data array and the values in it
 	free(s);
 }
 
 
-int stage_init_kv_pair_array(struct stage *s)
+static int init_kv_pair_array(struct stage *s)
 {
-	s->kv_pair = calloc(s->data.len, sizeof(struct kv_pair));
-	return (s->kv_pair != NULL) ? 0 : -1;
+	if (s->test_data.len == 0)
+		return 1;
+
+	s->test_data.data = calloc(s->test_data.len, sizeof(struct kv_pair));
+	return (s->test_data.data != NULL) ? 0 : -1;
 }
