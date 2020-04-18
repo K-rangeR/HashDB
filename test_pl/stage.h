@@ -19,6 +19,9 @@ struct stage {
 	int (*run)(struct stage *this);
 };
 
+#define insert_test_data(stage, data, index)             \
+        stage->test_data.data[index] = data;
+
 struct stage *stage_init(char *name, int seq_num, int data_count);
 
 void stage_free(struct stage *s);

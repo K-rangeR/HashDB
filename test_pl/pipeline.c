@@ -81,7 +81,7 @@ int pl_parse_stage_file(struct pipeline *pl, const char *stage_file)
 	bool looking_for_section_header = true, in_data_section = false;
 	struct stage *curr_stage = NULL;
 	struct kv_pair data;
-	int status = 0;
+	int status = 0, next_kv = 0;
 	char *line = NULL;
 	size_t len = 0;
 	ssize_t read;
@@ -97,14 +97,15 @@ int pl_parse_stage_file(struct pipeline *pl, const char *stage_file)
 			}
 			looking_for_section_header = false;
 			in_data_section = true;
+			next_kv = 0;
 		} else if (strcmp(line, "\n") == 0) {
 			append_stage(pl, curr_stage);
 			looking_for_section_header = true;	
 			in_data_section = false;
 		} else if (in_data_section) {
 			data = parse_data_section_line(line);
-			printf("%d | %s\n", data.key, data.value);
-			// TODO: fix this memory leak
+			insert_test_data(curr_stage, data, next_kv);
+			next_kv++;
 		}
 	}
 	append_stage(pl, curr_stage); // deal with final stage
