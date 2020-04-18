@@ -214,6 +214,15 @@ static struct stage *parse_hashdb_section_header(char *name, char *rest_of_line)
 }
 
 
+/*
+ * Parses lines in the file that contain a key and possibly a value.
+ *
+ * Param:
+ *	line => line from the stage file to parse
+ *
+ * Returns:
+ *	kv_pair struct containing the parsed data
+ */
 static struct kv_pair parse_data_section_line(char *line)
 {
 	struct kv_pair data = {0, NULL};
