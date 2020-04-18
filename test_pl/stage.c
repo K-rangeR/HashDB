@@ -23,7 +23,7 @@ struct stage *stage_init(char *name, int seq_num, int data_count)
 {
 	struct stage *new_stage = NULL;
 	
-	if ((new_stage = malloc(sizeof(struct stage))) == NULL)
+	if ((new_stage = calloc(1, sizeof(struct stage))) == NULL)
 		return NULL;
 	
 	int name_len = strlen(name);
@@ -74,7 +74,11 @@ static void set_run_function(struct stage *s)
 void stage_free(struct stage *s)
 {
 	free(s->name);
-	// TODO: free test_data array and the values in it
+	for (int i = 0; i < s->test_data.len; ++i) {
+		if (s->test_data.data[i].value)
+			free(s->test_data.data[i].value);
+	}
+	free(s->test_data.data);
 	free(s);
 }
 

@@ -216,7 +216,7 @@ static struct stage *parse_hashdb_section_header(char *name, char *rest_of_line)
 
 static struct kv_pair parse_data_section_line(char *line)
 {
-	struct kv_pair data = {0, ""};
+	struct kv_pair data = {0, NULL};
 	char *argv[2];
 	int argc = 0;
 
