@@ -10,7 +10,7 @@ static struct stage *parse_segf_section_header(char *name,
 					       char *rest_of_line);
 static struct stage *parse_hashdb_section_header(char *name, 
 						 char *rest_of_line);
-static void parse_data_section_line(char *line);
+static struct kv_pair parse_data_section_line(char *line);
 static void append_stage(struct pipeline *pl, struct stage *s);
 
 
@@ -80,6 +80,7 @@ int pl_parse_stage_file(struct pipeline *pl, const char *stage_file)
 
 	bool looking_for_section_header = true, in_data_section = false;
 	struct stage *curr_stage = NULL;
+	struct kv_pair data;
 	int status = 0;
 	char *line = NULL;
 	size_t len = 0;
@@ -101,7 +102,9 @@ int pl_parse_stage_file(struct pipeline *pl, const char *stage_file)
 			looking_for_section_header = true;	
 			in_data_section = false;
 		} else if (in_data_section) {
-			parse_data_section_line(line);
+			data = parse_data_section_line(line);
+			printf("%d | %s\n", data.key, data.value);
+			// TODO: fix this memory leak
 		}
 	}
 	append_stage(pl, curr_stage); // deal with final stage
@@ -210,9 +213,28 @@ static struct stage *parse_hashdb_section_header(char *name, char *rest_of_line)
 }
 
 
-static void parse_data_section_line(char *line)
+static struct kv_pair parse_data_section_line(char *line)
 {
-	return;
+	struct kv_pair data = {0, ""};
+	char *argv[2];
+	int argc = 0;
+
+	while ((argv[argc] = strsep(&line, " ")) != NULL)
+		argc++;
+	
+	data.key = atoi(argv[0]);
+	if (argc == 2) {	
+		char *val = argv[1];
+		val[strcspn(val, "\n")] = 0; // strip new line
+		int n = strlen(val);
+		data.value = calloc(n, sizeof(char));
+		if (data.value == NULL) {
+			printf("[!] Error making space for value\n");
+		}
+		strncpy(data.value, val, n);
+	}
+
+	return data;
 }
 
 

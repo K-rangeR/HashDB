@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	pl_run(pl);
+	//pl_run(pl);
 
 	pl_free(pl);
 	exit(0);
