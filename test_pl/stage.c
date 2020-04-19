@@ -74,20 +74,20 @@ static void set_run_function(struct stage *s)
 void stage_free(struct stage *s)
 {
 	free(s->name);
-	for (int i = 0; i < s->test_data.len; ++i) {
-		if (s->test_data.data[i].value)
-			free(s->test_data.data[i].value);
+	for (int i = 0; i < test_data_len(s); ++i) {
+		if (value_at(s, i))
+			free(value_at(s, i));
 	}
-	free(s->test_data.data);
+	free(test_data(s));
 	free(s);
 }
 
 
 static int init_kv_pair_array(struct stage *s)
 {
-	if (s->test_data.len == 0)
+	if (test_data_len(s) == 0)
 		return 1;
 
-	s->test_data.data = calloc(s->test_data.len, sizeof(struct kv_pair));
-	return (s->test_data.data != NULL) ? 0 : -1;
+	assign_test_data(s, calloc(test_data_len(s), sizeof(struct kv_pair)));
+	return (test_data(s) != NULL) ? 0 : -1;
 }

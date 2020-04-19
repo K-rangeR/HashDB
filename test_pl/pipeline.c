@@ -238,9 +238,8 @@ static struct kv_pair parse_data_section_line(char *line)
 		val[strcspn(val, "\n")] = 0; // strip new line
 		int n = strlen(val);
 		data.value = calloc(n, sizeof(char));
-		if (data.value == NULL) {
+		if (data.value == NULL)
 			printf("[!] Error making space for value\n");
-		}
 		strncpy(data.value, val, n);
 	}
 

@@ -19,8 +19,20 @@ struct stage {
 	int (*run)(struct stage *this);
 };
 
-#define insert_test_data(stage, data, index)             \
-        stage->test_data.data[index] = data;
+#define insert_test_data(stage, data, index) \
+        stage->test_data.data[index] = data
+
+#define value_at(stage, index) \
+        stage->test_data.data[index].value
+
+#define test_data_len(stage) \
+        stage->test_data.len
+
+#define test_data(stage) \
+        stage->test_data.data
+
+#define assign_test_data(stage, td) \
+        stage->test_data.data = td
 
 struct stage *stage_init(char *name, int seq_num, int data_count);
 
