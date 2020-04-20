@@ -31,8 +31,8 @@ struct stage *stage_init(char *name, int seq_num, int data_count)
 		free(new_stage);
 		return NULL;
 	}
-
 	strncpy(new_stage->name, name, name_len);
+
 	new_stage->seq_num = seq_num;
 	new_stage->test_data.len = data_count;
 	if (init_kv_pair_array(new_stage) < 0) {
