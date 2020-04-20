@@ -7,11 +7,11 @@
  */
 int test_nothing(struct stage *s)
 {
-	printf("%s | %d | %d\n", s->name, s->seq_num, s->test_data.len);
-	for (int i = 0; i < s->test_data.len; ++i) {
+	printf("%s | %d | %d\n", s->name, s->seq_num, test_data_len(s));
+	for (int i = 0; i < test_data_len(s); ++i) {
 		printf("%d | %s\n", 
-			s->test_data.data[i].key,
-			s->test_data.data[i].value);
+			key_at(s, i),
+			value_at(s, i));
 	}
 	return 1;
 }

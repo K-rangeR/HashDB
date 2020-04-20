@@ -14,7 +14,7 @@ struct kv_pairs {
 struct stage {
 	char *name;
 	int seq_num;
-  int segf_ids[2];
+	int segf_ids[2];
 	struct kv_pairs test_data;
 	struct stage *next;
 	int (*run)(struct stage *this);
@@ -25,6 +25,9 @@ struct stage {
 
 #define value_at(stage, index) \
         stage->test_data.data[index].value
+
+#define key_at(stage, index) \
+        stage->test_data.data[index].key
 
 #define test_data_len(stage) \
         stage->test_data.len
