@@ -83,6 +83,15 @@ void stage_free(struct stage *s)
 }
 
 
+/*
+ * Creates an array of kv_pair structs for the given stage
+ *
+ * Param:
+ *	s => stage to create the array for
+ *
+ * Returns:
+ *	0 if successful, -1 if out of memory
+ */
 static int init_kv_pair_array(struct stage *s)
 {
 	if (test_data_len(s) == 0)
