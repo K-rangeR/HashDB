@@ -38,6 +38,12 @@ struct stage {
 #define assign_test_data(stage, td) \
         stage->test_data.data = td
 
+#define id_one(stage) \
+        stage->segf_ids[0]
+
+#define id_two(stage) \
+        stage->segf_ids[1]
+
 struct stage *stage_init(char *name, int seq_num, int data_count);
 
 void stage_free(struct stage *s);
