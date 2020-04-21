@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
@@ -45,9 +46,9 @@ struct stage *stage_init(char *name, int data_count, int id_cnt, ...)
 	new_stage->segf_ids[0] = 0;
 	new_stage->segf_ids[1] = 0;
 
-	int i = 0;
 	va_list ids;
 	va_start(ids, id_cnt);
+	int i = 0;
 	while (i < id_cnt) {
 		new_stage->segf_ids[i] = va_arg(ids, int);	
 		i++;
@@ -66,12 +67,35 @@ struct stage *stage_init(char *name, int data_count, int id_cnt, ...)
  * Params:
  *	s => stage struct to update
  *
- * Returns:
+ * Returns
  *	void
  */
 static void set_run_function(struct stage *s)
 {
-	s->run = test_nothing;
+	if (strcmp(s->name, "segf_put") == 0)
+		s->run = test_segf_put;
+	else if (strcmp(s->name, "segf_update") == 0)
+		s->run = test_segf_put;
+	else if (strcmp(s->name, "segf_delete") == 0)
+		s->run = test_segf_delete;
+	else if (strcmp(s->name, "hashdb_put") == 0)
+		s->run = test_hashdb_put;
+	else if (strcmp(s->name, "hashdb_update") == 0)
+		s->run = test_hashdb_put;
+	else if (strcmp(s->name, "hashdb_delete") == 0)
+		s->run = test_hashdb_delete;
+	else if (strcmp(s->name, "hashdb_repopulate") == 0)
+		s->run = test_hashdb_repopulate;
+	else if (strcmp(s->name, "hashdb_mkempty") == 0)
+		s->run = test_hashdb_mkempty;
+	else if (strcmp(s->name, "hashdb_compact") == 0)
+		s->run = test_hashdb_compact;
+	else if (strcmp(s->name, "hashdb_merge") == 0)
+		s->run = test_hashdb_merge;
+	else {
+		printf("[!] Unknown command: %s\n", s->name);
+		s->run = test_nothing;
+	}
 }
 
 

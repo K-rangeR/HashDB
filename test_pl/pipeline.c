@@ -198,6 +198,7 @@ static struct stage *parse_hashdb_section_header(char *name, char *rest_of_line)
 
 	struct stage *s = NULL;
 	if (argc == 0) {
+		name[strcspn(name, "\n")] = 0; // strip newline
 		s = stage_init(name, 0, 0);
 	} else if (argc == 1) {
 		int kv_pair_count = atoi(argv[0]);

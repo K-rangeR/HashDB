@@ -77,6 +77,7 @@ int test_hashdb_merge(struct stage *s)
  */
 int test_nothing(struct stage *s)
 {
+	/*
 	printf("%s | len = %d | ID1 = %d | ID2 = %d\n", s->name, 
 		test_data_len(s), id_one(s), id_two(s));
 	for (int i = 0; i < test_data_len(s); ++i) {
@@ -84,5 +85,7 @@ int test_nothing(struct stage *s)
 			key_at(s, i),
 			value_at(s, i));
 	}
+	*/
+	printf("Nothing to test for '%s', check spelling...\n", s->name);
 	return 1;
 }
