@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #include "stage.h"
 #include "test_stages.h"
 
@@ -19,7 +20,7 @@ static int init_kv_pair_array(struct stage *);
  * Returns:
  *	Pointer to a new stage struct or NULL if there is no memory available
  */
-struct stage *stage_init(char *name, int seq_num, int data_count)
+struct stage *stage_init(char *name, int data_count, int id_cnt, ...)
 {
 	struct stage *new_stage = NULL;
 	
@@ -33,7 +34,6 @@ struct stage *stage_init(char *name, int seq_num, int data_count)
 	}
 	strncpy(new_stage->name, name, name_len);
 
-	new_stage->seq_num = seq_num;
 	new_stage->test_data.len = data_count;
 	if (init_kv_pair_array(new_stage) < 0) {
 		free(new_stage->name);
@@ -41,6 +41,19 @@ struct stage *stage_init(char *name, int seq_num, int data_count)
 		return NULL;
 	}
 	new_stage->next = NULL;
+
+	new_stage->segf_ids[0] = 0;
+	new_stage->segf_ids[1] = 0;
+
+	int i = 0;
+	va_list ids;
+	va_start(ids, id_cnt);
+	while (i < id_cnt) {
+		new_stage->segf_ids[i] = va_arg(ids, int);	
+		i++;
+	}
+	va_end(ids);
+
 	set_run_function(new_stage);
 	return new_stage;
 }

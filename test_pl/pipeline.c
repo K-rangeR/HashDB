@@ -172,7 +172,7 @@ static struct stage *parse_segf_section_header(char *name, char *rest_of_line)
 
 	int id = atoi(argv[0]);
 	int kv_pair_count = atoi(argv[1]);
-	struct stage *s = stage_init(name, id, kv_pair_count);
+	struct stage *s = stage_init(name, kv_pair_count, 1, id);
 	return s;
 }
 
@@ -201,11 +201,11 @@ static struct stage *parse_hashdb_section_header(char *name, char *rest_of_line)
 		s = stage_init(name, 0, 0);
 	} else if (argc == 1) {
 		int kv_pair_count = atoi(argv[0]);
-		s = stage_init(name, 0, kv_pair_count);
+		s = stage_init(name, kv_pair_count, 0);
 	} else if (argc == 2) {
 		int id1 = atoi(argv[0]);	
 		int id2 = atoi(argv[1]);	
-		s = stage_init(name, id1, id2); // TODO fix later
+		s = stage_init(name, 0, 2, id1, id2);
 	} else {
 		printf("[!] hashdb_* stage header is incorrect\n");
 	}

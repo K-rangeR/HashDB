@@ -44,7 +44,7 @@ struct stage {
 #define id_two(stage) \
         stage->segf_ids[1]
 
-struct stage *stage_init(char *name, int seq_num, int data_count);
+struct stage *stage_init(char *name, int data_count, int id, ...);
 
 void stage_free(struct stage *s);
 
