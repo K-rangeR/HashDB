@@ -2,6 +2,76 @@
 #include "test_stages.h"
 
 
+int test_segf_get(struct stage *s)
+{
+	printf("test_segf_get\n");
+	return 1;	
+}
+
+
+int test_segf_put(struct stage *s)
+{
+	printf("test_segf_put\n");
+	return 1;	
+}
+
+
+int test_segf_delete(struct stage *s)
+{
+	printf("test_segf_delete\n");
+	return 1;	
+}
+
+
+int test_hashdb_get(struct stage *s)
+{
+	printf("test_hash_get\n");
+	return 1;
+}
+
+
+int test_hashdb_put(struct stage *s)
+{
+	printf("test_hashdb_put\n");
+	return 1;
+}
+
+
+int test_hashdb_delete(struct stage *s)
+{
+	printf("test_hashdb_delete\n");
+	return 1;
+}
+
+
+int test_hashdb_repopulate(struct stage *s)
+{
+	printf("test_hashdb_repopulate\n");
+	return 1;
+}
+
+
+int test_hashdb_mkempty(struct stage *s)
+{
+	printf("test_hashdb_mkempty\n");
+	return 1;
+}
+
+
+int test_hashdb_compact(struct stage *s)
+{
+	printf("test_hashdb_compact\n");
+	return 1;
+}
+
+
+int test_hashdb_merge(struct stage *s)
+{
+	printf("test_hashdb_merge\n");
+	return 1;
+}
+
+
 /*
  * Does not perform any tests, just for debugging
  */
