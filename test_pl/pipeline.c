@@ -156,7 +156,8 @@ static struct stage *parse_section_header_line(char *line)
  *	stage struct that contains the data from line if the line was in
  *	the correct format, or NULL otherwise
  */
-static struct stage *parse_segf_section_header(char *name, char *rest_of_line)
+static struct stage *parse_segf_section_header(char *name, 
+					       char *rest_of_line)
 {
 	char *token = NULL, *argv[2];
 	int argc = 0;
@@ -188,7 +189,8 @@ static struct stage *parse_segf_section_header(char *name, char *rest_of_line)
  *	stage struct that contains the data from line if the line was in
  *	the correct format, or NULL otherwise
  */
-static struct stage *parse_hashdb_section_header(char *name, char *rest_of_line)
+static struct stage *parse_hashdb_section_header(char *name, 
+					         char *rest_of_line)
 {
 	char *token = NULL, *argv[2];
 	int argc = 0;
