@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "test_stages.h"
-#include "../src/hashDB.h"
 
 
 int test_segf_get(struct stage *s)
