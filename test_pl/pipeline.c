@@ -5,6 +5,7 @@
 #include "pipeline.h"
 
 
+// 'Private' helper functions mostly used for parsing the stage file
 static struct stage *parse_section_header_line(char *line);
 static struct stage *parse_segf_section_header(char *name, 
 					       char *rest_of_line);

@@ -13,7 +13,6 @@ struct kv_pairs {
 
 struct stage {
 	char *name;
-	int seq_num;
 	int segf_ids[2];
 	struct kv_pairs test_data;
 	struct stage *next;

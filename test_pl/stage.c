@@ -29,7 +29,7 @@ struct stage *stage_init(char *name, int data_count, int id_cnt, ...)
 	if ((new_stage = calloc(1, sizeof(struct stage))) == NULL)
 		return NULL;
 	
-	int name_len = strlen(name);
+	int name_len = strlen(name) + 1;
 	if ((new_stage->name = calloc(name_len, sizeof(char))) == NULL) {
 		free(new_stage);
 		return NULL;
