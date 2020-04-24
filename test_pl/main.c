@@ -4,6 +4,9 @@
 #include <string.h>
 #include "pipeline.h"
 
+/*
+ * Test pipeline driver program
+ */
 int main(int argc, char *argv[])
 {
 	if (argc != 2) {
