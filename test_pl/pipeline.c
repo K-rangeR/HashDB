@@ -236,7 +236,7 @@ static struct kv_pair parse_data_section_line(char *line)
 		argc++;
 	
 	data.key = atoi(argv[0]);
-	if (argc == 2) {	
+	if (argc == 2) {
 		char *val = argv[1];
 		val[strcspn(val, "\n")] = 0; // strip new line
 		int n = strlen(val);

@@ -19,7 +19,8 @@ static int init_kv_pair_array(struct stage *);
  *	data_count => number of testing key value pairs for this stage
  *
  * Returns:
- *	Pointer to a new stage struct or NULL if there is no memory available
+ *	Pointer to a new stage struct or NULL if there is no memory 
+ *      available
  */
 struct stage *stage_init(char *name, int data_count, int id_cnt, ...)
 {
