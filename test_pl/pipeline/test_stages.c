@@ -1,5 +1,11 @@
 #include <stdio.h>
 #include "test_stages.h"
+#include "db.h"
+
+
+// Private helper functions
+static struct segment_file *create_segf_for_stage(struct stage *s);
+static int delete_segf(struct stage *s);
 
 
 int test_segf_get(struct stage *s)
