@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <errno.h>
 #include "test_stages.h"
 #include "db.h"
 
@@ -26,8 +28,10 @@ int test_segf_get(struct stage *s)
 
 int test_segf_put(struct stage *s)
 {
-	printf("test_segf_put\n");
 	struct segment_file *tfile = create_segf_for_stage(s);
+	if (!tfile)
+		return 0;
+
 	printf("%s\n", tfile->name);
 	return 1;	
 }
@@ -94,20 +98,16 @@ int test_hashdb_merge(struct stage *s)
  */
 int test_nothing(struct stage *s)
 {
-	/*
-	printf("%s | len = %d | ID1 = %d | ID2 = %d\n", s->name, 
-		test_data_len(s), id_one(s), id_two(s));
-	for (int i = 0; i < test_data_len(s); ++i) {
-		printf("%d | %s\n", 
-			key_at(s, i),
-			value_at(s, i));
-	}
-	*/
 	printf("Nothing to test for '%s', check spelling...\n", s->name);
 	return 1;
 }
 
 
+/*
+ * Creates new segment file struct for testing a specific segf function.
+ * If the backing segment file does not exist one is created. If there
+ * is an error NULL is returned.
+ */
 static struct segment_file *create_segf_for_stage(struct stage *s)
 {
 	char *file_name = make_segment_file_name(s);
@@ -117,11 +117,22 @@ static struct segment_file *create_segf_for_stage(struct stage *s)
 	struct segment_file *segf = NULL;
 	if ((segf = segf_init(path_to_segment_file)) == NULL) {
 		printf("ERROR: create_segf_for_stage: no memory\n");
-		exit(1);
+		return NULL;
 	}
 
-	// if segment file does not exist, create it
-	// else, open it
+	if (access(path_to_segment_file, F_OK) != -1) {
+		if (segf_open_file(segf) < 0) {
+			printf("[F]: Could not open file\n");
+			printf("\t-> %s\n", strerror(errno));
+			return NULL;
+		}
+	} else {
+		if (segf_create_file(segf) < 0) {
+			printf("[F]: Could create segment file\n");
+			printf("\t-> %s\n", strerror(errno));
+			return NULL;	
+		}
+	}
 
 	return segf;
 }
@@ -139,7 +150,7 @@ static char *make_segment_file_name(struct stage *s)
 
 	char *name = calloc(name_len+1, sizeof(char));
 	if (!name) {
-		printf("ERROR: make_segement_file_name: no memory\n");
+		printf("[!]: make_segement_file_name: no memory\n");
 		exit(1);
 	}
 
@@ -157,7 +168,7 @@ static char *join_file_path(char *path, char *file)
 	int len = path_len + file_len + 2;
 	char *new_path = calloc(len, sizeof(char));
 	if (!new_path) {
-		printf("ERROR: join_file_path: no memory\n");	
+		printf("[!]: join_file_path: no memory\n");	
 		exit(1);
 	}
 
