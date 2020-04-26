@@ -1,15 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "test_stages.h"
 #include "db.h"
 
+
 #define ONE_DIGIT_ID_NAME_LEN 5 // X.dat
 #define TWO_DIGIT_ID_NAME_LEN 6 // XX.dat
+#define TEST_DATA_DIR "test_data"
 
 
 // Private helper functions
 static struct segment_file *create_segf_for_stage(struct stage *s);
 static int delete_segf(struct stage *s);
+static char *join_file_path(char *path, char *file);
 static char *make_segment_file_name(struct stage *s);
 
 
@@ -110,6 +114,26 @@ static struct segment_file *create_segf_for_stage(struct stage *s)
 	// else, open it
 	// return segf struct
 	return 0;
+}
+
+
+/*
+ * Creates a new string with path and file separated by a '/'
+ */
+static char *join_file_path(char *path, char *file)
+{
+	int path_len = strlen(path), file_len = strlen(file);
+	int len = path_len + file_len + 2;
+	char *new_path = calloc(len, sizeof(char));
+	if (!new_path) {
+		printf("ERROR: join_file_path: no memory\n");	
+		exit(1);
+	}
+
+	strncat(new_path, path, path_len);
+	strncat(new_path, "/", 1);
+	strncat(new_path, file, file_len);
+	return new_path;
 }
 
 
