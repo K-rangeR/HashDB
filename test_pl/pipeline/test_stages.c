@@ -27,6 +27,8 @@ int test_segf_get(struct stage *s)
 int test_segf_put(struct stage *s)
 {
 	printf("test_segf_put\n");
+	struct segment_file *tfile = create_segf_for_stage(s);
+	printf("%s\n", tfile->name);
 	return 1;	
 }
 
@@ -108,32 +110,20 @@ int test_nothing(struct stage *s)
 
 static struct segment_file *create_segf_for_stage(struct stage *s)
 {
-	// create file path
-	// create segf struct
-	// if segment file does not exist, create it
-	// else, open it
-	// return segf struct
-	return 0;
-}
+	char *file_name = make_segment_file_name(s);
+	char *path_to_segment_file = join_file_path(TEST_DATA_DIR, file_name);
+	free(file_name); // don't need anymore
 
-
-/*
- * Creates a new string with path and file separated by a '/'
- */
-static char *join_file_path(char *path, char *file)
-{
-	int path_len = strlen(path), file_len = strlen(file);
-	int len = path_len + file_len + 2;
-	char *new_path = calloc(len, sizeof(char));
-	if (!new_path) {
-		printf("ERROR: join_file_path: no memory\n");	
+	struct segment_file *segf = NULL;
+	if ((segf = segf_init(path_to_segment_file)) == NULL) {
+		printf("ERROR: create_segf_for_stage: no memory\n");
 		exit(1);
 	}
 
-	strncat(new_path, path, path_len);
-	strncat(new_path, "/", 1);
-	strncat(new_path, file, file_len);
-	return new_path;
+	// if segment file does not exist, create it
+	// else, open it
+
+	return segf;
 }
 
 
@@ -155,4 +145,24 @@ static char *make_segment_file_name(struct stage *s)
 
 	sprintf(name, "%d.dat", id_one(s));
 	return name;
+}
+
+
+/*
+ * Creates a new string with path and file separated by a '/'
+ */
+static char *join_file_path(char *path, char *file)
+{
+	int path_len = strlen(path), file_len = strlen(file);
+	int len = path_len + file_len + 2;
+	char *new_path = calloc(len, sizeof(char));
+	if (!new_path) {
+		printf("ERROR: join_file_path: no memory\n");	
+		exit(1);
+	}
+
+	strncat(new_path, path, path_len);
+	strncat(new_path, "/", 1);
+	strncat(new_path, file, file_len);
+	return new_path;
 }
