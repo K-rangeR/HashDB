@@ -116,7 +116,7 @@ static struct segment_file *create_segf_for_stage(struct stage *s)
 
 	struct segment_file *segf = NULL;
 	if ((segf = segf_init(path_to_segment_file)) == NULL) {
-		printf("ERROR: create_segf_for_stage: no memory\n");
+		printf("[!]: create_segf_for_stage: no memory\n");
 		return NULL;
 	}
 
