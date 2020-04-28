@@ -5,8 +5,6 @@
 
 int test_segf_put(struct stage *s);
 int test_segf_delete(struct stage *s);
-int test_segf_create_file(struct stage *s);
-int test_segf_delete_file(struct stage *s);
 
 int test_hashdb_get(struct stage *s);
 int test_hashdb_put(struct stage *s);
