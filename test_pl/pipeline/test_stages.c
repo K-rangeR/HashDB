@@ -20,6 +20,9 @@ static char *join_file_path(char *path, char *file);
 static char *make_segment_file_name(struct stage *s);
 
 
+/*
+ * Attempts to read the data associated with the given stage file
+ */
 static int test_segf_get(struct stage *s, struct segment_file *tfile)
 {
 	for (int i = 0; i < test_data_len(s); ++i) {
@@ -42,6 +45,9 @@ static int test_segf_get(struct stage *s, struct segment_file *tfile)
 }
 
 
+/*
+ * Stage for testing segment file insert code
+ */
 int test_segf_put(struct stage *s)
 {
 	struct segment_file *tfile = create_segf_for_stage(s);
@@ -63,6 +69,9 @@ int test_segf_put(struct stage *s)
 }
 
 
+/*
+ * Stage for testing segment file delete code
+ */
 int test_segf_delete(struct stage *s)
 {
 	struct segment_file *tfile = create_segf_for_stage(s);
