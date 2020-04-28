@@ -282,6 +282,7 @@ int pl_run(struct pipeline *pl)
 	while (curr_stage) {
 		if (!curr_stage->run(curr_stage))
 			return 0;
+		printf("[P]: %s\n\n", curr_stage->name);
 		curr_stage = curr_stage->next;
 	}
 	return 1;

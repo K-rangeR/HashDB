@@ -13,15 +13,31 @@
 
 
 // Private helper functions
+static int test_segf_get(struct stage *, struct segment_file *);
 static struct segment_file *create_segf_for_stage(struct stage *s);
 static int delete_segf(struct stage *s);
 static char *join_file_path(char *path, char *file);
 static char *make_segment_file_name(struct stage *s);
 
 
-int test_segf_get(struct stage *s)
+static int test_segf_get(struct stage *s, struct segment_file *tfile)
 {
-	printf("test_segf_get\n");
+	for (int i = 0; i < test_data_len(s); ++i) {
+		char *val;
+		if (segf_read_file(tfile, key_at(s,i), &val) <= 0) {
+			printf("[F]: test_segf_get: read: %s\n", 
+				strerror(errno));
+			return 0;
+		}
+
+		if (strcmp(val, value_at(s,i)) != 0) {
+			printf("[F]: test_segf_get: '%s' != '%s'\n", val,
+				value_at(s, i));
+			return 0;
+		}
+		printf("'%s' == '%s'\n", val, value_at(s, i));
+		free(val);
+	}
 	return 1;	
 }
 
@@ -32,8 +48,18 @@ int test_segf_put(struct stage *s)
 	if (!tfile)
 		return 0;
 
-	printf("%s\n", tfile->name);
-	return 1;	
+	for (int i = 0; i < test_data_len(s); ++i) {
+		if (segf_append(tfile, key_at(s,i), 
+				value_at(s,i), TOMBSTONE_INS) < 0) {
+			printf("[F]: test_segf_put: append: %s\n", 
+				strerror(errno));
+			return 0;
+		}
+	}
+
+	int result = test_segf_get(s, tfile);
+	segf_free(tfile);
+	return result;
 }
 
 

@@ -3,7 +3,6 @@
 
 #include "stage.h"
 
-int test_segf_get(struct stage *s);
 int test_segf_put(struct stage *s);
 int test_segf_delete(struct stage *s);
 int test_segf_create_file(struct stage *s);
