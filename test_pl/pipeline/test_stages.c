@@ -65,8 +65,37 @@ int test_segf_put(struct stage *s)
 
 int test_segf_delete(struct stage *s)
 {
-	printf("test_segf_delete\n");
-	return 1;	
+	struct segment_file *tfile = create_segf_for_stage(s);
+	if (!tfile)
+		return 0;
+
+	for (int i = 0; i < test_data_len(s); ++i) {
+		int res = segf_remove_pair(tfile, key_at(s, i));
+		if (res == 0) {
+			printf("[F]: test_segf_delete: could not find '%d'\n",
+				key_at(s, i));
+			return 0;
+		} else if (res == -1) {
+			printf("[!]: test_segf_delete: %s\n", strerror(errno));
+			return 0;
+		}
+	}
+
+	for (int i = 0; i < test_data_len(s); ++i) {
+		char *val;
+		int res = segf_read_file(tfile, key_at(s,i), &val);
+		if (res == 1) {
+			printf("[F]: test_segf_delete: '%d' was not deleted\n",
+				key_at(s,i));
+			return 0;
+		} else if (res == -1) {
+			printf("[!]: test_segf_delete: %s\n", strerror(errno));	
+			return 0;
+		}
+	}
+
+	segf_free(tfile);
+	return 1;
 }
 
 
@@ -75,7 +104,6 @@ int test_hashdb_get(struct stage *s)
 	printf("test_hash_get\n");
 	return 1;
 }
-
 
 int test_hashdb_put(struct stage *s)
 {
@@ -149,6 +177,11 @@ static struct segment_file *create_segf_for_stage(struct stage *s)
 	if (access(path_to_segment_file, F_OK) != -1) {
 		if (segf_open_file(segf) < 0) {
 			printf("[F]: Could not open file\n");
+			printf("\t-> %s\n", strerror(errno));
+			return NULL;
+		}
+		if (segf_repop_memtable(segf) < 0) {
+			printf("[F]: Could not repopulate memtable\n");
 			printf("\t-> %s\n", strerror(errno));
 			return NULL;
 		}
