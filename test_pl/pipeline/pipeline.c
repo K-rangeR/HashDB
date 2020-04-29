@@ -1,7 +1,10 @@
+#include <dirent.h>
+#include <errno.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <unistd.h>
 #include "pipeline.h"
 
 
@@ -13,6 +16,8 @@ static struct stage *parse_hashdb_section_header(char *name,
 						 char *rest_of_line);
 static struct kv_pair parse_data_section_line(char *line);
 static void append_stage(struct pipeline *pl, struct stage *s);
+static void nuke_test_data_dir();
+static int delete_file(char*);
 
 
 /*
@@ -285,5 +290,34 @@ int pl_run(struct pipeline *pl)
 		printf("[P]: %s\n\n", curr_stage->name);
 		curr_stage = curr_stage->next;
 	}
+
+	nuke_test_data_dir();
 	return 1;
+}
+
+
+static void nuke_test_data_dir()
+{
+	DIR *tdata_dir = opendir(TEST_DATA_DIR);		
+	if (tdata_dir == NULL) {
+		printf("[!] Could not open %s: %s\n", 
+			TEST_DATA_DIR, strerror(errno));
+		return;
+	}
+	chdir(TEST_DATA_DIR);
+	struct dirent *de;
+	while ((de = readdir(tdata_dir)) != NULL) {
+		if (delete_file(de->d_name) < 0)
+			printf("[!] Could not remove '%s': %s\n", de->d_name,
+				strerror(errno));
+	}
+	closedir(tdata_dir);
+}
+
+
+static int delete_file(char *name)
+{
+	if (strcmp(name, ".") != 0 && strcmp(name, "..") != 0)
+		return remove(name);
+	return 0;
 }
