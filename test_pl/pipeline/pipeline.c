@@ -285,8 +285,10 @@ int pl_run(struct pipeline *pl)
 {
 	struct stage *curr_stage = pl->first;
 	while (curr_stage) {
-		if (!curr_stage->run(curr_stage))
+		if (!curr_stage->run(curr_stage)) {
+			nuke_test_data_dir();
 			return 0;
+		}
 		printf("[P]: %s\n\n", curr_stage->name);
 		curr_stage = curr_stage->next;
 	}
