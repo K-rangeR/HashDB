@@ -1,8 +1,14 @@
+#include <dirent.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include "pipeline.h"
+
+
+static void create_test_data_dir();
+
 
 /*
  * Test pipeline driver program
@@ -13,6 +19,8 @@ int main(int argc, char *argv[])
 		printf("Usage: %s [stage_file]\n", argv[0]);
 		exit(1);
 	}
+
+	create_test_data_dir();
 
 	struct pipeline *pl = pl_init();
 	if (pl == NULL) {
@@ -30,4 +38,23 @@ int main(int argc, char *argv[])
 
 	pl_free(pl);
 	exit(0);
+}
+
+
+static void create_test_data_dir()
+{
+	DIR *tdata_dir = opendir(TEST_DATA_DIR);
+	if (tdata_dir) {
+		closedir(tdata_dir);	
+	} else if (errno == ENOENT) {
+		if (mkdir(TEST_DATA_DIR, 0744) < 0) {
+			printf("[!] Could not create test data directory: %s\n",
+				strerror(errno));
+			exit(1);
+		}
+	} else {
+		printf("[!] Could not check for test data directory: %s\n",
+			strerror(errno));
+		exit(1);
+	}
 }

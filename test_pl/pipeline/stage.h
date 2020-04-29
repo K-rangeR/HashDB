@@ -1,6 +1,8 @@
 #ifndef _TEST_PIPELINE_STAGE_H_
 #define _TEST_PIPELINE_STAGE_H_
 
+#define TEST_DATA_DIR "test_data"
+
 struct kv_pair {
 	int key;
 	char *value;

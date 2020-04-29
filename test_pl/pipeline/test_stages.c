@@ -15,7 +15,6 @@
 // Private helper functions
 static int test_segf_get(struct stage *, struct segment_file *);
 static struct segment_file *create_segf_for_stage(struct stage *s);
-static int delete_segf(struct stage *s);
 static char *join_file_path(char *path, char *file);
 static char *make_segment_file_name(struct stage *s);
 
