@@ -41,6 +41,10 @@ int main(int argc, char *argv[])
 }
 
 
+/*
+ * Creates the directory that the test segment files will be placed in if
+ * it does not already exist.
+ */
 static void create_test_data_dir()
 {
 	DIR *tdata_dir = opendir(TEST_DATA_DIR);

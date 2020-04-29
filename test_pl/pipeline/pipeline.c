@@ -298,6 +298,10 @@ int pl_run(struct pipeline *pl)
 }
 
 
+/*
+ * Removes all segment files in the test data directory, note the
+ * test data directory is not deleted.
+ */
 static void nuke_test_data_dir()
 {
 	DIR *tdata_dir = opendir(TEST_DATA_DIR);		
