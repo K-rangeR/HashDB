@@ -145,8 +145,6 @@ int test_hashdb_put(struct stage *s)
 		free(val);
 	}
 
-<<<<<<< HEAD
-=======
 	hashDB_free(tdb);
 	return 1;
 }
@@ -159,7 +157,6 @@ int test_hashdb_delete(struct stage *s)
 }
 
 
->>>>>>> pipeline
 int test_hashdb_compact(struct stage *s)
 {
 	printf("test_hashdb_compact\n");
