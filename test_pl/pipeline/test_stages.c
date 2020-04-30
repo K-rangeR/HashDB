@@ -107,9 +107,45 @@ int test_segf_delete(struct stage *s)
 }
 
 
+/*
+ * Tests the hashDB_put functions
+ */
 int test_hashdb_put(struct stage *s)
 {
-	printf("test_hashdb_put\n");
+	struct hashDB *tdb = NULL;
+	if ((tdb = hashDB_init(TEST_DATA_DIR)) == NULL) {
+		printf("[F]: test_hashdb_put: hashDB_init: %s\n", strerror(errno));
+		return 0;
+	}
+
+	for (int i = 0; i < test_data_len(s); ++i) {
+		int val_len = strlen(value_at(s,i));	
+		if (hashDB_put(tdb, key_at(s,i), val_len, value_at(s,i)) < 0) {
+			printf("[F]: test_hashdb_put: hashDB_put: %s\n", strerror(errno));
+			hashDB_free(tdb);
+			return 0;
+		}
+	}
+
+	for (int i = 0; i < test_data_len(s); ++i) {
+		char *val;
+		int res = hashDB_get(tdb, key_at(s,i), &val);
+		if (res == -1) {
+			printf("[!]: test_hashdb_put: hashDB_get: %s\n", strerror(errno));
+			free(val);
+			hashDB_free(tdb);
+			return 0;
+		} else if (res == 0) {
+			printf("[F]: test_hashdb_put: hashDB_get: %d not found\n", 
+				key_at(s,i));
+			hashDB_free(tdb);
+			return 0;
+		}
+		printf("'%s' == '%s'\n", value_at(s,i), val);
+		free(val);
+	}
+
+	hashDB_free(tdb);
 	return 1;
 }
 
