@@ -107,12 +107,6 @@ int test_segf_delete(struct stage *s)
 }
 
 
-int test_hashdb_get(struct stage *s)
-{
-	printf("test_hash_get\n");
-	return 1;
-}
-
 int test_hashdb_put(struct stage *s)
 {
 	printf("test_hashdb_put\n");
