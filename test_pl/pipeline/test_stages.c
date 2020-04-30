@@ -157,20 +157,6 @@ int test_hashdb_delete(struct stage *s)
 }
 
 
-int test_hashdb_repopulate(struct stage *s)
-{
-	printf("test_hashdb_repopulate\n");
-	return 1;
-}
-
-
-int test_hashdb_mkempty(struct stage *s)
-{
-	printf("test_hashdb_mkempty\n");
-	return 1;
-}
-
-
 int test_hashdb_compact(struct stage *s)
 {
 	printf("test_hashdb_compact\n");
