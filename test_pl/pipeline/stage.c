@@ -85,10 +85,6 @@ static void set_run_function(struct stage *s)
 		s->run = test_hashdb_put;
 	else if (strcmp(s->name, "hashdb_delete") == 0)
 		s->run = test_hashdb_delete;
-	else if (strcmp(s->name, "hashdb_repopulate") == 0)
-		s->run = test_hashdb_repopulate;
-	else if (strcmp(s->name, "hashdb_mkempty") == 0)
-		s->run = test_hashdb_mkempty;
 	else if (strcmp(s->name, "hashdb_compact") == 0)
 		s->run = test_hashdb_compact;
 	else if (strcmp(s->name, "hashdb_merge") == 0)
