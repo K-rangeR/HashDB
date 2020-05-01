@@ -199,7 +199,38 @@ int test_hashdb_delete(struct stage *s)
 
 int test_hashdb_compact(struct stage *s)
 {
-	printf("test_hashdb_compact\n");
+	struct hashDB *tdb = NULL;
+	if ((tdb = hashDB_init(TEST_DATA_DIR)) == NULL) {
+		printf("[F]: test_hashdb_compact: hashDB_init: %s\n", 
+			strerror(errno));
+		return 0;
+	}
+
+	struct segment_file *segf = NULL;
+	struct segment_file *curr = tdb->head;
+	while (curr) {
+		int curr_id = get_id_from_fname(curr->name);
+		if (curr_id == id_one(s)) {
+			segf = curr;	
+			break;
+		}
+		curr = curr->next;
+	}
+
+	if (segf == NULL) {
+		printf("[!]: test_hashdb_compact: could not find ID\n");
+		hashDB_free(tdb);	
+		return 0;
+	}
+
+	if (hashDB_compact(tdb, segf) == -1) {
+		printf("[F]: test_hashdb_compact: hashDB_compact: %s\n",
+			strerror(errno));
+		hashDB_free(tdb);
+		return 0;
+	}
+
+	hashDB_free(tdb);
 	return 1;
 }
 

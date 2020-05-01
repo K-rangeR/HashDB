@@ -209,8 +209,14 @@ static struct stage *parse_hashdb_section_header(char *name,
 		name[strcspn(name, "\n")] = 0; // strip newline
 		s = stage_init(name, 0, 0);
 	} else if (argc == 1) {
-		int kv_pair_count = atoi(argv[0]);
-		s = stage_init(name, kv_pair_count, 0);
+		int param = atoi(argv[0]);
+		if (strcmp(name, "hashdb_put") == 0 || 
+		    strcmp(name, "hashdb_delete") == 0)
+			s = stage_init(name, param, 0);
+		else if (strcmp(name, "hashdb_compact") == 0)
+			s = stage_init(name, 0, 1, param);
+		else
+			return NULL;	
 	} else if (argc == 2) {
 		int id1 = atoi(argv[0]);	
 		int id2 = atoi(argv[1]);	
