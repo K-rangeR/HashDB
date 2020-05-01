@@ -114,14 +114,16 @@ int test_hashdb_put(struct stage *s)
 {
 	struct hashDB *tdb = NULL;
 	if ((tdb = hashDB_init(TEST_DATA_DIR)) == NULL) {
-		printf("[F]: test_hashdb_put: hashDB_init: %s\n", strerror(errno));
+		printf("[F]: test_hashdb_put: hashDB_init: %s\n", 
+			strerror(errno));
 		return 0;
 	}
 
 	for (int i = 0; i < test_data_len(s); ++i) {
 		int val_len = strlen(value_at(s,i));	
 		if (hashDB_put(tdb, key_at(s,i), val_len, value_at(s,i)) < 0) {
-			printf("[F]: test_hashdb_put: hashDB_put: %s\n", strerror(errno));
+			printf("[F]: test_hashdb_put: hashDB_put: %s\n", 
+				strerror(errno));
 			hashDB_free(tdb);
 			return 0;
 		}
@@ -131,7 +133,8 @@ int test_hashdb_put(struct stage *s)
 		char *val;
 		int res = hashDB_get(tdb, key_at(s,i), &val);
 		if (res == -1) {
-			printf("[!]: test_hashdb_put: hashDB_get: %s\n", strerror(errno));
+			printf("[!]: test_hashdb_put: hashDB_get: %s\n", 
+				strerror(errno));
 			free(val);
 			hashDB_free(tdb);
 			return 0;
@@ -150,9 +153,46 @@ int test_hashdb_put(struct stage *s)
 }
 
 
+/*
+ * Tests hashDB_delete function
+ */
 int test_hashdb_delete(struct stage *s)
 {
-	printf("test_hashdb_delete\n");
+	struct hashDB *tdb = NULL;
+	if ((tdb = hashDB_init(TEST_DATA_DIR)) == NULL) {
+		printf("[F]: test_hashdb_delete : hashDB_init: %s\n", 
+			strerror(errno));
+		return 0;
+	}
+
+	for (int i = 0; i < test_data_len(s); ++i) {
+		if (hashDB_delete(tdb, key_at(s,i)) < 0) {
+			printf("[F]: test_hashdb_delete: hashDB_delete: %s\n", 
+				strerror(errno));
+			hashDB_free(tdb);
+			return 0;
+		}
+	}
+
+	for (int i = 0; i < test_data_len(s); ++i) {
+		char *val;
+		int res = hashDB_get(tdb, key_at(s,i), &val);
+		if (res == -1) {
+			printf("[!]: test_hashdb_delete: hashDB_get: %s\n", 
+				strerror(errno));
+			free(val);
+			hashDB_free(tdb);
+			return 0;
+		} else if (res == 1) {
+			printf("[F]: test_hashdb_delete: hashDB_get: %d found\n", 
+				key_at(s,i));
+			free(val);
+			hashDB_free(tdb);
+			return 0;
+		}
+	}
+
+	hashDB_free(tdb);
 	return 1;
 }
 
