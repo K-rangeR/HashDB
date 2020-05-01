@@ -10,13 +10,10 @@
 #include <string.h>
 
 #include "../src/segment.h"
-#include "data.h"
-
 
 #define TEST_FILE_PATH "tdata/segment_tdata/1.dat"
 #define TEST_FILE_PATH_2 "tdata/segment_tdata/2.dat"
 #define TEST_FILE_PATH_LEN 25
-
 
 START_TEST(test_segf_init)
 {
@@ -59,138 +56,6 @@ START_TEST(test_segf_link_before)
 	segf_link_before(&s1, &s2);
 	ck_assert_ptr_eq(s1.next, &s2);
 	ck_assert_ptr_null(s2.next);
-} END_TEST
-
-
-START_TEST(test_segf_unlink_front)
-{
-	extern void segf_unlink(struct segment_file**, struct segment_file*);
-
-	// make a list of segment_files
-	struct segment_file *s1, *s2, *s3;
-
-	if ((s3 = malloc(sizeof(struct segment_file))) == NULL)
-		ck_abort_msg("ERROR: segf_unlink_front: malloc 1\n");
-	s3->name = "s2.dat";
-	s3->next = NULL;
-
-	if ((s2 = malloc(sizeof(struct segment_file))) == NULL)
-		ck_abort_msg("ERROR: segf_unlink_front: malloc 2\n");
-	s2->name = "s2.dat";
-	s2->next = s3;
-
-	if ((s1 = malloc(sizeof(struct segment_file))) == NULL)
-		ck_abort_msg("ERROR: segf_unlink_front: malloc 3\n");
-	s1->name = "s1.dat";
-	s1->next = s2;
-
-	segf_unlink(&s1, s1);
-	ck_assert_ptr_null(s1->next);
-	ck_assert_ptr_eq(s2->next, s3);
-	ck_assert_ptr_null(s3->next);
-
-	free(s1);
-	free(s2);
-	free(s3);
-} END_TEST
-
-
-START_TEST(test_segf_unlink_mid)
-{
-	extern void segf_unlink(struct segment_file**, struct segment_file*);
-
-	// make a list of segment_files
-	struct segment_file *s1, *s2, *s3;
-
-	if ((s3 = malloc(sizeof(struct segment_file))) == NULL)
-		ck_abort_msg("ERROR: segf_unlink_mid: malloc 1\n");
-	s3->name = "s2.dat";
-	s3->next = NULL;
-
-	if ((s2 = malloc(sizeof(struct segment_file))) == NULL)
-		ck_abort_msg("ERROR: segf_unlink_mid: malloc 2\n");
-	s2->name = "s2.dat";
-	s2->next = s3;
-
-	if ((s1 = malloc(sizeof(struct segment_file))) == NULL)
-		ck_abort_msg("ERROR: segf_unlink_mid: malloc 3\n");
-	s1->name = "s1.dat";
-	s1->next = s2;
-
-	segf_unlink(&s1, s2);
-	ck_assert_ptr_null(s2->next);
-	ck_assert_ptr_eq(s1->next, s3);
-
-	free(s1);
-	free(s2);
-	free(s3);
-} END_TEST
-
-
-START_TEST(test_segf_unlink_last)
-{
-	extern void segf_unlink(struct segment_file**, struct segment_file*);
-
-	// make a list of segment_files
-	struct segment_file *s1, *s2, *s3;
-
-	if ((s3 = malloc(sizeof(struct segment_file))) == NULL)
-		ck_abort_msg("ERROR: segf_unlink_last: malloc 1\n");
-	s3->name = "s2.dat";
-	s3->next = NULL;
-
-	if ((s2 = malloc(sizeof(struct segment_file))) == NULL)
-		ck_abort_msg("ERROR: segf_unlink_last: malloc 2\n");
-	s2->name = "s2.dat";
-	s2->next = s3;
-
-	if ((s1 = malloc(sizeof(struct segment_file))) == NULL)
-		ck_abort_msg("ERROR: segf_unlink_last: malloc 3\n");
-	s1->name = "s1.dat";
-	s1->next = s2;
-
-	segf_unlink(&s1, s3);
-	ck_assert_ptr_null(s3->next);
-	ck_assert_ptr_null(s2->next);
-	ck_assert_ptr_eq(s1->next, s2);
-
-	free(s1);
-	free(s2);
-	free(s3);
-} END_TEST
-
-
-START_TEST(test_segf_unlink_empty)
-{
-	extern void segf_unlink(struct segment_file**, struct segment_file*);
-
-	// make a list of segment_files
-	struct segment_file *s1, *s2, *s3;
-
-	if ((s3 = malloc(sizeof(struct segment_file))) == NULL)
-		ck_abort_msg("ERROR: segf_unlink_empty: malloc 1\n");
-	s3->name = "s2.dat";
-	s3->next = NULL;
-
-	if ((s2 = malloc(sizeof(struct segment_file))) == NULL)
-		ck_abort_msg("ERROR: segf_unlink_empty: malloc 2\n");
-	s2->name = "s2.dat";
-	s2->next = s3;
-
-	if ((s1 = malloc(sizeof(struct segment_file))) == NULL)
-		ck_abort_msg("ERROR: segf_unlink_empty: malloc 3\n");
-	s1->name = "s1.dat";
-	s1->next = s2;
-
-	segf_unlink(&s1, s2); // remove 2nd
-	segf_unlink(&s1, s3); // remove 3rd
-	segf_unlink(&s1, s1); // remove 1st
-
-	ck_assert_ptr_null(s1);
-
-	free(s1);
-	free(s2);
-	free(s3);
 } END_TEST
 
 
@@ -258,12 +123,6 @@ Suite *segment_file_suite(void)
 
 	tcase_add_test(tc, test_segf_init);
 	tcase_add_test(tc, test_segf_link_before);
-	/*
-	tcase_add_test(tc, test_segf_unlink_front);
-	tcase_add_test(tc, test_segf_unlink_mid);
-	tcase_add_test(tc, test_segf_unlink_last);
-	tcase_add_test(tc, test_segf_unlink_empty);
-	*/
 	tcase_add_test(tc, test_segf_next_key);
 	/* Add future segment_file struct test cases */
 	
@@ -346,90 +205,6 @@ START_TEST(test_segf_delete_file)
 } END_TEST
 
 
-START_TEST(test_segf_read_append)
-{
-	extern struct segment_file *segf_init(char*);
-	extern    int segf_open_file(struct segment_file*);
-	extern    int segf_append(struct segment_file*, int, char*, char);
-	extern    int segf_read_file(struct segment_file*, int, char**);
-	extern   void segf_free(struct segment_file*);
-
-	char *tname = calloc(TEST_FILE_PATH_LEN, sizeof(char));
-	if (tname == NULL)
-		ck_abort_msg("ERROR: malloc file name\n");
-	strcpy(tname, TEST_FILE_PATH);
-
-	struct segment_file *seg;
-	if ((seg = segf_init(tname)) < 0)
-		ck_abort_msg("ERROR: creating segment file struct\n");
-	if (segf_open_file(seg) < 0)
-		ck_abort_msg("ERROR: opening file\n");
-
-	// Test append
-	for (int i = 0; i < TOTAL_KV_PAIRS; ++i) {
-		if (segf_append(seg, td[i].key, td[i].val, TOMBSTONE_INS) < 0)
-			ck_abort_msg("ERROR: could not append to file\n");
-	}
-
-	// Test read
-	for (int i = 0; i < TOTAL_KV_PAIRS; ++i) {
-		char *val;
-		if (segf_read_file(seg, i+1, &val) <= 0)
-			ck_abort_msg("ERROR: could not read from file\n");
-		ck_assert_str_eq(val, td[i].val);
-		free(val);
-	}
-
-	close(seg->seg_fd);
-	segf_free(seg);
-} END_TEST
-
-
-START_TEST(test_segf_remove_pair)
-{
-	extern struct segment_file *segf_init(char*);
-	extern    int segf_open_file(struct segment_file*);
-	extern    int segf_remove_pair(struct segment_file*, int);
-	extern    int segf_read_memtable(struct segment_file*, 
-				         int, unsigned int*);
-	extern void segf_free(struct segment_file*);
-
-	char *tname = calloc(TEST_FILE_PATH_LEN, sizeof(char));
-	if (tname == NULL)
-		ck_abort_msg("ERROR: malloc file name\n");
-	strcpy(tname, TEST_FILE_PATH_2);
-
-	struct segment_file *seg;
-	if ((seg = segf_init(tname)) < 0)
-		ck_abort_msg("ERROR: creating segment file struct\n");
-	if (segf_open_file(seg) < 0)
-		ck_abort_msg("ERROR: opening file\n");
-
-	for (int i = 0; i < TOTAL_KV_PAIRS; ++i) {
-		if (segf_append(seg, td[i].key, td[i].val, TOMBSTONE_INS) < 0)
-			ck_abort_msg("ERROR: append to file\n");
-	}
-
-	unsigned int offset;
-	int err;
-	for (int i = 0; i < TOTAL_KV_PAIRS; ++i) {
-		if ((err = segf_remove_pair(seg, td[i].key)) <= 0) {
-			if (err == 0)
-				ck_abort_msg("ERROR: key not found\n");
-			else
-				ck_abort_msg("ERROR: delete failed\n");
-		}
-
-		// verify the key is not in the memtable
-		if (segf_read_memtable(seg, td[i].key, &offset) == 1)
-			ck_abort_msg("ERROR: key still in memtable\n");
-	}
-
-	close(seg->seg_fd);
-	segf_free(seg);
-} END_TEST
-
-
 /*
  * Creates and returns a test suite for segment_file IO functions
  */
@@ -444,8 +219,6 @@ Suite *segment_file_io_suite(void)
 	tcase_add_test(tc, test_segf_create_file);
 	tcase_add_test(tc, test_segf_rename_file);
 	tcase_add_test(tc, test_segf_delete_file);
-	tcase_add_test(tc, test_segf_read_append);
-	tcase_add_test(tc, test_segf_remove_pair);
 
 	suite_add_tcase(s, tc);
 	return s;
@@ -466,13 +239,6 @@ int main(void)
 	srunner_run_all(runner, CK_NORMAL);
 	fail = srunner_ntests_failed(runner);
 	srunner_free(runner);
-
-	// clear the test files
-	int fd = open(TEST_FILE_PATH, O_RDONLY|O_TRUNC);
-	close(fd);
-
-	fd = open(TEST_FILE_PATH_2, O_RDONLY|O_TRUNC);
-	close(fd);
 
 	return (fail == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
