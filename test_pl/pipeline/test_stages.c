@@ -197,6 +197,9 @@ int test_hashdb_delete(struct stage *s)
 }
 
 
+/*
+ * Tests hashDB_compact function
+ */
 int test_hashdb_compact(struct stage *s)
 {
 	struct hashDB *tdb = NULL;
