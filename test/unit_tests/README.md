@@ -1,5 +1,5 @@
 # Tests
-Directory containing test files and test data. Tests are run with the help of
+Directory containing unit tests. Tests are run with the help of
 the [Check testing framework](https://libcheck.github.io/check/).
 
 ## Building Individual Tests
