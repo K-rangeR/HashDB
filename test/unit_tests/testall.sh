@@ -20,4 +20,3 @@ echo
 
 echo "Cleaning up after tests"
 make clean &> /dev/null
-rm check_memtable check_segment check_hashDB
