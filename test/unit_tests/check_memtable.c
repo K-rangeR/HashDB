@@ -4,7 +4,7 @@
 
 #include <check.h>
 #include <stdlib.h>
-#include "../src/memtable.h"
+#include "../../src/memtable.h"
 
 
 START_TEST(test_memte_init)

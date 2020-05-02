@@ -10,7 +10,7 @@
 #include <errno.h>
 #include <fcntl.h>
 
-#include "../src/hashDB.h"
+#include "../../src/hashDB.h"
 
 
 START_TEST(test_get_id_from_fname)

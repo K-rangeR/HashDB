@@ -6,7 +6,7 @@ CFLAGS = -Wall -DTESTING
 # use the check testing framework
 CHECKDEPENS = -lcheck -lm -lpthread
 
-SRCDIR = ../src
+SRCDIR = ../../src
 
 # Build the unit tests for memtable.c
 check_memtable: check_memtable.o memtable.o

@@ -9,7 +9,7 @@
 #include <fcntl.h>
 #include <string.h>
 
-#include "../src/segment.h"
+#include "../../src/segment.h"
 
 #define TEST_FILE_PATH "tdata/segment_tdata/1.dat"
 #define TEST_FILE_PATH_2 "tdata/segment_tdata/2.dat"
