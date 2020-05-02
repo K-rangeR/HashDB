@@ -1,11 +1,6 @@
 docs
-tests/*.o
-tests/check_memtable
-tests/check_segment
-tests/check_hashDB
-tests/write_perm
 src/*.o
-test_pl/build
-test_pl/testpl
-test_pl/pl.txt
-test_pl/test_data
+test/pl/build/
+test/pl/testpl
+test/pl/pl.txt
+test/pl/test_data/
