@@ -4,3 +4,7 @@ test/pl/build/
 test/pl/testpl
 test/pl/pl.txt
 test/pl/test_data/
+test/unit_tests/*.o
+test/unit_tests/check_hashDB
+test/unit_tests/check_segment
+test/unit_tests/check_memtable
