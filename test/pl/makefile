@@ -2,7 +2,7 @@ CC=gcc
 CFLAGS=-Wall 
 EXENAME=testpl
 
-DB-DIR=../src
+DB-DIR=../../src
 SRC-DIR=pipeline
 BUILD-DIR=build
 
