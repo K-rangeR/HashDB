@@ -46,4 +46,4 @@ hashDB.o: $(SRCDIR)/hashDB.c $(SRCDIR)/hashDB.h
 	$(CC) $(CFLAGS) -c $(SRCDIR)/hashDB.c -o hashDB.o
 
 clean:
-	rm *.o
+	rm -f *.o check_memtable check_hashDB check_segment
