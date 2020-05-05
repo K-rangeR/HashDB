@@ -118,6 +118,7 @@ int segf_read_memtable(struct segment_file *seg, int key, unsigned int *offset)
 int segf_next_key(struct segment_file *seg)
 {
 	int bucket_idx = seg->next_bucket;
+
 	if (seg->next_entry == NULL) {
 		bucket_idx += 1;
 		while (bucket_idx < MAX_TBL_SZ && !seg->table->table[bucket_idx])
@@ -259,7 +260,7 @@ int segf_rename_file(struct segment_file *seg, char *name)
 {
 	char *new_name = NULL;
 	char *old_name = NULL;
-	int name_len = strlen(name);
+	int   name_len = strlen(name);
 
 	// Update in memory segment file name
 	if ((new_name = calloc(name_len, sizeof(char))) == NULL)

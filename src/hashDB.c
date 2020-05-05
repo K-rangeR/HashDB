@@ -48,6 +48,7 @@ static inline int copy_kv_pair_to(struct segment_file*,
 struct hashDB *hashDB_init(const char *data_dir)
 {
 	struct hashDB *db = NULL;
+
 	DIR *dir = opendir(data_dir);
 	if (dir) {
 		closedir(dir);
@@ -175,6 +176,7 @@ int get_id_from_fname(const char *path)
 {
 	int i = strlen(path);
 	int j = 0;
+
 	while (i >= 0) {
 		if (path[i] == '.') // start of the file extention
 			j = i;
@@ -457,10 +459,10 @@ int hashDB_delete(struct hashDB *db, int key)
 int hashDB_compact(struct hashDB *db, struct segment_file *seg)
 {
 	struct segment_file *tmp = NULL;
-	char *tmp_name = NULL;
-	char *seg_tmp_name = NULL;
-	char *old_seg_name = NULL;
-	int name_changed = 0;
+	char                *tmp_name = NULL;
+	char                *seg_tmp_name = NULL;
+	char                *old_seg_name = NULL;
+	int                  name_changed = 0;
 
 	if ((tmp_name = create_file_path(db->data_dir, "tmp.dat")) == NULL)
 		goto err;
@@ -530,6 +532,7 @@ err:
 static struct segment_file *create_segment_file(char *name)
 {
 	struct segment_file *tmp = NULL;
+	
 	if ((tmp = segf_init(name)) == NULL)
 		return NULL;
 
@@ -587,7 +590,7 @@ static void replace_segf_in_list(struct hashDB *db,
  */
 static char *create_file_path(const char *dir_name, const char *file_name)
 {
-	int dir_len = strlen(dir_name);
+	int dir_len  = strlen(dir_name);
 	int file_len = strlen(file_name);
 
 	// + 2 for '/' and '\0'
@@ -621,7 +624,7 @@ int hashDB_merge(struct hashDB *db,
                  struct segment_file *s1, 
                  struct segment_file *s2)
 {
-	char *mtemp_name = NULL;
+	char                *mtemp_name = NULL;
 	struct segment_file *mtemp = NULL;
 	struct segment_file *newer, *older;
 
@@ -705,6 +708,7 @@ static inline int copy_kv_pair_to(struct segment_file *from,
 				  int key)
 {
 	char *val;
+
 	if (segf_read_file(from, key, &val) < 0)
 		return -1;
 
