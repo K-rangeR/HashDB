@@ -37,7 +37,7 @@ static inline int copy_kv_pair_to(struct segment_file*,
  * with respect to the segment file names which represent ID's. If data_dir
  * does not exist then it is created and an empty segment file is added to it.
  *
- * Params:
+ * Parameter:
  *	data_dir => name of a directory to read from or create
  *
  * Returns:
@@ -70,7 +70,7 @@ struct hashDB *hashDB_init(const char *data_dir)
  * data directory. The segment_file struct memtables are repopulated with
  * the most recent key value pairs found in the segment file.
  *
- * Params:
+ * Parameter:
  *	data_dir => name of a directory containing segment files
  *
  * Returns:
@@ -145,7 +145,7 @@ struct hashDB *hashDB_repopulate(const char *data_dir)
  * true if the file in data directory is an appropiately named segment file
  * and false otherwise.
  *
- * Param:
+ * Parameter:
  *	entry => pointer a dirent struct that is having its name checked
  *
  * Returns:
@@ -164,7 +164,7 @@ static int keep_entry(const struct dirent *entry)
 /*
  * Gets the segment file ID from the segment files path
  *
- * Param:
+ * Parameter:
  *	path => path to the segment file
  *
  * Returns:
@@ -206,7 +206,7 @@ int get_id_from_fname(const char *path)
  * Creates a directory named after the given string. The first empty
  * segment file is also created in the directory.
  *
- * Param:
+ * Parameter:
  *	data_dir => name of the data directory to create
  *
  * Returns:
@@ -259,7 +259,7 @@ err:
  * Deallocates all of the in memory data structures used by the hashDB struct.
  * This includes all segment_file structs and their respective data structures.
  *
- * Param:
+ * Parameter:
  *	db => pointer to the hashDB struct to free
  *
  * Returns:
@@ -284,7 +284,7 @@ void hashDB_free(struct hashDB *db)
 /*
  * Inserts the given key value pair into the database
  *
- * Params:
+ * Parameters:
  *	db => pointer to the database resource handler
  *	key => key to insert
  *	val_len => length of the value (in bytes)
@@ -333,7 +333,7 @@ int hashDB_put(struct hashDB *db, int key, int val_len, char *val)
  * Calculates and returns the total size in bytes that the key value
  * pair would take up in a segment file.
  *
- * Params:
+ * Parameters:
  *	key => key in the key value pair
  *	val_len => length of the value
  *
@@ -357,7 +357,7 @@ unsigned int get_kv_size(int key, int val_len)
  * File paths be in the following format:
  *	data_dir/[next_id].dat
  *
- * Params:
+ * Parameter:
  *	db => pointer a database handler
  *
  * Returns:
@@ -393,7 +393,7 @@ static char *get_next_segf_name(struct hashDB *db)
 /*
  * Gets the value associated with the given key
  *
- * Params:
+ * Parameters:
  *	db => hashDB to read from
  *	key => used to look up the value
  *	val => pointer to where the value will be stored if the key was found
@@ -420,7 +420,7 @@ int hashDB_get(struct hashDB *db, int key, char **val)
 /*
  * Removes a key value pair from the database
  *
- * Params:
+ * Parameters:
  *	db => pointer to a database handler
  *	key => key to look up and remove
  *
@@ -447,7 +447,7 @@ int hashDB_delete(struct hashDB *db, int key)
 /*
  * Compacts the given segment file.
  *
- * Params:
+ * Parameters:
  *	db => pointer to the database handler
  *	seg => pointer to the segment file to compact
  *
@@ -520,7 +520,7 @@ err:
 /*
  * Creates a new segment file struct and backing segment file
  *
- * Params:
+ * Parameters:
  *	name => string representing the name of the new segment file
  *
  * Returns:
@@ -545,7 +545,7 @@ static struct segment_file *create_segment_file(char *name)
 /*
  * Replaces seg in db's linked list of segment files with tmp
  *
- * Params:
+ * Parameters:
  *	db => pointer to database resource handler
  *	seg => segment file to replace
  *	tmp => segment file to replace with
@@ -577,7 +577,7 @@ static void replace_segf_in_list(struct hashDB *db,
 /*
  * Creates a string representing a file path in the format dir_name/file_name.
  * 
- * Params:
+ * Parameters:
  *	dir_name => directory path
  *	file_name => name of the file to add to the directory path
  *
@@ -609,7 +609,7 @@ static char *create_file_path(const char *dir_name, const char *file_name)
  * is given the same name as the newer of the two segment file (the one with
  * larger name ID)
  *
- * Params:
+ * Parameters:
  *	db => pointer the database handler
  *	s1 => one of two segment files to merge
  *	s2 => two of two segment files to merge
@@ -692,7 +692,7 @@ err:
  * Copies the key value pair identified by 'key' from the segment file
  * to the other.
  *
- * Params:
+ * Parameters:
  *	from => source segment file of copy	
  *	to => destination segment file of copy
  *	key => key to copy
@@ -722,7 +722,7 @@ static inline int copy_kv_pair_to(struct segment_file *from,
  * Adds the given segment file to its sorted place by name
  * in the linked list
  *
- * Params:
+ * Parameters:
  *	head => double pointer to the start of the linked list
  *	seg => segment file struct to add to the linked list
  *	seg_id => ID of the segment file, this determines where in the

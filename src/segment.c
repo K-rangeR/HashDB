@@ -16,7 +16,7 @@
  *	- seg_fd to -1
  *	- next to null
  *
- * Params:
+ * Parameter:
  *	name => name of the segment file to use when its created, this is
  *      must be allocated on the heap because segf_free will call free(..)
  *      to deallocate the name
@@ -51,7 +51,7 @@ struct segment_file *segf_init(char *name)
  * Deallocates the memory used by the give segment_file struct, including its
  * memtable.
  *
- * Params:
+ * Parameter:
  *	seg => segment_file struct to free
  *
  * Returns:
@@ -72,7 +72,7 @@ void segf_free(struct segment_file *seg)
 /*
  * Adds the key offset pair to the given segment files memtable.
  *
- * Params:
+ * Parameters:
  *	seg => segment file to update
  *	key => data's key in the segment file
  *	offset => data's offset in the segment file
@@ -91,7 +91,7 @@ int segf_update_memtable(struct segment_file *seg, int key, unsigned int offset)
 /*
  * Reads the offset from the segment file memtable at the given key.
  *
- * Params:
+ * Parameters:
  *	seg => container for the segment files memtable
  *	key => key for the data of interest
  *	offset => address of where to store the data's offset if found
@@ -108,7 +108,7 @@ int segf_read_memtable(struct segment_file *seg, int key, unsigned int *offset)
 /*
  * Returns the next key from the segment files memtable.
  *
- * Params:
+ * Parameter:
  *	seg => pointer to the segment file struct containing the memtable to
  *             read from 
  *
@@ -145,7 +145,7 @@ int segf_next_key(struct segment_file *seg)
  * segf_next_key will then return the first key from the segment files 
  * memtable.
  *
- * Param:
+ * Parameter:
  *	seg => pointer to segment file struct to reset
  *
  * Returns:
@@ -162,7 +162,7 @@ void segf_reset_next_key(struct segment_file *seg)
  * Opens the segment file identified by seg->name. Sets the given segment
  * file structs seg_fd field to the return file descriptor.
  *
- * Params:
+ * Parameter:
  *	seg => segment file to open and assign the file descriptor
  *
  * Returns:
@@ -184,7 +184,7 @@ int segf_open_file(struct segment_file *seg)
  * Closes the given segment file. Does not free the segment file struct, but
  * sets seg_fd = -1.
  *
- * Params:
+ * Parameter:
  *	seg => pointer to the segment file struct to close
  *
  * Returns:
@@ -201,7 +201,7 @@ void segf_close_file(struct segment_file *seg)
  * Creates a new segment file with the name seg->name. The file is opened
  * for read and write operations. The file descriptor is set in seg->seg_fd.
  *
- * Params:
+ * Parameter:
  *	seg => pointer to a segment_file struct that contains the name of the
  *	       segment file to create
  *
@@ -224,7 +224,7 @@ int segf_create_file(struct segment_file *seg)
  * Closes and deletes the segment file backing the given segment_file struct. 
  * Also sets the size field in the struct to 0 and seg_fd back to -1.
  *
- * Params:
+ * Parameter:
  *	seg => pointer to a segment_file struct that contains the name of the
  *	       file to delete and the file descriptor to close
  *
@@ -248,7 +248,7 @@ int segf_delete_file(struct segment_file *seg)
  * Changes the given segment files name to the given string. This function
  * changes seg->name string and the name of the backing segment file.
  *
- * Params:
+ * Parameters:
  *	seg => pointer to a struct representing the segment to name change
  *	name => new name of the segment file
  *
@@ -285,7 +285,7 @@ int segf_rename_file(struct segment_file *seg, char *name)
  * Reads the segment file associated with the given segment file struct
  * and repopulate its memtable with all keys and their value offsets.
  *
- * Params:
+ * Parameter:
  *	seg => segment file struct to repopulate
  *
  * Returns:
@@ -350,7 +350,7 @@ int segf_repop_memtable(struct segment_file *seg)
 /*
  * Removes a key value pair from the memtable and segment file.
  *
- * Params:
+ * Parameters:
  *	seg => represents the segment file to remove from
  *	key => identifies the kv pair to remove
  *
@@ -392,7 +392,7 @@ int segf_remove_pair(struct segment_file *seg, int key)
  * Appends the given key value pair to the segment file. This will also
  * add the key and the values offset in the file to the memtable.
  *
- * Params:
+ * Parameters:
  *	seg => pointer to a segment_file that contains the name of the
  *             segment file and the memtable to add to
  *	key => key to add to the file and memtable
@@ -478,7 +478,7 @@ int segf_append(struct segment_file *seg, int key, char *val, char tombstone)
 /*
  * Reads the value using the key from the segment file
  *
- * Params:
+ * Parameters:
  *	seg => pointer a segment_file struct that contains the name of
  *             segment file to read
  *	key => used to look up the value in segment files memtable
@@ -519,7 +519,7 @@ int segf_read_file(struct segment_file *seg, int key, char **val)
 /*
  * Puts s1 before s2 in the linked list
  *
- * Params:
+ * Parameters:
  *	s1 => new predecessor of s2
  *	s2 => new successor of s1
  *
@@ -539,7 +539,7 @@ void segf_link_before(struct segment_file *s1, struct segment_file *s2)
 /*
  * Removes seg from the given list. Does not free seg.
  *
- * Params:
+ * Parameters:
  *	head => start of the linked list
  *	seg => segment_file to remove from the linked list
  *

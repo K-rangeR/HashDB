@@ -8,7 +8,7 @@
  * Creates a memtable_entry. Caller is responsible for freeing this struct
  * by calling the memte_free function.
  * 
- * Params:
+ * Parameters:
  *	key => identifies this entry in case of hash collisions
  *	offset => offset in the segment file where a value is stored
  * 
@@ -33,7 +33,7 @@ struct memtable_entry *memte_init(int key, unsigned int offset)
 /*
  * Frees all memory allocated for the given memtable entry ONLY.
  * 
- * Params:
+ * Parameter:
  *	entry => pointer to the memtable entry to free
  * 
  * Returns:
@@ -49,7 +49,7 @@ void memte_free(struct memtable_entry *entry)
 /*
  * Places e1 before e2 in the list. e1 must not be null.
  *
- * Params:
+ * Parameters:
  *	e1 => pointer to a memtable_entry to put before e2
  *	e2 => pointer to a memtable_entry that is not changed
  *
@@ -69,7 +69,7 @@ void memte_place_before(struct memtable_entry *e1, struct memtable_entry *e2)
 /*
  * Allocates an empty memtable of MAX_TBL_SZ
  *
- * Params:
+ * Parameters:
  *	None
  *
  * Returns:
@@ -100,7 +100,7 @@ struct memtable *memtable_init()
  * Deallocates all memory used by the memtable, this includes the table and
  * bucket chains (memtable_entry linked list)
  *
- * Params:
+ * Parameter:
  *	tbl => pointer the memtable to free
  * 
  * Returns:
@@ -132,7 +132,7 @@ void memtable_free(struct memtable *tbl)
 /*
  * Prints the entire memtable to stdout
  *
- * Params:
+ * Parameter:
  *	tbl => pointer to the memtable to print
  *
  * Returns:
@@ -158,7 +158,7 @@ void memtable_dump(struct memtable *tbl)
  * Adds the offset to the memtable. Updates the offset if the key offset
  * pair is already in the memtable.
  *
- * Params:
+ * Parameters:
  *	tbl => pointer to the memtable to add to
  *	key => integer representing the key
  *	offset => offset in the segment file
@@ -196,7 +196,7 @@ int memtable_write(struct memtable *tbl, int key, unsigned int offset)
 /*
  * Returns the offset of the given key in the memtable
  *
- * Params:
+ * Parameters:
  *	tbl => pointer to the memtable to read from
  *	key => key of the target offset
  *	offset => address of where to store the offset it found
@@ -226,7 +226,7 @@ int memtable_read(struct memtable *tbl, int key, unsigned int *offset)
  * Remove the entry in the memtable with the given key. This will remove
  * any memory used the key and value pair.
  *
- * Params:
+ * Parameters:
  *	tbl => pointer to the memtable struct to remove from
  *	key => key of the kv pair to remove
  *
@@ -262,7 +262,7 @@ int memtable_remove(struct memtable *tbl, int key)
  * Default hash function for 32 bit integer keys
  * Taken from: https://gist.github.com/badboy/6267743
  *
- * Params:
+ * Parameter:
  *	key => key to hash
  *
  * Returns:
