@@ -1,9 +1,10 @@
+#include <errno.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
-#include <errno.h>
+
 #include "segment.h"
 
 

@@ -1,10 +1,11 @@
+#include <dirent.h>
+#include <errno.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/stat.h>
-#include <dirent.h>
-#include <errno.h>
 #include <string.h>
+
 #include "hashDB.h"
 
 /* 'Private' helper functions */
