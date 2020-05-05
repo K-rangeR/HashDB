@@ -2,6 +2,7 @@ docs
 build
 hashDB.so
 ex
+data_dir
 src/*.o
 test/pl/build/
 test/pl/testpl
