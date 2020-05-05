@@ -80,7 +80,9 @@ void segf_free(struct segment_file *seg)
  * Returns:
  *	-1 if there is an error adding the pair, 0 otherwise
  */
-int segf_update_memtable(struct segment_file *seg, int key, unsigned int offset)
+int segf_update_memtable(struct segment_file *seg, 
+			 int key, 
+			 unsigned int offset)
 {
 	if (memtable_write(seg->table, key, offset) < 0)
 		return -1;
@@ -99,7 +101,9 @@ int segf_update_memtable(struct segment_file *seg, int key, unsigned int offset)
  * Returns:
  *	1 if the key and offset were found, 0 otherwise (offset not changed)
  */
-int segf_read_memtable(struct segment_file *seg, int key, unsigned int *offset)
+int segf_read_memtable(struct segment_file *seg, 
+		       int key, 
+		       unsigned int *offset)
 {
 	return memtable_read(seg->table, key, offset);
 }
