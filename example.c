@@ -1,3 +1,6 @@
+/*
+ * Example demonstrating how to use the hashDB functions
+ */
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
