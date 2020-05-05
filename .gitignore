@@ -1,4 +1,7 @@
 docs
+build
+hashDB.so
+ex
 src/*.o
 test/pl/build/
 test/pl/testpl
