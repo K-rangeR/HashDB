@@ -17,3 +17,13 @@ Database that stores key value pairs in append only files.
 Because segment files are append only, updates and deletes are not done in place. Instead a new key value pair is appended to a segment file and the associated memtable is updated to reflect the change. This may cause stale data to persist in the database following one of those operations. To address this problem, segment files are compacted once they reach a particular size. The compaction algorithm will create a new segment file that contains only the most up to date key value pairs from the segment file that is being compacted. The old segment file is then deleted when the compaction is done. Doing it this way ensures that the data is not corrupted if the compaction fails.
 
 The compact algorithm may result in many small segment files which could slow down the speed of searches. To address this problem a merge algorithm will detect when two segment files can be merged and will then merge them into one segment file.
+
+## Building HashDB
+Run the makefile at the root of the project directory. This will create a shared library that can be linked with any program that want to use the databases functionality.
+
+For example:
+```
+$ make
+$ gcc -o ex example.c hashDB.so
+$ ./ex
+```
