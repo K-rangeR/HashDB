@@ -19,7 +19,7 @@ Because segment files are append only, updates and deletes are not done in place
 The compact algorithm may result in many small segment files which could slow down the speed of searches. To address this problem a merge algorithm will detect when two segment files can be merged and will then merge them into one segment file.
 
 ## Building HashDB
-Run the makefile at the root of the project directory. This will create a shared library that can be linked with any program that want to use the databases functionality.
+Run the makefile at the root of the project directory. This will create a shared library that can be linked with any program that wants to use the databases functionality.
 
 For example:
 ```
