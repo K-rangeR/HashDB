@@ -10,7 +10,7 @@ Database that stores key value pairs in append only files.
 
 ## Supported Operations
 * Put(key, value): appends a new key value pair in the newest segment file (also used for updating existing key value pairs)
-* Get(key): retrieves the most up to date value associated with the key from the database
+* Get(key): retrieves the most up to date value associated with the key
 * Delete(key): deletes the key value pair from the database
 
 ## Storage Management
