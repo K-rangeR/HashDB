@@ -55,7 +55,11 @@ hashdb_compact 1
 hashdb_merge 1 2
 ```
 
-
+## Building and running pipeline
+```
+$ make
+$ ./testpl stage_file.txt
+```
 
 
 
