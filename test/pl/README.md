@@ -1,5 +1,5 @@
 # Test pipeline
-Simple pipeline that takes an input file containing testing stages and testing.
+Simple pipeline that takes an input file containing testing stages and testing data.
 
 ## Stages
 segf_put \[segment file ID] \[number of key value pairs]<br>
