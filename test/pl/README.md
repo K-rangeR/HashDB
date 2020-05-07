@@ -64,13 +64,6 @@ $ ./testpl stage_file.txt
 ## Why is there no ```*_get``` stage?
 Get is implied with put, delete, and update. That is, key value pairs that are inserted, deleted, or updated in the database are verified correct by reading them back from the database.
 
-
-
-
-
-
-
-
-
-
-
+## Things to note
+* The stage file parsing code is a little fragile so not all syntax errors will be caught
+* All segment files are deleted after the pipeline has completed regardless of passing or failing test stages
