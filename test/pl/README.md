@@ -61,7 +61,8 @@ $ make
 $ ./testpl stage_file.txt
 ```
 
-
+## Why is there no ```*_get``` stage?
+Get is implied with put, delete, and update. That is, key value pairs that are inserted, deleted, or updated in the database are verified correct by reading them back from the database.
 
 
 
