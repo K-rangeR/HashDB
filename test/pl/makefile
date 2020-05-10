@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall 
+CFLAGS=-Wall -DTESTING
 EXENAME=testpl
 
 DB-DIR=../../src
