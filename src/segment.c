@@ -150,6 +150,8 @@ int segf_next_key(struct segment_file *seg)
  * segf_next_key will then return the first key from the segment files 
  * memtable.
  *
+ * This only needs to be called in error handling situations.
+ *
  * Parameter:
  *	seg => pointer to segment file struct to reset
  *
