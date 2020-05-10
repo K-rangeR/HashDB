@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <sys/stat.h>
 #include <string.h>
 
 #include "hashDB.h"
@@ -29,6 +30,11 @@ static inline int copy_kv_pair_to(struct segment_file*,
                                   struct segment_file*,
                                   int);
 
+static int merge_possible(struct hashDB*, 
+			  struct segment_file**,
+			  struct segment_file**);
+
+static int get_size_sum(struct segment_file*, struct segment_file*);
 
 /*
  * Creates a hashDB struct that represents an active database. If data_dir
@@ -301,7 +307,7 @@ int hashDB_put(struct hashDB *db, int key, int val_len, char *val)
 {
 	unsigned int kv_sz = get_kv_size(key, val_len);
 
-	if ((kv_sz + db->head->size < 1014)) // normal append
+	if ((kv_sz + db->head->size < MAX_SEG_FILE_SIZE)) // normal append
 		return segf_append(db->head, key, val, TOMBSTONE_INS);
 
 	if (hashDB_compact(db, db->head) < 0)
@@ -492,6 +498,14 @@ int hashDB_compact(struct hashDB *db, struct segment_file *seg)
 
 	segf_delete_file(seg);
 	segf_free(seg);
+
+	struct segment_file *a, *b;
+	if (merge_possible(db, &a, &b)) {
+		if (hashDB_merge(db, a, b) == -1) {
+			return -1;
+		}
+	}
+
 	return 1;
 
 err:
@@ -604,6 +618,85 @@ static char *create_file_path(const char *dir_name, const char *file_name)
 	strncat(path, file_name, file_len);
 
 	return path;
+}
+
+
+/*
+ * Checks if there are any two pairs of segment files that can be
+ * merge into one. For this to be true the sum of the two file sizes must 
+ * still be less than the max segment file size.
+ *
+ * Parameters:
+ *	db => pointer to the database handler
+ *	a => pointer to the first segment file to be merged
+ *	b => pointer to the second segment file to be merged
+ *
+ * Returns:
+ *	1 if there are two segment files that can merged (a and b will
+ *	point to them), or 0 otherwise
+ */
+static int merge_possible(struct hashDB *db, 
+			  struct segment_file **a,
+			  struct segment_file **b)
+{
+	struct segment_file *one = db->head;
+	struct segment_file *two;
+	*a = *b = NULL;
+
+	while (one) {
+		two = db->head;
+		while (two) {
+			if (two == one) {
+				two = two->next;
+				continue;
+			}
+
+			int sum = get_size_sum(one, two);
+			if (sum == -1) {
+				printf("ERROR: merge_possible\n");
+				goto exit;
+			} else if (sum < MAX_SEG_FILE_SIZE) {
+				*a = one;
+				*b = two;
+				goto exit;
+			}
+			two = two->next;
+		}
+		one = one->next;
+	}
+
+exit:
+	return (a && b) ? 1 : 0;
+}
+
+
+/*
+ * Returns the sum of given segment file sizes
+ *
+ * Parameters:
+ *	a => first segment file
+ *	b => second segment file
+ *
+ * Returns:
+ *	
+ */
+static int get_size_sum(struct segment_file *a, struct segment_file *b)
+{
+	struct stat file_info;
+
+	// Log errors and return
+	if (stat(a->name, &file_info) < 0) {
+		printf("ERROR: get_size_sum: %s\n", strerror(errno));
+		return -1;
+	}
+	int a_size = file_info.st_size;
+
+	if (stat(b->name, &file_info) < 0) {
+		printf("ERROR: get_size_sum: %s\n", strerror(errno));
+		return -1;
+	}
+
+	return a_size + file_info.st_size;
 }
 
 
